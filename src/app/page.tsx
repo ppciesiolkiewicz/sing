@@ -5,67 +5,13 @@ import styles from './page.module.css'
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { PitchDetector as PD } from 'pitchy';
 import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'paper'
-import { NoteModule, ScaleModule } from './music';
+import { NoteModule, ScaleModule, ChordModule } from './music';
 import * as Tone from 'tone';
-
-
-// type PitchDetectorProps = {
-//   clarityThreshold: number;
-//   analyserMinDecibels: number;
-//   analyserMaxDecibels: number;
-//   analyserSmoothingTimeConstant: number;
-//   cb: (pitch: number, clarity: number) => void;
-// };
-
-// function PitchDetector({
-//   clarityThreshold,
-//   analyserMinDecibels,
-//   analyserMaxDecibels,
-//   analyserSmoothingTimeConstant,
-//   cb,
-// }: PitchDetectorProps): null {
-
-//   const updatePitch = useCallback(
-//       (analyserNode, detector, input, sampleRate) => {
-//           analyserNode.getFloatTimeDomainData(input);
-//           const [pitch, clarity] = detector.findPitch(input, sampleRate);
-
-//           window.requestAnimationFrame(() => updatePitch(analyserNode, detector, input, sampleRate));
-//           cb(pitch, clarity);
-//       },
-//       [clarityThreshold]
-//   );
-
-//   useEffect(() => {
-//       if (!navigator.getUserMedia) {
-//           alert('Your browser cannot record audio. Please switch to Chrome or Firefox.');
-//           return;
-//       }
-
-//       navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-//           const audioContext = new window.AudioContext();
-//           const analyserNode = audioContext.createAnalyser();
-//           analyserNode.minDecibels = analyserMinDecibels;
-//           analyserNode.maxDecibels = analyserMaxDecibels;
-//           analyserNode.smoothingTimeConstant = analyserSmoothingTimeConstant;
-
-//           const sourceNode = audioContext.createMediaStreamSource(stream);
-//           sourceNode.connect(analyserNode);
-//           const detector = PD.forFloat32Array(analyserNode.fftSize);
-//           const input = new Float32Array(detector.inputLength);
-//           updatePitch(analyserNode, detector, input, audioContext.sampleRate);
-//       });
-//   }, [analyserMaxDecibels, analyserMinDecibels, analyserSmoothingTimeConstant, updatePitch]);
-
-//   return null;
-// }
-
-// PitchDetector.defaultProps = {
-//   clarityThreshold: 0.98,
-//   analyserMinDecibels: -35,
-//   analyserMaxDecibels: -10,
-//   analyserSmoothingTimeConstant: 0.85,
-// };
+import {
+  ScaleConfig,
+  ChordConfig,
+  Melody,
+} from './melodyGenerator'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -74,44 +20,20 @@ type LogHz = number;
 type Pixel = number;
 type PixelPerHz = number;
 
-const MIN_PITCH = 100;
-const MAX_PITCH = 500;
 
-const octaves = [2,3,4,5];
-const scale = ScaleModule.get('C', 'major')
-const scaleNotes = octaves.map(octave =>
-  scale.notes.map(note => NoteModule.get(`${note}${octave}`))
-).flat().filter(n => n.freq! > MIN_PITCH && n.freq! < MAX_PITCH)
+const config = new ScaleConfig({
+    scale: ScaleModule.get('C', 'major'),
+    lowestNoteName: 'C4',
+    highestNoteName: 'G5',
+    repeatTimes: 5,
+  })
+const melody = new Melody(config);
 
-const melody = [
-  {
-    start: 1,
-    end: 5,
-    note: NoteModule.get(`C3`),
-    framesHit: 0,
-    totalFrames: 0,
-    completed: false,
-    percentHit: 0,
-  },
-  {
-    start: 6,
-    end: 8,
-    note: NoteModule.get(`E3`),
-    framesHit: 0,
-    totalFrames: 0,
-    completed: false,
-    percentHit: 0,
-  },
-  {
-    start: 9,
-    end: 11,
-    note: NoteModule.get(`G3`),
-    framesHit: 0,
-    totalFrames: 0,
-    completed: false,
-    percentHit: 0,
-  },
-]
+
+console.log({
+  config,
+  melody,
+})
 
 function getPitch(analyserNode: any, detector: any, input: any, audioContext: any): [Hz, number, number] {
   analyserNode.getFloatTimeDomainData(input);
@@ -127,10 +49,15 @@ function getPitch(analyserNode: any, detector: any, input: any, audioContext: an
 }
 
 export default function Home() {
+  const [started, setStarted] = useState(false);
   const streamRef = useRef<any>(null);
   const canvasRef = useRef<any>(null);
 
   useLayoutEffect(() => {
+    if (!started) {
+      return;
+    }
+
     if (!navigator.getUserMedia) {
       alert('Your browser cannot record audio. Please switch to Chrome or Firefox.');
       return;
@@ -159,9 +86,23 @@ export default function Home() {
         analyserNode, detector, input, audioContext,
       };
     })();
-  }, [])
+  }, [started])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!started) {
+      return;
+    }
+
+
+    const MIN_NOTE = NoteModule.fromFreq(Math.min(...melody.melodySing.map(e => e.note.freq!)));
+    const MAX_NOTE = NoteModule.fromFreq(Math.max(...melody.melodySing.map(e => e.note.freq!)));
+    const CHROMATIC_SCALE_OCTAVES = [2,3,4,5];
+    const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
+    const CHROMATIC_SCALE_NOTES = CHROMATIC_SCALE_OCTAVES.map(octave =>
+      CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
+    ).flat().filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
+
+
     const canvas = canvasRef.current;
     paper.setup(canvas)
 
@@ -177,6 +118,10 @@ export default function Home() {
   
       ctx.scale(window.devicePixelRatio * 2, window.devicePixelRatio * 2);
   }
+
+  // set origin to bottom-left corner
+  // ctx.translate(0, canvas.height);
+  // ctx.scale(1, -1);
     
     const pitchCircle = new Path.Circle({
       center: view.center,
@@ -184,11 +129,13 @@ export default function Home() {
       fillColor: 'red'
     });
 
+    let isSingPitchQualityAccepted = false;
+
 
     const padding: Pixel = 20 * window.devicePixelRatio;
     const heightWithoutPadding: Pixel = view.size.height - padding*2;
-    const minNoteLogFreq: LogHz = Math.log2(scaleNotes[0].freq!);
-    const maxNoteLogFreq: LogHz = Math.log2(scaleNotes[scaleNotes.length - 1].freq!);
+    const minNoteLogFreq: LogHz = Math.log2(CHROMATIC_SCALE_NOTES[0].freq!);
+    const maxNoteLogFreq: LogHz = Math.log2(CHROMATIC_SCALE_NOTES[CHROMATIC_SCALE_NOTES.length - 1].freq!);
     const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
     // console.log(minNoteLogFreq, maxNoteLogFreq, diffLogFreq, pixelsPerLogHertz);
@@ -206,19 +153,19 @@ export default function Home() {
       );
     
       if (volume < 0.02 || clarity < 0.5) {
-        pitchCircle.visible = false;
+        isSingPitchQualityAccepted = false;
+        pitchCircle.fillColor = 'red';
         return null;
       }
 
-      pitchCircle.visible = true;
-  
-      pitchCircle.fillColor.hue += 1;
+      isSingPitchQualityAccepted = true;
+      pitchCircle.fillColor = 'green';
       const dest = new Point(view.size.width/2, freqToCanvasYPosition(pitch));
       pitchCircle.position = dest
     }
 
     function drawScaleLines() {
-      scaleNotes.forEach((note) => {
+      CHROMATIC_SCALE_NOTES.forEach((note) => {
         const noteYPosition = freqToCanvasYPosition(note.freq!);
         const line = new Path.Line(
           new Point(0, noteYPosition),
@@ -227,7 +174,7 @@ export default function Home() {
         line.strokeWidth = 1 * window.devicePixelRatio;
         line.strokeColor = 'white';
   
-        var text = new PointText(new Point(20, noteYPosition));
+        var text = new PointText(new Point(15 * window.devicePixelRatio, noteYPosition));
         text.content = note.name;
         text.style = {
             fontFamily: 'Courier New',
@@ -240,13 +187,24 @@ export default function Home() {
     }
 
     // Synth
-    const synth = new Tone.Synth().toDestination();
-
+    const synth = new Tone.PolySynth().toDestination();
+    synth.set({
+      oscillator: {
+        partialCount: 10,
+        type: 'sine',
+      },
+      portamento: 10,
+      envelope: {
+        attack: 0.3,
+      }
+    });
+    // console.log(Tone.PolySynth.getDefaults().voice.getDefaults())
+    console.log('Synth.get', synth.get())
     // draw melody elements
     const melodyPixelsPerSecond = 100;
     const melodyNoteSelectedMaxFreqDiff: Hz = 10;
     const melodyPercentFrameHitToAccept = 0.5;
-    const melodyElements = melody.map(m => {
+    const melodySingElements = melody.melodySing.map(m => {
       const startPosX =  m.start * melodyPixelsPerSecond;
       const startPosY = freqToCanvasYPosition(m.note.freq!) - 10;
       const endPosX = m.end * melodyPixelsPerSecond;
@@ -273,33 +231,35 @@ export default function Home() {
       movePitchCircle(streamRef.current, pitchCircle);
       // console.log(ev)
 
-      melodyElements.forEach(([path, rect], idx) => {
+      melody.melodyPlay.forEach((m) => {
+        if (!m.played && ev.time >= m.start) {
+          m.played = true;
+          synth.triggerAttackRelease(m.notes, m.end - m.start)
+        }
+      });
+
+      melodySingElements.forEach(([path, rect], idx) => {
         var dest = new Point(path.position.x - ev.delta * melodyPixelsPerSecond, path.position.y);
         path.position = dest;
 
 
-        if (!melody[idx].completed) {
+        if (!melody.melodySing[idx].completed) {
           
           if (path.bounds.left < view.center.x) {
 
-            if (!melody[idx].started) {
-              melody[idx].started = true;
-              const now = Tone.now()
-              console.log(now)
-              // trigger the attack immediately
-              synth.triggerAttack(melody[idx].note.name, now)
-              // wait one second before triggering the release
-              synth.triggerRelease(now + 1)
+            if (!melody.melodySing[idx].started) {
+              melody.melodySing[idx].started = true;
             }
 
-            melody[idx].totalFrames += 1;
+            melody.melodySing[idx].totalFrames += 1;
 
             if (
+              isSingPitchQualityAccepted &&
               pitchCircle.position.y < path.bounds.bottom &&
               pitchCircle.position.y > path.bounds.top
             ) {
               path.selected = true;
-              melody[idx].framesHit += 1;
+              melody.melodySing[idx].framesHit += 1;
             } else {
               path.selected = false;
             }
@@ -307,22 +267,43 @@ export default function Home() {
         }
         
 
-        if (!melody[idx].completed && path.bounds.right < view.center.x) {
-          melody[idx].completed = true;
-          melody[idx].percentHit = (melody[idx].framesHit / melody[idx].totalFrames);
-          console.log('percentHit: ', melody[idx].percentHit)
+        if (!melody.melodySing[idx].completed && path.bounds.right < view.center.x) {
+          melody.melodySing[idx].completed = true;
+          melody.melodySing[idx].percentHit = (melody.melodySing[idx].framesHit / melody.melodySing[idx].totalFrames);
+          console.log('percentHit: ', melody.melodySing[idx].percentHit)
           path.selected = false;
         }
 
-        if (melody[idx].completed && melody[idx].percentHit > melodyPercentFrameHitToAccept) {
+        if (melody.melodySing[idx].completed && melody.melodySing[idx].percentHit > melodyPercentFrameHitToAccept) {
           path.fillColor = 'green';
+        }
+
+        if (melody.melodySing[melody.melodySing.length - 1].completed) {
+          console.log("END")
         }
       })
     }
-  }, []);
+  }, [started]);
 
   return (
     <main>
+      <div
+        style={{
+          position: 'absolute',
+          left: '0',
+          top: '0',
+          display: started ? 'none' : undefined,
+          width: '100vw',
+          height: '100vh',
+        }}
+      >
+        <button
+          onClick={() => setStarted(true)}
+          style={{ position: 'absolute', left: '50vw', top: '50vh', padding: '10px', display: started ? 'none' : undefined }}
+        >
+        start
+      </button>
+      </div>
       <canvas style={{ width: '100vw', height: '100vh', background: 'black' }} id="canvas" ref={canvasRef} />
     </main>
   )

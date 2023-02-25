@@ -462,6 +462,11 @@ abbrev@1:
   resolved "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
+accidental-value@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/accidental-value/-/accidental-value-1.0.0.tgz#9d08753a8ce5f8a7e0b491579ef5c1e01889e80f"
+  integrity sha512-Dug400VXZ95UwXqoSjYa3kUvKSDfOtPQAOerbKY5Tk/9Kf3DW3+sYKJK5qv4//TIwIaG2r5xxRN55OwMxCsN7A==
+
 acorn-globals@^6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/acorn-globals/-/acorn-globals-6.0.0.tgz"
@@ -765,6 +770,11 @@ csstype@^3.0.2:
   version "3.1.1"
   resolved "https://registry.npmjs.org/csstype/-/csstype-3.1.1.tgz"
   integrity sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==
+
+daccord@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/daccord/-/daccord-1.1.0.tgz#36f0f39ab1f575f7709dd97d36ffe6d88b78d1b4"
+  integrity sha512-LMIBv6VNgcZqD5zQEPps5xT+EyrClJwCzJR9qWGhZ4SoWylPucqtiwIWm9Z7Yla90A017+408HXh6RS4o2qkgw==
 
 damerau-levenshtein@^1.0.8:
   version "1.0.8"
@@ -1519,6 +1529,14 @@ has@^1.0.3:
   dependencies:
     function-bind "^1.1.1"
 
+helmholtz@^2.0.1:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/helmholtz/-/helmholtz-2.0.2.tgz#54630621bd87575b0c2bd9147087a79a8fe30811"
+  integrity sha512-0Pw0Z1W+SxObTKrdyKFZ6n3DV34aAyufdE9/hSRqqfb9q+myVgzlAyTUESr+eHTBX5pKsQgV5wlfexkM+wGnPg==
+  dependencies:
+    accidental-value "^1.0.0"
+    notecoord "^1.0.1"
+
 html-encoding-sniffer@^2.0.1:
   version "2.0.1"
   resolved "https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-2.0.1.tgz"
@@ -1589,6 +1607,11 @@ internal-slot@^1.0.3, internal-slot@^1.0.4:
     get-intrinsic "^1.2.0"
     has "^1.0.3"
     side-channel "^1.0.4"
+
+interval-coords@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/interval-coords/-/interval-coords-1.1.1.tgz#4a83a402146d95a4db062c129b79cb34a7ecddc9"
+  integrity sha512-s7tB4gLonSlNpJ1bIzQUtdehpX7BjdCQnlBfKl6wXNo93/KIrum/DQdKOzbObjTrfYY4IwlRfJI7NZdFoRo0Qw==
 
 is-arguments@^1.1.1:
   version "1.1.1"
@@ -2049,6 +2072,11 @@ nopt@^5.0.0:
   dependencies:
     abbrev "1"
 
+notecoord@^1.0.1:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/notecoord/-/notecoord-1.1.0.tgz#89c42ab7bb5796a29f3c7fade9825c509d8f1ed1"
+  integrity sha512-nMJ/uHG9AxMO5lZ0JBb17+T2eU5CbqChAfTJpC0SdvMzguvy4b2iIO7jhdoRdv+k19Nko7XGcmRCSeqd/aGVXA==
+
 npmlog@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npmjs.org/npmlog/-/npmlog-5.0.1.tgz"
@@ -2248,6 +2276,11 @@ picomatch@^2.3.1:
   resolved "https://registry.npmjs.org/picomatch/-/picomatch-2.3.1.tgz"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
+pitch-fq@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/pitch-fq/-/pitch-fq-1.0.0.tgz#651b3e8852f65b9555f3a28f7ae96f11e3533416"
+  integrity sha512-a2C3vxij0lxkY3yn7w0MmTiPdIgBuwv5kZPngIZJ2lOz7VGgNL/60liG88XHP3oX906QRGEpGkZCOEfm1OUc+g==
+
 pitchy@^4.0.7:
   version "4.0.7"
   resolved "https://registry.npmjs.org/pitchy/-/pitchy-4.0.7.tgz"
@@ -2430,6 +2463,14 @@ scheduler@^0.23.0:
   integrity sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==
   dependencies:
     loose-envify "^1.1.0"
+
+scientific-notation@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/scientific-notation/-/scientific-notation-1.0.2.tgz#ccea3954fe2a979d3641c963acd99e5733639182"
+  integrity sha512-F2HBoNIyQf1HSEJfQj/ycE3KLg/Hf74yACkzyZjvSYaiZ5pvqFjmPEvsp4CcudFUdKPCmVEWEZ5AyxHqBsiJRw==
+  dependencies:
+    accidental-value "^1.0.0"
+    notecoord "^1.0.1"
 
 semver@^6.0.0, semver@^6.3.0:
   version "6.3.0"
@@ -2645,6 +2686,17 @@ tar@^6.1.11:
     minizlib "^2.1.1"
     mkdirp "^1.0.3"
     yallist "^4.0.0"
+
+teoria@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/teoria/-/teoria-2.5.0.tgz#015e245d3094a60e84b2ee5ea9d58d795bf78ed5"
+  integrity sha512-LdnDG2PKkYAdBWGBgqZS3POuwq3Kzwj4PBR4PzEsEQ8T/tGqwEoa++SLDxSx7mvsfYA2VirfJWSXhMcpuhquaQ==
+  dependencies:
+    daccord "^1.0.1"
+    helmholtz "^2.0.1"
+    interval-coords "^1.1.1"
+    pitch-fq "^1.0.0"
+    scientific-notation "^1.0.2"
 
 text-table@^0.2.0:
   version "0.2.0"

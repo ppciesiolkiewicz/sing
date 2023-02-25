@@ -44,7 +44,7 @@ export const NoteModule = {
     },
 };
 
-const ChordModule = {
+export const ChordModule = {
     get: (chordName: string): ChordType => {
         try {
             const chord = TonalChord.get(chordName);
