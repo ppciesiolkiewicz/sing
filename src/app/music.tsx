@@ -49,7 +49,7 @@ export const ChordModule = {
         try {
             const chord = TonalChord.get(chordName);
             const { type, tonic, symbol } = chord;
-            const suffix = ['major', 'minor'].indexOf(type) !== -1 ? type : symbol.slice(tonic.length);
+            const suffix = ['major', 'minor'].indexOf(type) !== -1 ? type : symbol.slice(tonic!.length);
 
             return {
                 ...chord,
@@ -57,7 +57,7 @@ export const ChordModule = {
             };
         } catch (e) {
             console.log(`[error] ChordModule.get(${chordName})`, e);
-            return null;
+            throw e;
         }
     },
 };
@@ -111,3 +111,36 @@ export const ScaleModule = {
     },
     names: TonalScale.names,
 };
+
+
+
+const CHAKRA_NOTES = [
+  {
+    freq: 396,
+    name: 'Root',
+  },
+  {
+    freq: 417,
+    name: 'Sacral',
+  },
+  {
+    freq: 528,
+    name: 'Solar Plexus',
+  },
+  {
+    freq: 639,
+    name: 'Heart',
+  },
+  {
+    freq: 741,
+    name: 'Throat',
+  },
+  {
+    freq: 144,
+    name: 'Third Eye',
+  },
+  {
+    freq: 963,
+    name: 'Crown',
+  },
+]

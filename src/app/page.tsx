@@ -8,12 +8,31 @@ import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'pap
 import { NoteModule, ScaleModule, ChordModule } from './music';
 import * as Tone from 'tone';
 import {
-  ScaleConfig,
-  ChordConfig,
+  MelodyConfig,
   Melody,
-} from './melodyGenerator'
+} from './melodyGenerator2'
+
 
 const inter = Inter({ subsets: ['latin'] })
+
+const theme = {
+  background: '#fff',
+  noteLines: {
+    line: '#454545',
+    text: '#454545',
+  },
+  noteRects: {
+    normal: '#454545',
+    active: '#f0f0f0',
+    success: '#00aa00',
+    fail: '#aa0000',
+  },
+  pitchCircle: {
+    normal: '#454545',
+    success: '#00aa00',
+    fail: '#aa0000',
+  }
+};
 
 type Hz = number;
 type LogHz = number;
@@ -21,17 +40,21 @@ type Pixel = number;
 type PixelPerHz = number;
 
 
-const config = new ScaleConfig({
+const chordConfig = MelodyConfig.fromChords({
+  chordNames: ['C4maj', 'G4maj', 'D4min']
+})
+const scaleConfig = MelodyConfig.fromScale({
     scale: ScaleModule.get('C', 'major'),
     lowestNoteName: 'C4',
     highestNoteName: 'G5',
     repeatTimes: 5,
   })
-const melody = new Melody(config);
+const melody = new Melody(scaleConfig);
 
 
 console.log({
-  config,
+  chordConfig,
+  scaleConfig,
   melody,
 })
 
@@ -54,12 +77,12 @@ export default function Home() {
   const canvasRef = useRef<any>(null);
 
   useLayoutEffect(() => {
-    if (!started) {
+    if (!navigator.getUserMedia) {
+      alert('Your browser cannot record audio. Please switch to Chrome or Firefox.');
       return;
     }
 
-    if (!navigator.getUserMedia) {
-      alert('Your browser cannot record audio. Please switch to Chrome or Firefox.');
+    if (!started) {
       return;
     }
 
@@ -68,9 +91,6 @@ export default function Home() {
       const analyserMinDecibels = -35
       const analyserMaxDecibels = -10
       const analyserSmoothingTimeConstant = 0.85
-    
-      // const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    
       const audioContext = new window.AudioContext();
       const analyserNode = audioContext.createAnalyser();
       analyserNode.minDecibels = analyserMinDecibels;
@@ -126,7 +146,7 @@ export default function Home() {
     const pitchCircle = new Path.Circle({
       center: view.center,
       radius: 10,
-      fillColor: 'red'
+      fillColor: new paper.Color(theme.pitchCircle.normal)
     });
 
     let isSingPitchQualityAccepted = false;
@@ -154,12 +174,12 @@ export default function Home() {
     
       if (volume < 0.02 || clarity < 0.5) {
         isSingPitchQualityAccepted = false;
-        pitchCircle.fillColor = 'red';
+        pitchCircle.fillColor = new paper.Color(theme.pitchCircle.fail)
         return null;
       }
 
       isSingPitchQualityAccepted = true;
-      pitchCircle.fillColor = 'green';
+      pitchCircle.fillColor = new paper.Color(theme.pitchCircle.success)
       const dest = new Point(view.size.width/2, freqToCanvasYPosition(pitch));
       pitchCircle.position = dest
     }
@@ -172,15 +192,15 @@ export default function Home() {
           new Point(view.size.width, noteYPosition),
         );
         line.strokeWidth = 1 * window.devicePixelRatio;
-        line.strokeColor = 'white';
+        line.strokeColor = new paper.Color(theme.noteLines.line);
   
-        var text = new PointText(new Point(15 * window.devicePixelRatio, noteYPosition));
+        const text = new PointText(new Point(15 * window.devicePixelRatio, noteYPosition));
         text.content = note.name;
         text.style = {
             fontFamily: 'Courier New',
             fontWeight: 'bold',
             fontSize: 12 * window.devicePixelRatio,
-            fillColor: 'red',
+            fillColor: new paper.Color(theme.noteLines.text),
             justification: 'center'
         };
       });
@@ -190,12 +210,12 @@ export default function Home() {
     const synth = new Tone.PolySynth().toDestination();
     synth.set({
       oscillator: {
-        partialCount: 10,
-        type: 'sine',
+        // partialCount: 10,
+        // type: 'sine',
       },
       portamento: 10,
       envelope: {
-        attack: 0.3,
+        attack: 0.5,
       }
     });
     // console.log(Tone.PolySynth.getDefaults().voice.getDefaults())
@@ -204,10 +224,10 @@ export default function Home() {
     const melodyPixelsPerSecond = 100;
     const melodyNoteSelectedMaxFreqDiff: Hz = 10;
     const melodyPercentFrameHitToAccept = 0.5;
-    const melodySingElements = melody.melodySing.map(m => {
-      const startPosX =  m.start * melodyPixelsPerSecond;
+    const melodySingRects = melody.melodySing.map(m => {
+      const startPosX =  m.note.start * melodyPixelsPerSecond;
       const startPosY = freqToCanvasYPosition(m.note.freq!) - 10;
-      const endPosX = m.end * melodyPixelsPerSecond;
+      const endPosX = m.note.end * melodyPixelsPerSecond;
       const endPosY = freqToCanvasYPosition(m.note.freq!) + 10;
 
       const rect = new Rectangle(
@@ -215,7 +235,7 @@ export default function Home() {
         new Size(endPosX - startPosX, endPosY - startPosY),
       )
       const path = new Path.Rectangle(rect);
-      path.fillColor = '#e9e9ff';
+      path.fillColor = new paper.Color(theme.noteRects.normal);
       path.selected = false;
 
       return [path, rect];
@@ -223,7 +243,7 @@ export default function Home() {
 
 
     drawScaleLines();
-    view.onFrame = async (ev) => {
+    view.onFrame = async (ev: { delta: number, time: number }) => {
       if (!streamRef.current) {
         return
       }
@@ -231,14 +251,16 @@ export default function Home() {
       movePitchCircle(streamRef.current, pitchCircle);
       // console.log(ev)
 
-      melody.melodyPlay.forEach((m) => {
-        if (!m.played && ev.time >= m.start) {
-          m.played = true;
-          synth.triggerAttackRelease(m.notes, m.end - m.start)
-        }
-      });
+      melody.melodyPlay
+        .forEach((m) => {
+          if (!m.played && ev.time >= m.start) {
+            synth.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
+            m.played = true;
+          }
+        })
 
-      melodySingElements.forEach(([path, rect], idx) => {
+
+      melodySingRects.forEach(([path, rect], idx) => {
         var dest = new Point(path.position.x - ev.delta * melodyPixelsPerSecond, path.position.y);
         path.position = dest;
 
@@ -274,8 +296,12 @@ export default function Home() {
           path.selected = false;
         }
 
-        if (melody.melodySing[idx].completed && melody.melodySing[idx].percentHit > melodyPercentFrameHitToAccept) {
-          path.fillColor = 'green';
+        if (melody.melodySing[idx].completed) {
+          if (melody.melodySing[idx].percentHit > melodyPercentFrameHitToAccept) {
+            path.fillColor = new paper.Color(theme.noteRects.success);
+          } else {
+            path.fillColor = new paper.Color(theme.noteRects.fail);
+          }
         }
 
         if (melody.melodySing[melody.melodySing.length - 1].completed) {
@@ -304,7 +330,7 @@ export default function Home() {
         start
       </button>
       </div>
-      <canvas style={{ width: '100vw', height: '100vh', background: 'black' }} id="canvas" ref={canvasRef} />
+      <canvas style={{ width: '100vw', height: '100vh' }} id="canvas" ref={canvasRef} />
     </main>
   )
 }

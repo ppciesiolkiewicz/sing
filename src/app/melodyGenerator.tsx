@@ -1,28 +1,73 @@
 import { NoteModule, ScaleModule, ChordModule } from './music';
 
 // TODO: use MelodyNote instead of ReturnType<typeof NoteModule.get> | string etc.
-type MelodyNote = {
+class MelodyNote {
   name: string;
   freq: number;
+  start: number;
+  end: number;
+
+  constructor(noteName: string, start: number, end: number) {
+    const note = NoteModule.get(noteName);
+
+    this.name = note.name;
+    this.freq = note.freq!;
+    this.start = start;
+    this.end = end;
+  }
 }
 
-type MelodySingElement = {
-  start: number,
-  end: number,
-  note: ReturnType<typeof NoteModule.get>,
-  framesHit: number,
-  totalFrames: number,
-  started: boolean,
-  completed: boolean,
-  percentHit: number,
+
+class MelodyNote2 {
+  notes: {
+    name: string;
+    freq: number;
+  }[];
+  start: number;
+  end: number;
+
+  constructor(noteNames: string[], start: number, end: number) {
+    const notes = noteNames.map(noteName => NoteModule.get(noteName));
+
+    this.notes = notes.map(note => ({
+      name: note.name,
+      freq: note.freq!,
+    }))
+    this.start = start;
+    this.end = end;
+  }
+}
+
+class MelodySingElement {
+  note: MelodyNote;
+  framesHit: number;
+  totalFrames: number;
+  started: boolean;
+  completed: boolean;
+  percentHit: number;
+
+  constructor(noteName: string, start: number, end: number) {
+    this.note = new MelodyNote(noteName, start, end);
+    this.framesHit = 0;
+    this.totalFrames = 0;
+    this.started = false;
+    this.completed = false;
+    this.percentHit = 0;
+  }
 };
 
-type MelodyPlayElement = {
-  notes: string[],
-  start: 0.2,
-  end: 2.2
+class MelodyPlayElement {
+  note: MelodyNote;
+  played: boolean;
+
+  constructor(noteName: string, start: number, end: number) {
+    this.note = new MelodyNote(noteName, start, end);
+    this.played = false
+  }
 };
 
+
+// TODO: merge NoteConfigElement and ChordConfigElement so it's shape is always as ChordConfigElement
 class NoteConfigElement {
   name: string; // TODO: the other config has notes here
   start: number;
@@ -36,49 +81,40 @@ class NoteConfigElement {
 }
 
 class ChordConfigElement {
-  notes: {
-    name: string,
-    start: number,
-    end: number,
-  }[];
-  timePerNote: number;
-  timeBetweenNotes: number;
+  notes: MelodyNote[];
 
 
-  constructor(chord: { notes: string[] }, timePerNote: number, timeBetweenNotes: number) {
-    this.notes = chord.notes.map(note => ({
-      name: note,
-      start: 0,
-      end: 0,
-    }));
-    this.timePerNote = timePerNote;
-    this.timeBetweenNotes = timeBetweenNotes;
+  constructor(chordName: string, start: number, end: number) {
+    const chord = ChordModule.get(chordName);
+    this.notes = chord.notes.map(note => new MelodyNote(note, start, end));
    }
 }
 
 
 class ChordConfig {
-  startTime: number; // TODO: remove startTime?
-  timeBetweenElements: number;
+  private startTime: number;
+  private timeBetweenElements: number;
   elements: ChordConfigElement[];
 
   constructor({ chordNames }: { chordNames: string[] }) {
-      this.startTime = 0, // TODO: remove startTime?
-      this.timeBetweenElements = 2;
-      this.elements = chordNames.map(c => new ChordConfigElement(c, 2, 0.5))
-        .reduce((acc: any, e: any, idx) => {
+      this.startTime = 0,
+      this.timeBetweenElements = 0.5;
+
+      this.elements = chordNames.map(c => ({
+        chordName: c,
+        timePerNote: 2,
+      }))
+        .reduce((acc: any, e, idx) => {
           const previousElement = acc[idx - 1];
           const endOfPreviousElement = !previousElement ? this.startTime : previousElement.notes[previousElement.notes.length - 1].end;
-          acc.push({
-            ...e,
-            notes: e.notes.map((note, i) => ({
-              ...note,
-              start: endOfPreviousElement + i * (e.timePerNote + e.timeBetweenNotes) + this.timeBetweenElements * idx,
-              end: endOfPreviousElement + i * (e.timePerNote + e.timeBetweenNotes) + e.timePerNote + this.timeBetweenElements * idx,
-            }))
-          });
-          return acc;
-        }, [])
+          const start = endOfPreviousElement + this.timeBetweenElements;
+          const end = endOfPreviousElement + e.timePerNote + this.timeBetweenElements;
+          const chordConfigElement = new ChordConfigElement(e.chordName, start, end)
+          return [
+            ...acc,
+            chordConfigElement,
+          ]
+        }, []).flat()
     
     }
 }
@@ -139,47 +175,25 @@ class Melody {
     const melodyPlay: MelodyPlayElement[] = config.elements.map((e) => {
       console.log(e instanceof NoteConfigElement)
       if (e instanceof NoteConfigElement) {
-        return {
-          notes: [e.name],
-          start: e.start,
-          end: e.end, 
-        };
+        return new MelodyPlayElement(e.name, e.start, e.end);
       } else if (e instanceof ChordConfigElement) {
         const start = e.notes[0].start;
         const end = e.notes[e.notes.length - 1].end;
-        const ret =  {
-          notes: e.notes.map(n => n.name),
-          start,
-          end, 
-        };
-        return ret;
+
+        return e.notes.map(n => new MelodyPlayElement(n.name, start, end))
       }
+      
+      throw new Error('Unknown ConfigElement type')
     }).flat()
     
     const melodySing: MelodySingElement[] = config.elements.map((e, idx) => {
       if (e instanceof NoteConfigElement) {
-        return {
-          start: e.start,
-          end: e.end,
-          note: NoteModule.get(e.name),
-          framesHit: 0,
-          totalFrames: 0,
-          started: false,
-          completed: false,
-          percentHit: 0,
-        };
+        return new MelodySingElement(e.name, e.start, e.end);
       } else if (e instanceof ChordConfigElement) {
-        return e.notes.map(n => ({
-          start: n.start,
-          end: n.end,
-          note: NoteModule.get(n.name),
-          framesHit: 0,
-          totalFrames: 0,
-          started: false,
-          completed: false,
-          percentHit: 0,
-        }));
+        return e.notes.map(n => new MelodySingElement(n.name, n.start, n.end));
       }
+
+      throw new Error('Unknown ConfigElement type')
     }).flat();
   
     this.melodySing = melodySing;
