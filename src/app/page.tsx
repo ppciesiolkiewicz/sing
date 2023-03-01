@@ -10,8 +10,118 @@ import * as Tone from 'tone';
 import {
   MelodyConfig,
   Melody,
-} from './melodyGenerator2'
+} from './Melody'
 
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import MuiSelect, { SelectChangeEvent } from '@mui/material/Select';
+import MuiButton from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import MuiTextField from '@mui/material/TextField';
+
+import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
+
+
+function Select({
+  options,
+  onChange,
+  value,
+  label,
+  id,
+  name,
+}: {
+  label: string,
+  id: string,
+  name: string,
+  options: {
+    label: string,
+    value: any,
+  }[],
+  onChange: any,
+  value: any,
+}) {
+  return (
+    <FormControl fullWidth>
+      <InputLabel id={`${id}-label`}>{label}</InputLabel>
+      <MuiSelect
+        labelId={`${id}-label`}
+        id={id}
+        value={value}
+        label={label}
+        onChange={onChange}
+        name={name}
+        variant={'filled'}
+      >
+        {options.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
+      </MuiSelect>
+    </FormControl>
+  )
+}
+
+
+function SelectField({
+  id,
+  name,
+  options,
+  label,
+}: Pick<Parameters<typeof Select>[0], "id" | "name" | "options" | "label">) {
+  return (
+    <Field
+      id={id}
+      name={name}
+      // placeholder="john@acme.com"
+      // type="email"
+    >
+      {(props) => {
+        console.log(props)
+        return (
+          <Select
+            id={props.field.id}
+            name={props.field.name}
+            label={label}
+            options={options}
+            onChange={props.form.handleChange}
+            value={props.field.value}
+          />
+        )
+      }}
+  </Field>
+  );
+}
+
+
+function TextFieldField({
+  id,
+  name,
+  type,
+  label,
+}: Pick<Parameters<typeof MuiTextField>[0], "id" | "name" | "type" | "label">) {
+  return (
+    <Field
+      id={id}
+      name={name}
+      // placeholder="john@acme.com"
+      // type="email"
+    >
+      {props => (
+        <MuiTextField
+          fullWidth
+          id={id}
+          name={name}
+          label={label}
+          type={type}
+          value={props.field.value}
+          onChange={props.form.handleChange}
+          variant={'outlined'}
+          color={'primary'}
+          // error={formik.touched.password && Boolean(formik.errors.password)}
+          // helperText={formik.touched.password && formik.errors.password}
+        />
+      )}
+    </Field>
+  );
+}
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,32 +141,13 @@ const theme = {
     normal: '#454545',
     success: '#00aa00',
     fail: '#aa0000',
-  }
+  },
 };
 
 type Hz = number;
 type LogHz = number;
 type Pixel = number;
 type PixelPerHz = number;
-
-
-const chordConfig = MelodyConfig.fromChords({
-  chordNames: ['C4maj', 'G4maj', 'D4min']
-})
-const scaleConfig = MelodyConfig.fromScale({
-    scale: ScaleModule.get('C', 'major'),
-    lowestNoteName: 'C4',
-    highestNoteName: 'G5',
-    repeatTimes: 5,
-  })
-const melody = new Melody(scaleConfig);
-
-
-console.log({
-  chordConfig,
-  scaleConfig,
-  melody,
-})
 
 function getPitch(analyserNode: any, detector: any, input: any, audioContext: any): [Hz, number, number] {
   analyserNode.getFloatTimeDomainData(input);
@@ -69,6 +160,240 @@ function getPitch(analyserNode: any, detector: any, input: any, audioContext: an
   const [pitch, clarity] = detector.findPitch(input, audioContext.sampleRate);
 
   return [pitch, clarity, volume]
+}
+
+/*
+    const chordConfig = MelodyConfig.fromChords({
+      chordNames: ['C4maj', 'G4maj', 'D4min']
+    })
+    const scaleConfig = MelodyConfig.fromScale({
+      scale: ScaleModule.get('C', 'blues'),
+      lowestNoteName: 'C4',
+      highestNoteName: 'G5',
+      repeatTimes: 5,
+      timePerNote: 1,
+      timeBetweenNotes: 0.1,
+      timeBetweenRepeats: 1,
+    })
+    
+    // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
+    const intervalConfig = MelodyConfig.fromIntervals({
+      intervalNames: ['1P'],
+      lowestNoteName: 'C4',
+      highestNoteName: 'G4',
+      repeatTimes: 1,
+      timePerNote: 1,
+      timeBetweenNotes: 0.1,
+      timeBetweenRepeats: 1,
+    })
+*/
+
+function ConfigPanelTimesCommon() {
+  // repeatTimes: 5,
+  // timePerNote: 1,
+  // timeBetweenNotes: 0.1,
+  // timeBetweenRepeats: 1,
+  return (
+    <>
+      <TextFieldField
+        id="repeatTimes"
+        name="repeatTimes"
+        label="Repeat"
+        type="number"
+      />
+      <TextFieldField
+        id="timePerNote"
+        name="timePerNote"
+        label="Time per note"
+        type="number"
+      />
+      <TextFieldField
+        id="timeBetweenNotes"
+        name="timeBetweenNotes"
+        label="Time between notes"
+        type="number"
+      />
+      <TextFieldField
+        id="timeBetweenRepeats"
+        name="timeBetweenRepeats"
+        label="Time between repeats"
+        type="number"
+      />
+    </>
+  );
+}
+
+function ConfigPanelNoteBoundaries() {
+  // lowestNoteName: 'C4',
+  // highestNoteName: 'G4',
+  return (
+    <>
+    </>
+  );
+}
+
+function ConfigPanelInterval() {
+  // intervalNames: ['1P'],
+  return (
+    <>
+      <ConfigPanelTimesCommon />
+    </>
+  );
+}
+
+
+function ConfigPanelScale() {
+  // scale: ScaleModule.get('C', 'blues'),
+  return (
+    <>
+      <ConfigPanelTimesCommon />
+
+    </>
+  );
+}
+
+function ConfigPanelChords() {
+  // chordNames: ['C4maj', 'G4maj', 'D4min']
+  return (
+    <>
+    </>
+  );
+}
+
+
+function ConfigPanelNotes() {
+  // fromNotes
+  return (
+    <>
+    </>
+  );
+}
+
+type Values =
+  Parameters<typeof MelodyConfig.fromScale> |
+  Parameters<typeof MelodyConfig.fromChords> |
+  Parameters<typeof MelodyConfig.fromIntervals> |
+  null;
+
+function ConfigPanel({
+  onStartClick,
+  started,
+}: {
+  onStartClick: any,
+  started: boolean,
+}) {
+  const CONFIG_TYPE_INTERVAL = 'Interval';
+  const CONFIG_TYPE_SCALE = 'Scale';
+  const CONFIG_TYPE_CHORDS = 'Chords';
+  const CONFIG_TYPE_NOTES = 'Notes';
+
+  const configTypeOptions = [
+    {
+      label: 'Interval',
+      value: CONFIG_TYPE_INTERVAL,
+    },
+    {
+      label: 'Scale',
+      value: CONFIG_TYPE_SCALE,
+    },
+    {
+      label: 'Chords',
+      value: CONFIG_TYPE_CHORDS,
+    },
+    {
+      label: 'Notes',
+      value: CONFIG_TYPE_NOTES,
+    },
+  ]
+
+  const getInitialValues = (configType: string) => {
+    const timeCommonInitialValues = {
+      repeatTimes: 1,
+      timePerNote: 1,
+      timeBetweenNotes: 0.1,
+      timeBetweenRepeats: 1,
+    };
+
+    switch(configType) {
+      case CONFIG_TYPE_INTERVAL:
+        return {
+          ...timeCommonInitialValues,
+        };
+      case CONFIG_TYPE_SCALE:
+        return {
+          ...timeCommonInitialValues,
+        };
+      case CONFIG_TYPE_CHORDS:
+        return {};
+      case CONFIG_TYPE_NOTES:
+        return {};
+    }
+  }
+
+  const getForm = (configType: string) => {
+    switch(configType) {
+      case CONFIG_TYPE_INTERVAL:
+        return (
+          <ConfigPanelInterval />
+        );
+      case CONFIG_TYPE_SCALE:
+        return (
+          <ConfigPanelScale />
+        );
+      case CONFIG_TYPE_CHORDS:
+        return (
+          <ConfigPanelChords />
+        );
+      case CONFIG_TYPE_NOTES:
+        return (
+          <ConfigPanelNotes />
+        );
+    }
+  }
+  return (
+    <Formik
+      initialValues={{
+        configType: 'Interval'
+      }}
+      onSubmit={(
+        values: Values,
+        { setSubmitting }: FormikHelpers<Values>
+      ) => {
+        setTimeout(() => {
+          alert(JSON.stringify(values, null, 2));
+          setSubmitting(false);
+        }, 500);
+      }}
+    >
+      {formik => {
+        useEffect(() => {
+          formik.setValues({
+            configType: formik.values.configType,
+            ...getInitialValues(formik.values.configType),
+          })
+        }, [formik.values.configType])
+        return (
+          <Form>
+            <SelectField
+              label="Exercise"
+              id="configType"
+              name="configType"
+              options={configTypeOptions}
+            />
+            {getForm(formik.values.configType)}
+            <MuiButton
+              fullWidth
+              variant={'contained'}
+              color={'primary'}
+              onClick={() => onStartClick()}
+              >
+              {started ? 'Stop' : 'Start'}
+            </MuiButton>
+          </Form>
+        );
+      }}
+    </Formik>
+  );
 }
 
 export default function Home() {
@@ -108,15 +433,42 @@ export default function Home() {
     })();
   }, [started])
 
-  useLayoutEffect(() => {
+  useLayoutEffect(function render() {
     if (!started) {
       return;
     }
 
+    const chordConfig = MelodyConfig.fromChords({
+      chordNames: ['C4maj', 'G4maj', 'D4min']
+    })
+    const scaleConfig = MelodyConfig.fromScale({
+      scale: ScaleModule.get('C', 'major'),
+      lowestNoteName: 'C3',
+      highestNoteName: 'G4',
+      repeatTimes: 5,
+      timePerNote: 1,
+      timeBetweenNotes: 0.1,
+      timeBetweenRepeats: 1,
+    })
+    
+    // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
+    const intervalConfig = MelodyConfig.fromIntervals({
+      intervalNames: ['1P'],
+      lowestNoteName: 'C4',
+      highestNoteName: 'G4',
+      repeatTimes: 1,
+      timePerNote: 1,
+      timeBetweenNotes: 0.1,
+      timeBetweenRepeats: 1,
+    })
+    
+    const melody = new Melody(scaleConfig);
 
+
+    // TODO: Move to music.tsx
     const MIN_NOTE = NoteModule.fromFreq(Math.min(...melody.melodySing.map(e => e.note.freq!)));
     const MAX_NOTE = NoteModule.fromFreq(Math.max(...melody.melodySing.map(e => e.note.freq!)));
-    const CHROMATIC_SCALE_OCTAVES = [2,3,4,5];
+    const CHROMATIC_SCALE_OCTAVES = [2,3,4,5,6];
     const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
     const CHROMATIC_SCALE_NOTES = CHROMATIC_SCALE_OCTAVES.map(octave =>
       CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
@@ -191,9 +543,10 @@ export default function Home() {
           new Point(0, noteYPosition),
           new Point(view.size.width, noteYPosition),
         );
-        line.strokeWidth = 1 * window.devicePixelRatio;
+        line.strokeWidth = 1;// * window.devicePixelRatio;
         line.strokeColor = new paper.Color(theme.noteLines.line);
-  
+        line.strokeCap = 'round';
+
         const text = new PointText(new Point(15 * window.devicePixelRatio, noteYPosition));
         text.content = note.name;
         text.style = {
@@ -243,13 +596,13 @@ export default function Home() {
 
 
     drawScaleLines();
-    view.onFrame = async (ev: { delta: number, time: number }) => {
+    view.onFrame = async (ev: { delta: number, time: number, count: number }) => {
       if (!streamRef.current) {
         return
       }
 
       movePitchCircle(streamRef.current, pitchCircle);
-      // console.log(ev)
+
 
       melody.melodyPlay
         .forEach((m) => {
@@ -305,32 +658,29 @@ export default function Home() {
         }
 
         if (melody.melodySing[melody.melodySing.length - 1].completed) {
-          console.log("END")
+          // TODO
+          view.remove();
+          setStarted(false);
         }
       })
     }
   }, [started]);
 
   return (
-    <main>
-      <div
-        style={{
-          position: 'absolute',
-          left: '0',
-          top: '0',
-          display: started ? 'none' : undefined,
-          width: '100vw',
-          height: '100vh',
-        }}
-      >
-        <button
-          onClick={() => setStarted(true)}
-          style={{ position: 'absolute', left: '50vw', top: '50vh', padding: '10px', display: started ? 'none' : undefined }}
-        >
-        start
-      </button>
-      </div>
-      <canvas style={{ width: '100vw', height: '100vh' }} id="canvas" ref={canvasRef} />
+    <main
+      style={{
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'row',
+      }}
+    >
+        <Box flex={5}>
+          <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
+        </Box>
+        <Box flex={1} display={'flex'} flexDirection={'column'} p={2}>
+          <ConfigPanel started={started} onStartClick={() => setStarted(!started)} />
+        </Box>
     </main>
   )
 }

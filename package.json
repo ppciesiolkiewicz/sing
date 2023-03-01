@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/server": "^11.10.0",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.11.10",
+    "@mui/material-next": "^6.0.0-alpha.75",
     "@next/font": "13.1.6",
     "@tonaljs/tonal": "^4.10.0",
     "@types/node": "18.13.0",
@@ -16,6 +21,7 @@
     "@types/react-dom": "18.0.10",
     "eslint": "8.34.0",
     "eslint-config-next": "13.1.6",
+    "formik": "^2.2.9",
     "lodash.times": "^4.3.2",
     "next": "13.1.6",
     "paper": "^0.12.17",

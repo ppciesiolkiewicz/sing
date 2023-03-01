@@ -31,6 +31,7 @@ export const NoteModule = {
         const noteName = TonalNote.fromFreq(freq);
         return TonalNote.get(noteName);
     },
+    transpose: TonalNote.transpose,
     areNotesEqual: (n1: NoteType, n2: NoteType): boolean => n1.chroma === n2.chroma && (!n1.oct || n1.oct === n2.oct),
     getGuitarNotes: (tuning: string[], fretCount: number): NoteType[][] => {
         return tuning.map(rootNote => {
@@ -111,6 +112,12 @@ export const ScaleModule = {
     },
     names: TonalScale.names,
 };
+
+export const IntervalModule = {
+  get(name: string) {
+    return TonalInterval.get(name);
+  },
+}
 
 
 
