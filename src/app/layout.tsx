@@ -3,7 +3,6 @@ import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const theme = createTheme();
-console.log('theme', theme);
 
 export default function RootLayout({
   children,

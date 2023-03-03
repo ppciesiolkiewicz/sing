@@ -366,12 +366,12 @@ function ConfigPanel({
       }}
     >
       {formik => {
-        useEffect(() => {
-          formik.setValues({
-            configType: formik.values.configType,
-            ...getInitialValues(formik.values.configType),
-          })
-        }, [formik.values.configType])
+        // useEffect(() => {
+        //   formik.setValues({
+        //     configType: formik.values.configType,
+        //     ...getInitialValues(formik.values.configType),
+        //   })
+        // }, [formik.setValues, formik.values.configType])
         return (
           <Form>
             <SelectField
