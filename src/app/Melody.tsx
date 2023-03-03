@@ -145,7 +145,7 @@ class MelodyConfig {
     return new MelodyConfig(notes);
   }
 
-
+  // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
   static fromIntervals({
     intervalNames,
     lowestNoteName,
@@ -164,15 +164,7 @@ class MelodyConfig {
     timeBetweenRepeats: number,
   }) {
     const intervals = intervalNames.map(name => IntervalModule.get(name));
-
-    // TODO: move to music.tsx
-    const MIN_NOTE = NoteModule.get(lowestNoteName);
-    const MAX_NOTE = NoteModule.get(highestNoteName);
-    const CHROMATIC_SCALE_OCTAVES = [2,3,4,5,6];
-    const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
-    const CHROMATIC_SCALE_NOTES = CHROMATIC_SCALE_OCTAVES.map(octave =>
-      CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
-    ).flat().filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
+    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
 
     let intervalNotesBase = CHROMATIC_SCALE_NOTES
       .map(note => {

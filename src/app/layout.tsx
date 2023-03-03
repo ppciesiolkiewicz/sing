@@ -2,7 +2,13 @@
 import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#fa6'
+    }
+  }
+});
 
 export default function RootLayout({
   children,

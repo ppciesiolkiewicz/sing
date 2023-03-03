@@ -74,7 +74,6 @@ function SelectField({
       // type="email"
     >
       {(props) => {
-        console.log(props)
         return (
           <Select
             id={props.field.id}
@@ -88,6 +87,26 @@ function SelectField({
       }}
   </Field>
   );
+}
+
+function NoteSelectField({
+  id,
+  name,
+  label,
+}: Pick<Parameters<typeof Select>[0], "id" | "name" | "label">) {
+  const options = NoteModule.getAllNotes('C1', 'C5').map(n => ({
+    label: n.name,
+    value: n.name,
+  }));
+
+  return (
+    <SelectField
+      id={id}
+      name={name}
+      label={label}
+      options={options}
+    />
+  )
 }
 
 
@@ -224,10 +243,18 @@ function ConfigPanelTimesCommon() {
 }
 
 function ConfigPanelNoteBoundaries() {
-  // lowestNoteName: 'C4',
-  // highestNoteName: 'G4',
   return (
     <>
+      <NoteSelectField
+        id={'lowestNoteName'}
+        name={'lowestNoteName'}
+        label={'Lowest Note'}
+      />
+      <NoteSelectField
+        id={'highestNoteName'}
+        name={'highestNoteName'}
+        label={'Highest Note'}
+      />
     </>
   );
 }
@@ -236,6 +263,7 @@ function ConfigPanelInterval() {
   // intervalNames: ['1P'],
   return (
     <>
+      <ConfigPanelNoteBoundaries />
       <ConfigPanelTimesCommon />
     </>
   );
@@ -246,8 +274,26 @@ function ConfigPanelScale() {
   // scale: ScaleModule.get('C', 'blues'),
   return (
     <>
+      <SelectField
+        id={'keyTonic'}
+        name={'keyTonic'}
+        label={'Key Tonic'}
+        options={NoteModule.getAllNotes('C1', 'C2').map(n => ({
+          label: n.pc,
+          value: n.pc,
+        }))}
+      />
+      <SelectField
+        id={'keyType'}
+        name={'keyType'}
+        label={'Key Type'}
+        options={ScaleModule.names().map(n => ({
+          label: n,
+          value: n,
+        }))}
+      />
+      <ConfigPanelNoteBoundaries />
       <ConfigPanelTimesCommon />
-
     </>
   );
 }
@@ -270,16 +316,20 @@ function ConfigPanelNotes() {
 }
 
 type Values =
-  Parameters<typeof MelodyConfig.fromScale> |
-  Parameters<typeof MelodyConfig.fromChords> |
-  Parameters<typeof MelodyConfig.fromIntervals> |
-  null;
+  (
+    Parameters<typeof MelodyConfig.fromScale> |
+    Parameters<typeof MelodyConfig.fromChords> |
+    Parameters<typeof MelodyConfig.fromIntervals>
+  ) &
+  {
+    configType: string;
+  };
 
 function ConfigPanel({
   onStartClick,
   started,
 }: {
-  onStartClick: any,
+  onStartClick: (melody: Melody) => void,
   started: boolean,
 }) {
   const CONFIG_TYPE_INTERVAL = 'Interval';
@@ -350,19 +400,62 @@ function ConfigPanel({
         );
     }
   }
+  
+
   return (
     <Formik
       initialValues={{
-        configType: 'Interval'
+        configType: CONFIG_TYPE_INTERVAL,
+        repeatTimes: 1,
+        timePerNote: 1,
+        timeBetweenNotes: 0.1,
+        timeBetweenRepeats: 1,
+        highestNoteName: 'G4',
+        lowestNoteName: 'A2',
+        keyTonic: 'C',
+        keyType: 'major',
       }}
       onSubmit={(
         values: Values,
         { setSubmitting }: FormikHelpers<Values>
       ) => {
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
-          setSubmitting(false);
-        }, 500);
+        console.log('values', values);
+
+        let config = null;
+        
+
+        if (values.configType === CONFIG_TYPE_INTERVAL) {
+          config = MelodyConfig.fromIntervals({
+            intervalNames: ['1P'],
+            lowestNoteName: values.lowestNoteName,
+            highestNoteName: values.highestNoteName,
+            repeatTimes: values.repeatTimes,
+            timePerNote: values.timePerNote,
+            timeBetweenNotes: values.timeBetweenNotes,
+            timeBetweenRepeats: values.timeBetweenRepeats,
+          })
+        }  else if (values.configType === CONFIG_TYPE_SCALE) {
+          config = MelodyConfig.fromScale({
+            scale: ScaleModule.get(values.keyTonic, values.keyType),
+            lowestNoteName: values.lowestNoteName,
+            highestNoteName: values.highestNoteName,
+            repeatTimes: values.repeatTimes,
+            timePerNote: values.timePerNote,
+            timeBetweenNotes: values.timeBetweenNotes,
+            timeBetweenRepeats: values.timeBetweenRepeats,
+          })
+        } else if (values.configType === CONFIG_TYPE_CHORDS) { 
+          config = MelodyConfig.fromChords({
+            chordNames: ['C4maj', 'G4maj', 'D4min']
+          })
+        } else {
+          throw new Error("Unrecognized config type")
+        }
+        
+        
+        console.log(config)
+        const melody = new Melody(config);
+        onStartClick(melody);
       }}
     >
       {formik => {
@@ -375,7 +468,7 @@ function ConfigPanel({
         return (
           <Form>
             <SelectField
-              label="Exercise"
+              label="Exercise Type"
               id="configType"
               name="configType"
               options={configTypeOptions}
@@ -385,7 +478,7 @@ function ConfigPanel({
               fullWidth
               variant={'contained'}
               color={'primary'}
-              onClick={() => onStartClick()}
+              type={'submit'}
               >
               {started ? 'Stop' : 'Start'}
             </MuiButton>
@@ -398,6 +491,7 @@ function ConfigPanel({
 
 export default function Home() {
   const [started, setStarted] = useState(false);
+  const [melody, setMelody] = useState<Melody | null>(null);
   const streamRef = useRef<any>(null);
   const canvasRef = useRef<any>(null);
 
@@ -407,7 +501,7 @@ export default function Home() {
       return;
     }
 
-    if (!started) {
+    if (!started || streamRef.current) {
       return;
     }
 
@@ -435,44 +529,44 @@ export default function Home() {
 
   useLayoutEffect(function render() {
     if (!started) {
+      if (view) {
+        view.remove()
+      }
       return;
     }
 
-    const chordConfig = MelodyConfig.fromChords({
-      chordNames: ['C4maj', 'G4maj', 'D4min']
-    })
-    const scaleConfig = MelodyConfig.fromScale({
-      scale: ScaleModule.get('C', 'major'),
-      lowestNoteName: 'C3',
-      highestNoteName: 'G4',
-      repeatTimes: 5,
-      timePerNote: 1,
-      timeBetweenNotes: 0.1,
-      timeBetweenRepeats: 1,
-    })
+    // TODO: remove
+    // const chordConfig = MelodyConfig.fromChords({
+    //   chordNames: ['C4maj', 'G4maj', 'D4min']
+    // })
+    // const scaleConfig = MelodyConfig.fromScale({
+    //   scale: ScaleModule.get('C', 'major'),
+    //   lowestNoteName: 'C3',
+    //   highestNoteName: 'G4',
+    //   repeatTimes: 5,
+    //   timePerNote: 1,
+    //   timeBetweenNotes: 0.1,
+    //   timeBetweenRepeats: 1,
+    // })
     
-    // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
-    const intervalConfig = MelodyConfig.fromIntervals({
-      intervalNames: ['1P'],
-      lowestNoteName: 'C4',
-      highestNoteName: 'G4',
-      repeatTimes: 1,
-      timePerNote: 1,
-      timeBetweenNotes: 0.1,
-      timeBetweenRepeats: 1,
-    })
+    // // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
+    // const intervalConfig = MelodyConfig.fromIntervals({
+    //   intervalNames: ['1P'],
+    //   lowestNoteName: 'C4',
+    //   highestNoteName: 'G4',
+    //   repeatTimes: 1,
+    //   timePerNote: 1,
+    //   timeBetweenNotes: 0.1,
+    //   timeBetweenRepeats: 1,
+    // })
     
-    const melody = new Melody(scaleConfig);
+    // const melody = new Melody(scaleConfig);
 
 
-    // TODO: Move to music.tsx
-    const MIN_NOTE = NoteModule.fromFreq(Math.min(...melody.melodySing.map(e => e.note.freq!)));
-    const MAX_NOTE = NoteModule.fromFreq(Math.max(...melody.melodySing.map(e => e.note.freq!)));
-    const CHROMATIC_SCALE_OCTAVES = [2,3,4,5,6];
-    const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
-    const CHROMATIC_SCALE_NOTES = CHROMATIC_SCALE_OCTAVES.map(octave =>
-      CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
-    ).flat().filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
+    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(
+      Math.min(...melody.melodySing.map(e => e.note.freq!)),
+      Math.max(...melody.melodySing.map(e => e.note.freq!)),
+    );
 
 
     const canvas = canvasRef.current;
@@ -572,7 +666,7 @@ export default function Home() {
       }
     });
     // console.log(Tone.PolySynth.getDefaults().voice.getDefaults())
-    console.log('Synth.get', synth.get())
+    // console.log('Synth.get', synth.get())
     // draw melody elements
     const melodyPixelsPerSecond = 100;
     const melodyNoteSelectedMaxFreqDiff: Hz = 10;
@@ -645,7 +739,6 @@ export default function Home() {
         if (!melody.melodySing[idx].completed && path.bounds.right < view.center.x) {
           melody.melodySing[idx].completed = true;
           melody.melodySing[idx].percentHit = (melody.melodySing[idx].framesHit / melody.melodySing[idx].totalFrames);
-          console.log('percentHit: ', melody.melodySing[idx].percentHit)
           path.selected = false;
         }
 
@@ -679,7 +772,13 @@ export default function Home() {
           <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
         </Box>
         <Box flex={1} display={'flex'} flexDirection={'column'} p={2}>
-          <ConfigPanel started={started} onStartClick={() => setStarted(!started)} />
+          <ConfigPanel
+            started={started}
+            onStartClick={(melody: Melody) => {
+              setMelody(melody)
+              setStarted(!started)
+            }}
+          />
         </Box>
     </main>
   )

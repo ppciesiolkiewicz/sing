@@ -43,6 +43,29 @@ export const NoteModule = {
             });
         });
     },
+    getAllNotes: (lowestNote: number | string, highestNote: number | string) => {
+      let MIN_NOTE, MAX_NOTE;
+      // TODO: improve , maybe take Note as param?
+      if (typeof lowestNote === 'number') {
+        MIN_NOTE = NoteModule.fromFreq(lowestNote)
+      } else {
+        MIN_NOTE = NoteModule.get(lowestNote)
+      }
+
+      if (typeof highestNote === 'number') {
+        MAX_NOTE = NoteModule.fromFreq(highestNote);
+      } else {
+        MAX_NOTE = NoteModule.get(highestNote)
+      }
+
+      const OCTAVES = [1,2,3,4,5,6];
+      const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
+      const CHROMATIC_SCALE_NOTES = OCTAVES.map(octave =>
+        CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
+      ).flat().filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
+
+      return CHROMATIC_SCALE_NOTES;
+    }
 };
 
 export const ChordModule = {
@@ -79,10 +102,8 @@ export const ChordProgressionModule = {
 
 export const ScaleModule = {
     get: (keyTonic: string, keyType: string): ScaleType => {
-        console.log(`Getting ${keyTonic} ${keyType}`);
         const scale = TonalScale.get(`${keyTonic} ${keyType}`);
         const scaleChordTypes = TonalScale.scaleChords(`${keyTonic} ${keyType}`);
-        console.log(`${keyTonic} ${keyType}: `, scale, scaleChordTypes);
 
         let keyChords;
         if (keyType === 'major') {
@@ -91,23 +112,23 @@ export const ScaleModule = {
             keyChords = TonalKey.majorKey(TonalKey.minorKey(keyTonic).relativeMajor);
         }
 
-        const allChords = keyChords
-            ? [
-                  ...keyChords.chords,
-                  ...keyChords.secondaryDominants,
-                  ...keyChords.secondaryDominantsMinorRelative,
-                  ...keyChords.substituteDominants,
-                  ...keyChords.substituteDominantsMinorRelative,
-              ]
-                  .filter(Boolean)
-                  .map(ChordModule.get)
-                  .filter(Boolean)
-            : [];
+        // const allChords = keyChords
+        //     ? [
+        //           ...keyChords.chords,
+        //           ...keyChords.secondaryDominants,
+        //           ...keyChords.secondaryDominantsMinorRelative,
+        //           ...keyChords.substituteDominants,
+        //           ...keyChords.substituteDominantsMinorRelative,
+        //       ]
+        //           .filter(Boolean)
+        //           .map(ChordModule.get)
+        //           .filter(Boolean)
+        //     : [];
 
         return {
             ...scale,
             chordTypes: scaleChordTypes,
-            allChords,
+            allChords: [], // TODO?
         };
     },
     names: TonalScale.names,

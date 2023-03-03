@@ -11,10 +11,6 @@ const nextConfig = {
     config.externals = {
       canvas: {}
     };
-    config.node = {
-      __dirname: false,
-      __filename: false
-    };
     return config
   },
   typescript: {
