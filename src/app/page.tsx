@@ -1,6 +1,6 @@
 "use client";
 import { Inter } from '@next/font/google'
-import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { Fragment, useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
 import { PitchDetector as PD } from 'pitchy';
 import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'paper'
@@ -20,7 +20,9 @@ import { SelectField } from '@/components/atoms/Select';
 import { NoteSelectField } from '@/components/blocks/NoteSelect';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
+import Fab from '@mui/material/Fab';
+import EditIcon from '@mui/icons-material/Edit';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -302,99 +304,148 @@ function ConfigPanel({
   ]
 
   return (
-    <Formik
-      initialValues={{
-        configType: CONFIG_TYPE_CHORDS,
-        repeatTimes: 3,
-        timePerNote: 1,
-        timeBetweenNotes: 0.1,
-        timeBetweenRepeats: 1,
-        highestNoteName: 'G4',
-        lowestNoteName: 'A2',
-        keyTonic: 'C',
-        keyType: 'major',
-        chordNames: [],
-        intervalNames: [],
-        includeAllChordComponents: true,
-      }}
-      onSubmit={(
-        values: ConfigPanelValues,
-        { setSubmitting }: FormikHelpers<ConfigPanelValues>
-      ) => {
-        console.log('values', values);
-        let config = null;
+    <Box p={2} sx={{ backgroundColor: 'common.white' }}>
+      <Formik
+        initialValues={{
+          configType: CONFIG_TYPE_CHORDS,
+          repeatTimes: 3,
+          timePerNote: 1,
+          timeBetweenNotes: 0.1,
+          timeBetweenRepeats: 1,
+          highestNoteName: 'G4',
+          lowestNoteName: 'A2',
+          keyTonic: 'C',
+          keyType: 'major',
+          chordNames: [],
+          intervalNames: [],
+          includeAllChordComponents: true,
+        }}
+        onSubmit={(
+          values: ConfigPanelValues,
+          { setSubmitting }: FormikHelpers<ConfigPanelValues>
+        ) => {
+          console.log('values', values);
+          let config = null;
 
-        if (values.configType === CONFIG_TYPE_INTERVAL) {
-          config = MelodyConfig.fromIntervals({
-            // TODO: type
-            intervalNames: values.intervalNames.map(({ value }) => value),
-            lowestNoteName: values.lowestNoteName,
-            highestNoteName: values.highestNoteName,
-            repeatTimes: values.repeatTimes,
-            timePerNote: values.timePerNote,
-            timeBetweenNotes: values.timeBetweenNotes,
-            timeBetweenRepeats: values.timeBetweenRepeats,
-          })
-        }  else if (values.configType === CONFIG_TYPE_SCALE) {
-          config = MelodyConfig.fromScale({
-            keyTonic: values.keyTonic,
-            keyType: values.keyType,
-            lowestNoteName: values.lowestNoteName,
-            highestNoteName: values.highestNoteName,
-            repeatTimes: values.repeatTimes,
-            timePerNote: values.timePerNote,
-            timeBetweenNotes: values.timeBetweenNotes,
-            timeBetweenRepeats: values.timeBetweenRepeats,
-          })
-        } else if (values.configType === CONFIG_TYPE_CHORDS) { 
-          config = MelodyConfig.fromChords({
-            // TODO: type
-            chordNames: values.chordNames.map(({ value }) => value),
-            includeAllChordComponents: values.includeAllChordComponents,
-            repeatTimes: values.repeatTimes,
-            timePerNote: values.timePerNote,
-            timeBetweenNotes: values.timeBetweenNotes,
-            timeBetweenRepeats: values.timeBetweenRepeats,
-          })
-        } else {
-          throw new Error("Unrecognized config type")
-        }
-        
-        const melody = new Melody(config);
-        onStartClick(melody);
-      }}
-    >
-      {formik => {
-        return (
-          <Form>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <SelectField
-                  label="Exercise Type"
-                  id="configType"
-                  name="configType"
-                  options={configTypeOptions}
+          if (values.configType === CONFIG_TYPE_INTERVAL) {
+            config = MelodyConfig.fromIntervals({
+              // TODO: type
+              intervalNames: values.intervalNames.map(({ value }) => value),
+              lowestNoteName: values.lowestNoteName,
+              highestNoteName: values.highestNoteName,
+              repeatTimes: values.repeatTimes,
+              timePerNote: values.timePerNote,
+              timeBetweenNotes: values.timeBetweenNotes,
+              timeBetweenRepeats: values.timeBetweenRepeats,
+            })
+          }  else if (values.configType === CONFIG_TYPE_SCALE) {
+            config = MelodyConfig.fromScale({
+              keyTonic: values.keyTonic,
+              keyType: values.keyType,
+              lowestNoteName: values.lowestNoteName,
+              highestNoteName: values.highestNoteName,
+              repeatTimes: values.repeatTimes,
+              timePerNote: values.timePerNote,
+              timeBetweenNotes: values.timeBetweenNotes,
+              timeBetweenRepeats: values.timeBetweenRepeats,
+            })
+          } else if (values.configType === CONFIG_TYPE_CHORDS) { 
+            config = MelodyConfig.fromChords({
+              // TODO: type
+              chordNames: values.chordNames.map(({ value }) => value),
+              includeAllChordComponents: values.includeAllChordComponents,
+              repeatTimes: values.repeatTimes,
+              timePerNote: values.timePerNote,
+              timeBetweenNotes: values.timeBetweenNotes,
+              timeBetweenRepeats: values.timeBetweenRepeats,
+            })
+          } else {
+            throw new Error("Unrecognized config type")
+          }
+          
+          const melody = new Melody(config);
+          onStartClick(melody);
+        }}
+      >
+        {formik => {
+          return (
+            <Form>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <SelectField
+                    label="Exercise Type"
+                    id="configType"
+                    name="configType"
+                    options={configTypeOptions}
+                  />
+                </Grid>
+                <ConfigPanelForm
+                  configType={formik.values.configType}
                 />
+                <Grid item xs={12}>
+                  <MuiButton
+                    fullWidth
+                    variant={'contained'}
+                    color={'primary'}
+                    type={'submit'}
+                    >
+                    {started ? 'Stop' : 'Start'}
+                  </MuiButton>
+                </Grid>
               </Grid>
-              <ConfigPanelForm
-                configType={formik.values.configType}
-              />
-              <Grid item xs={12}>
-                <MuiButton
-                  fullWidth
-                  variant={'contained'}
-                  color={'primary'}
-                  type={'submit'}
-                  >
-                  {started ? 'Stop' : 'Start'}
-                </MuiButton>
-              </Grid>
-            </Grid>
-          </Form>
-        );
-      }}
-    </Formik>
+            </Form>
+          );
+        }}
+      </Formik>
+    </Box>
   );
+}
+
+
+function ConfigPanelDrawer({ started, onStartClick }: Parameters<typeof ConfigPanel>[0]) {
+  const [isOpened, setIsOpened] = useState(true);
+
+  // const toggleDrawer = (event: React.KeyboardEvent | React.MouseEvent) => {
+  const toggleDrawer = () => {
+      // if (
+      //   event.type === 'keydown' &&
+      //   ((event as React.KeyboardEvent).key === 'Tab' ||
+      //     (event as React.KeyboardEvent).key === 'Shift')
+      // ) {
+      //   return;
+      // }
+
+      setIsOpened(!isOpened);
+    };
+
+  return (
+    <Fragment>
+      <Fab
+        color="secondary"
+        aria-label="settings"
+        onClick={toggleDrawer}
+        sx={{ position: 'absolute', right: '10px', bottom: '10px' }}
+      >
+        <EditIcon />
+      </Fab>
+      <SwipeableDrawer
+        anchor={'right'}
+        open={isOpened}
+        onClose={toggleDrawer}
+        onOpen={toggleDrawer}
+      >
+        <Box sx={{ width: '50vw' }}>
+          <ConfigPanel
+            started={started}
+            onStartClick={(melody) => {
+              toggleDrawer();
+              onStartClick(melody);
+            }}
+          />
+        </Box>
+      </SwipeableDrawer>
+    </Fragment>
+  )
 }
 
 export default function Home() {
@@ -649,18 +700,16 @@ export default function Home() {
         flexDirection: 'row',
       }}
     >
-        <Box flex={5}>
-          <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
-        </Box>
-        <Box flex={1} p={2} sx={{ backgroundColor: 'common.white' }}>
-          <ConfigPanel
-            started={started}
-            onStartClick={(melody: Melody) => {
-              setMelody(melody)
-              setStarted(!started)
-            }}
-          />
-        </Box>
+      <Box>
+        <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
+      </Box>
+      <ConfigPanelDrawer
+        started={started}
+        onStartClick={(melody: Melody) => {
+          setMelody(melody)
+          setStarted(!started)
+        }}
+      />
     </main>
   )
 }
