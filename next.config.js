@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const nodeExternals = require('webpack-node-externals');
+
 const nextConfig = {
   experimental: {
     appDir: true,
@@ -8,9 +10,13 @@ const nextConfig = {
     { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
     // Important: return the modified config
-    config.externals = {
-      canvas: {}
-    };
+    if (!isServer) {
+      config.externals = [nodeExternals()];
+    } else {
+      config.externals = {
+        canvas: {}
+      };
+    }
     return config
   },
   typescript: {
