@@ -1,3 +1,4 @@
+import { snackbarClasses } from '@mui/material';
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from './music';
 
 type NoteBase = {
@@ -80,7 +81,8 @@ class MelodyConfig {
   }
 
   static fromScale({
-    scale,
+    keyTonic,
+    keyType,
     lowestNoteName,
     highestNoteName,
     repeatTimes,
@@ -88,7 +90,9 @@ class MelodyConfig {
     timeBetweenNotes,
     timeBetweenRepeats,
   }: {
-    scale: ReturnType<typeof ScaleModule.get>,
+    // TODO: take keyTonic and keyType as params
+    keyTonic: string,
+    keyType: string,
     lowestNoteName: string,
     highestNoteName: string,
     repeatTimes: number,
@@ -96,48 +100,23 @@ class MelodyConfig {
     timeBetweenNotes: number,
     timeBetweenRepeats: number,
   }) {
-    // TODO: timeBetweenNotes doesnt work
-    const lowestOctave = parseInt(lowestNoteName[1]); 
-    const highestOctave = parseInt(highestNoteName[1]);
-    const octaveCount = highestOctave - lowestOctave + 1;
+    const scaleNotesBase = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName)
+    let scaleNotesNamesBase = scaleNotesBase.map(n => n.name)
+    scaleNotesNamesBase = [...scaleNotesNamesBase, [...scaleNotesNamesBase].reverse()].flat()
+    const scaleNotesNamesBaseRepeated = Array(repeatTimes)
+      .fill(scaleNotesNamesBase)
+      .flat()
   
-    // TODO: move to ScaleModule whole logic for generating scales between notes
-    const scaleNotesElementsBase = scale.notes.map((note) => ({
-      name: note,
-      start: 0,
-      end: 0,
-    }));
-    const lowestNoteFreq = NoteModule.get(lowestNoteName).freq!
-    const highestNoteFreq = NoteModule.get(highestNoteName).freq!
-    let scaleNotesElementsWithOctavesBase = Array(octaveCount)
-      .fill(scaleNotesElementsBase)
-      .map((notes, i) => {
-        return scaleNotesElementsBase.map(e => ({
-          ...e,
-          name: `${e.name}${lowestOctave + i}`
-        }))
-      })
-      .flat()
-      .filter(e => {
-        const tmp = new MelodyNote(e.name, 0, 0)
-        return tmp.freq >= lowestNoteFreq && tmp.freq <= highestNoteFreq
-      })
-    
-    scaleNotesElementsWithOctavesBase = [...scaleNotesElementsWithOctavesBase, ...scaleNotesElementsWithOctavesBase.reverse()]
-
-    const scaleNotesElements = Array(repeatTimes)
-      .fill(scaleNotesElementsWithOctavesBase)
-      .flat()
-      .map((e, i) => {
-        const start = i * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesElementsWithOctavesBase.length);
-        const end = (i + 1) * timePerNote + timeBetweenNotes * i  + timeBetweenRepeats * Math.floor(i/scaleNotesElementsWithOctavesBase.length);
+    const scaleNotesElements = scaleNotesNamesBaseRepeated
+      .map((noteName, i) => {
+        const start = i * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
+        const end = (i + 1) * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
         return {
-          ...e,
+          name: noteName,
           start,
           end,
         };
-      }); 
-
+      });
 
     const notes = scaleNotesElements
       .map(e => new MelodyNote(e.name, e.start, e.end));
@@ -172,9 +151,8 @@ class MelodyConfig {
           return NoteModule.transpose(note.name, interval);
         })
       })
-      .flat();
-
-      // intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
+      .flat()
+    intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
 
       const notes = new Array(repeatTimes)
         .fill(intervalNotesBase)

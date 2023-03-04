@@ -1,7 +1,5 @@
 "use client";
-import Image from 'next/image'
 import { Inter } from '@next/font/google'
-import styles from './page.module.css'
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
 import { PitchDetector as PD } from 'pitchy';
 import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'paper'
@@ -18,6 +16,7 @@ import FormControl from '@mui/material/FormControl';
 import MuiSelect, { SelectChangeEvent } from '@mui/material/Select';
 import MuiButton from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import MuiTextField from '@mui/material/TextField';
 
 import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
@@ -181,31 +180,6 @@ function getPitch(analyserNode: any, detector: any, input: any, audioContext: an
   return [pitch, clarity, volume]
 }
 
-/*
-    const chordConfig = MelodyConfig.fromChords({
-      chordNames: ['C4maj', 'G4maj', 'D4min']
-    })
-    const scaleConfig = MelodyConfig.fromScale({
-      scale: ScaleModule.get('C', 'blues'),
-      lowestNoteName: 'C4',
-      highestNoteName: 'G5',
-      repeatTimes: 5,
-      timePerNote: 1,
-      timeBetweenNotes: 0.1,
-      timeBetweenRepeats: 1,
-    })
-    
-    // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
-    const intervalConfig = MelodyConfig.fromIntervals({
-      intervalNames: ['1P'],
-      lowestNoteName: 'C4',
-      highestNoteName: 'G4',
-      repeatTimes: 1,
-      timePerNote: 1,
-      timeBetweenNotes: 0.1,
-      timeBetweenRepeats: 1,
-    })
-*/
 
 function ConfigPanelTimesCommon() {
   // repeatTimes: 5,
@@ -214,30 +188,38 @@ function ConfigPanelTimesCommon() {
   // timeBetweenRepeats: 1,
   return (
     <>
-      <TextFieldField
-        id="repeatTimes"
-        name="repeatTimes"
-        label="Repeat"
-        type="number"
-      />
-      <TextFieldField
-        id="timePerNote"
-        name="timePerNote"
-        label="Time per note"
-        type="number"
-      />
-      <TextFieldField
-        id="timeBetweenNotes"
-        name="timeBetweenNotes"
-        label="Time between notes"
-        type="number"
-      />
-      <TextFieldField
-        id="timeBetweenRepeats"
-        name="timeBetweenRepeats"
-        label="Time between repeats"
-        type="number"
-      />
+      <Grid item xs={12}>
+        <TextFieldField
+          id="repeatTimes"
+          name="repeatTimes"
+          label="Repeat"
+          type="number"
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextFieldField
+          id="timePerNote"
+          name="timePerNote"
+          label="Time per note"
+          type="number"
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextFieldField
+          id="timeBetweenNotes"
+          name="timeBetweenNotes"
+          label="Time between notes"
+          type="number"
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <TextFieldField
+          id="timeBetweenRepeats"
+          name="timeBetweenRepeats"
+          label="Time between repeats"
+          type="number"
+        />
+      </Grid>
     </>
   );
 }
@@ -245,16 +227,20 @@ function ConfigPanelTimesCommon() {
 function ConfigPanelNoteBoundaries() {
   return (
     <>
-      <NoteSelectField
-        id={'lowestNoteName'}
-        name={'lowestNoteName'}
-        label={'Lowest Note'}
-      />
-      <NoteSelectField
-        id={'highestNoteName'}
-        name={'highestNoteName'}
-        label={'Highest Note'}
-      />
+      <Grid item xs={12}>
+        <NoteSelectField
+          id={'lowestNoteName'}
+          name={'lowestNoteName'}
+          label={'Lowest Note'}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <NoteSelectField
+          id={'highestNoteName'}
+          name={'highestNoteName'}
+          label={'Highest Note'}
+        />
+      </Grid>
     </>
   );
 }
@@ -274,24 +260,29 @@ function ConfigPanelScale() {
   // scale: ScaleModule.get('C', 'blues'),
   return (
     <>
-      <SelectField
-        id={'keyTonic'}
-        name={'keyTonic'}
-        label={'Key Tonic'}
-        options={NoteModule.getAllNotes('C1', 'C2').map(n => ({
-          label: n.pc,
-          value: n.pc,
-        }))}
-      />
-      <SelectField
-        id={'keyType'}
-        name={'keyType'}
-        label={'Key Type'}
-        options={ScaleModule.names().map(n => ({
-          label: n,
-          value: n,
-        }))}
-      />
+      <Grid item xs={12}>
+        <SelectField
+          id={'keyTonic'}
+          name={'keyTonic'}
+          label={'Key Tonic'}
+          // TODO: hack to get keyTonics...
+          options={NoteModule.getAllNotes('C1', 'C2').map(n => ({
+            label: n.pc,
+            value: n.pc,
+          }))}
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <SelectField
+          id={'keyType'}
+          name={'keyType'}
+          label={'Key Type'}
+          options={ScaleModule.names().map(n => ({
+            label: n,
+            value: n,
+          }))}
+        />
+      </Grid>
       <ConfigPanelNoteBoundaries />
       <ConfigPanelTimesCommon />
     </>
@@ -311,19 +302,48 @@ function ConfigPanelNotes() {
   // fromNotes
   return (
     <>
+      Not implemented
     </>
   );
 }
 
-type Values =
-  (
-    Parameters<typeof MelodyConfig.fromScale> |
-    Parameters<typeof MelodyConfig.fromChords> |
-    Parameters<typeof MelodyConfig.fromIntervals>
-  ) &
-  {
-    configType: string;
-  };
+const CONFIG_TYPE_INTERVAL = 'Interval';
+const CONFIG_TYPE_SCALE = 'Scale';
+const CONFIG_TYPE_CHORDS = 'Chords';
+const CONFIG_TYPE_NOTES = 'Notes';
+
+function ConfigPanelForm({ configType }: { configType: string }) {
+  switch(configType) {
+    case CONFIG_TYPE_INTERVAL:
+      return (
+        <ConfigPanelInterval />
+      );
+    case CONFIG_TYPE_SCALE:
+      return (
+        <ConfigPanelScale />
+      );
+    case CONFIG_TYPE_CHORDS:
+      return (
+        <ConfigPanelChords />
+      );
+    case CONFIG_TYPE_NOTES:
+      return (
+        <ConfigPanelNotes />
+      );
+  }
+
+  return (
+    <Box>Invalid config type</Box>
+  )
+}
+
+type ConfigPanelValues =
+    Parameters<typeof MelodyConfig.fromScale>[0] &
+    Parameters<typeof MelodyConfig.fromChords>[0] &
+    Parameters<typeof MelodyConfig.fromIntervals>[0] &
+    {
+      configType: string;
+    };
 
 function ConfigPanel({
   onStartClick,
@@ -332,11 +352,6 @@ function ConfigPanel({
   onStartClick: (melody: Melody) => void,
   started: boolean,
 }) {
-  const CONFIG_TYPE_INTERVAL = 'Interval';
-  const CONFIG_TYPE_SCALE = 'Scale';
-  const CONFIG_TYPE_CHORDS = 'Chords';
-  const CONFIG_TYPE_NOTES = 'Notes';
-
   const configTypeOptions = [
     {
       label: 'Interval',
@@ -380,33 +395,11 @@ function ConfigPanel({
     }
   }
 
-  const getForm = (configType: string) => {
-    switch(configType) {
-      case CONFIG_TYPE_INTERVAL:
-        return (
-          <ConfigPanelInterval />
-        );
-      case CONFIG_TYPE_SCALE:
-        return (
-          <ConfigPanelScale />
-        );
-      case CONFIG_TYPE_CHORDS:
-        return (
-          <ConfigPanelChords />
-        );
-      case CONFIG_TYPE_NOTES:
-        return (
-          <ConfigPanelNotes />
-        );
-    }
-  }
-  
-
   return (
     <Formik
       initialValues={{
-        configType: CONFIG_TYPE_INTERVAL,
-        repeatTimes: 1,
+        configType: CONFIG_TYPE_SCALE,
+        repeatTimes: 3,
         timePerNote: 1,
         timeBetweenNotes: 0.1,
         timeBetweenRepeats: 1,
@@ -414,10 +407,12 @@ function ConfigPanel({
         lowestNoteName: 'A2',
         keyTonic: 'C',
         keyType: 'major',
+        chordNames: [],
+        intervalNames: [],
       }}
       onSubmit={(
-        values: Values,
-        { setSubmitting }: FormikHelpers<Values>
+        values: ConfigPanelValues,
+        { setSubmitting }: FormikHelpers<ConfigPanelValues>
       ) => {
         console.log('values', values);
 
@@ -436,7 +431,8 @@ function ConfigPanel({
           })
         }  else if (values.configType === CONFIG_TYPE_SCALE) {
           config = MelodyConfig.fromScale({
-            scale: ScaleModule.get(values.keyTonic, values.keyType),
+            keyTonic: values.keyTonic,
+            keyType: values.keyType,
             lowestNoteName: values.lowestNoteName,
             highestNoteName: values.highestNoteName,
             repeatTimes: values.repeatTimes,
@@ -452,8 +448,6 @@ function ConfigPanel({
           throw new Error("Unrecognized config type")
         }
         
-        
-        console.log(config)
         const melody = new Melody(config);
         onStartClick(melody);
       }}
@@ -467,21 +461,29 @@ function ConfigPanel({
         // }, [formik.setValues, formik.values.configType])
         return (
           <Form>
-            <SelectField
-              label="Exercise Type"
-              id="configType"
-              name="configType"
-              options={configTypeOptions}
-            />
-            {getForm(formik.values.configType)}
-            <MuiButton
-              fullWidth
-              variant={'contained'}
-              color={'primary'}
-              type={'submit'}
-              >
-              {started ? 'Stop' : 'Start'}
-            </MuiButton>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <SelectField
+                  label="Exercise Type"
+                  id="configType"
+                  name="configType"
+                  options={configTypeOptions}
+                />
+              </Grid>
+              <ConfigPanelForm
+                configType={formik.values.configType}
+              />
+              <Grid item xs={12}>
+                <MuiButton
+                  fullWidth
+                  variant={'contained'}
+                  color={'primary'}
+                  type={'submit'}
+                  >
+                  {started ? 'Stop' : 'Start'}
+                </MuiButton>
+              </Grid>
+            </Grid>
           </Form>
         );
       }}
@@ -528,40 +530,12 @@ export default function Home() {
   }, [started])
 
   useLayoutEffect(function render() {
-    if (!started) {
+    if (!started || !melody) {
       if (view) {
         view.remove()
       }
       return;
     }
-
-    // TODO: remove
-    // const chordConfig = MelodyConfig.fromChords({
-    //   chordNames: ['C4maj', 'G4maj', 'D4min']
-    // })
-    // const scaleConfig = MelodyConfig.fromScale({
-    //   scale: ScaleModule.get('C', 'major'),
-    //   lowestNoteName: 'C3',
-    //   highestNoteName: 'G4',
-    //   repeatTimes: 5,
-    //   timePerNote: 1,
-    //   timeBetweenNotes: 0.1,
-    //   timeBetweenRepeats: 1,
-    // })
-    
-    // // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
-    // const intervalConfig = MelodyConfig.fromIntervals({
-    //   intervalNames: ['1P'],
-    //   lowestNoteName: 'C4',
-    //   highestNoteName: 'G4',
-    //   repeatTimes: 1,
-    //   timePerNote: 1,
-    //   timeBetweenNotes: 0.1,
-    //   timeBetweenRepeats: 1,
-    // })
-    
-    // const melody = new Melody(scaleConfig);
-
 
     const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(
       Math.min(...melody.melodySing.map(e => e.note.freq!)),
@@ -751,7 +725,7 @@ export default function Home() {
         }
 
         if (melody.melodySing[melody.melodySing.length - 1].completed) {
-          // TODO
+          // TODO show results - have a function that runs on Stop as well
           view.remove();
           setStarted(false);
         }

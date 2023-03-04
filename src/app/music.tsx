@@ -60,9 +60,12 @@ export const NoteModule = {
 
       const OCTAVES = [1,2,3,4,5,6];
       const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
-      const CHROMATIC_SCALE_NOTES = OCTAVES.map(octave =>
-        CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
-      ).flat().filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
+      const CHROMATIC_SCALE_NOTES = OCTAVES
+        .map(octave =>
+          CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
+        )
+        .flat()
+        .filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
 
       return CHROMATIC_SCALE_NOTES;
     }
@@ -132,6 +135,27 @@ export const ScaleModule = {
         };
     },
     names: TonalScale.names,
+    getScaleNotes(keyTonic: string, keyType: string, lowestNoteName: string, highestNoteName: string) {
+      const chromaticNotes = NoteModule.getAllNotes(lowestNoteName, highestNoteName)
+      const scale = ScaleModule.get(keyTonic, keyType)
+      console.log(scale.notes)
+      // let scaleNotesBase = Array(octaveCount)
+      //   .fill(scale.notes)
+      //   .flat()
+      //   .map((note, i) => {
+      //     // TODO: broken Math.floor((i + 1) / scale.notes.length) because octave changes on C or other note
+      //     const octave = lowestOctave + Math.floor(i / scale.notes.length)
+      //     return `${note}${octave}`
+      //   })
+      //   .filter(note => {
+      //     const tmp = new MelodyNote(note, 0, 0)
+      //     return tmp.freq >= lowestNoteFreq && tmp.freq <= highestNoteFreq
+      //   })
+
+      return chromaticNotes.filter(note => {
+        return scale.notes.includes(note.pc)
+      })
+    }
 };
 
 export const IntervalModule = {
