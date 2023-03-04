@@ -17,7 +17,9 @@ import MuiSelect, { SelectChangeEvent } from '@mui/material/Select';
 import MuiButton from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 import MuiTextField from '@mui/material/TextField';
+import { MultiSelectField } from '@/components/MultiSelect';
 
 import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
 
@@ -246,9 +248,21 @@ function ConfigPanelNoteBoundaries() {
 }
 
 function ConfigPanelInterval() {
-  // intervalNames: ['1P'],
+  const intervals = ['1P', '2M', '3M', '4P', '5P', '6m', '7m'];
+  const options = intervals.map(interval => ({
+    value: interval,
+    label: interval,
+  }))
   return (
     <>
+      <Grid item xs={12}>
+        <MultiSelectField
+          id={'intervalNames'}
+          name={'intervalNames'}
+          label={'Intervals'}
+          options={options}
+        />
+      </Grid>
       <ConfigPanelNoteBoundaries />
       <ConfigPanelTimesCommon />
     </>
@@ -398,7 +412,7 @@ function ConfigPanel({
   return (
     <Formik
       initialValues={{
-        configType: CONFIG_TYPE_SCALE,
+        configType: CONFIG_TYPE_INTERVAL,
         repeatTimes: 3,
         timePerNote: 1,
         timeBetweenNotes: 0.1,
@@ -421,7 +435,7 @@ function ConfigPanel({
 
         if (values.configType === CONFIG_TYPE_INTERVAL) {
           config = MelodyConfig.fromIntervals({
-            intervalNames: ['1P'],
+            intervalNames: values.intervalNames.map(({ value }) => value),
             lowestNoteName: values.lowestNoteName,
             highestNoteName: values.highestNoteName,
             repeatTimes: values.repeatTimes,
@@ -745,7 +759,7 @@ export default function Home() {
         <Box flex={5}>
           <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
         </Box>
-        <Box flex={1} display={'flex'} flexDirection={'column'} p={2}>
+        <Box flex={1} display={'flex'} flexDirection={'column'} p={2} component={Paper}>
           <ConfigPanel
             started={started}
             onStartClick={(melody: Melody) => {
