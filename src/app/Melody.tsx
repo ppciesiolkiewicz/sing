@@ -37,12 +37,18 @@ class MelodyChord {
   start: number;
   end: number;
 
-  constructor(chordName: string, start: number, end: number) {
-    this.mode = SING_ALL_CHORD_COMPONENTS;
+  constructor(
+    chordName: string,
+    start: number,
+    end: number,
+    mode: typeof SING_ALL_CHORD_COMPONENTS | typeof SING_CHORD_ROOT_ONLY,
+  ) {
+    this.mode = mode;
     const chord = ChordModule.get(chordName);
     this.rootNote = new MelodyNote(chord.notes[0], start, end)
-    this.notes = chord.notes.map((n: string) => {
-      return new MelodyNote(n, start, end)
+    this.notes = chord.notes.map((n: string, i) => {
+      const duration = end - start;
+      return new MelodyNote(n, start + duration/chord.notes.length * i, start + duration/chord.notes.length * (i+1))
     });
     this.name = chord.name;
     this.start = start;
@@ -57,20 +63,35 @@ class MelodyConfig {
     this.notes = notes;
   }
 
-  static fromChords({ chordNames }: { chordNames: string[] }) {
+  static fromChords({
+    chordNames,
+    includeAllChordComponents,
+    repeatTimes,
+    timePerNote,
+    timeBetweenNotes,
+    timeBetweenRepeats,
+  }: {
+    chordNames: string[],
+    includeAllChordComponents: boolean,
+    repeatTimes: number,
+    timePerNote: number,
+    timeBetweenNotes: number,
+    timeBetweenRepeats: number,
+  }) {
     const startTime = 0;
-    const timeBetweenElements = 0.5;
 
-    const notes = chordNames.map(c => ({
-      chordName: c,
-      timePerNote: 2,
-    }))
-      .reduce((acc: any, e, idx) => {
+    const notes = chordNames
+      .reduce((acc: any, chordName, idx) => {
         const previousElement = acc[idx - 1];
         const endOfPreviousElement = !previousElement ? startTime : previousElement.notes[previousElement.notes.length - 1].end;
-        const start = endOfPreviousElement + timeBetweenElements;
-        const end = endOfPreviousElement + e.timePerNote + timeBetweenElements;
-        const chordConfigElement = new MelodyChord(e.chordName, start, end)
+        const start = endOfPreviousElement + timeBetweenNotes;
+        const end = endOfPreviousElement + timePerNote + timeBetweenNotes;
+        const chordConfigElement = new MelodyChord(
+          chordName,
+          start,
+          end,
+          includeAllChordComponents ? SING_ALL_CHORD_COMPONENTS : SING_CHORD_ROOT_ONLY,
+        )
         return [
           ...acc,
           chordConfigElement,
@@ -248,12 +269,10 @@ class Melody {
       if (e instanceof MelodyNote) {
         return new MelodySingElement(e);
       } else if (e instanceof MelodyChord) {
-
         if (e.mode === SING_CHORD_ROOT_ONLY) {
           return new MelodySingElement(e.rootNote);
         } else if(e.mode === SING_ALL_CHORD_COMPONENTS) {
-          // TODO: keep it simple here and keep logic in Config
-          return new MelodySingElement(e.rootNote);
+          return e.notes.map(n => new MelodySingElement(n));
         }
 
         throw new Error('Unknown MelodyChord mode')

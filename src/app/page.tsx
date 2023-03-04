@@ -1,6 +1,7 @@
 "use client";
 import { Inter } from '@next/font/google'
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react';
+import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
 import { PitchDetector as PD } from 'pitchy';
 import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'paper'
 import { NoteModule, ScaleModule, ChordModule } from './music';
@@ -9,139 +10,17 @@ import {
   MelodyConfig,
   Melody,
 } from './Melody'
-
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import MuiSelect, { SelectChangeEvent } from '@mui/material/Select';
 import MuiButton from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
-import MuiTextField from '@mui/material/TextField';
-import { MultiSelectField } from '@/components/MultiSelect';
+import { MultiSelectField } from '@/components/atoms/MultiSelect';
+import { TextFieldField } from '@/components/atoms/TextField';
+import { SelectField } from '@/components/atoms/Select';
+import { NoteSelectField } from '@/components/blocks/NoteSelect';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 
-import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
-
-
-function Select({
-  options,
-  onChange,
-  value,
-  label,
-  id,
-  name,
-}: {
-  label: string,
-  id: string,
-  name: string,
-  options: {
-    label: string,
-    value: any,
-  }[],
-  onChange: any,
-  value: any,
-}) {
-  return (
-    <FormControl fullWidth>
-      <InputLabel id={`${id}-label`}>{label}</InputLabel>
-      <MuiSelect
-        labelId={`${id}-label`}
-        id={id}
-        value={value}
-        label={label}
-        onChange={onChange}
-        name={name}
-        variant={'filled'}
-      >
-        {options.map(o => <MenuItem key={o.value} value={o.value}>{o.label}</MenuItem>)}
-      </MuiSelect>
-    </FormControl>
-  )
-}
-
-
-function SelectField({
-  id,
-  name,
-  options,
-  label,
-}: Pick<Parameters<typeof Select>[0], "id" | "name" | "options" | "label">) {
-  return (
-    <Field
-      id={id}
-      name={name}
-      // placeholder="john@acme.com"
-      // type="email"
-    >
-      {(props) => {
-        return (
-          <Select
-            id={props.field.id}
-            name={props.field.name}
-            label={label}
-            options={options}
-            onChange={props.form.handleChange}
-            value={props.field.value}
-          />
-        )
-      }}
-  </Field>
-  );
-}
-
-function NoteSelectField({
-  id,
-  name,
-  label,
-}: Pick<Parameters<typeof Select>[0], "id" | "name" | "label">) {
-  const options = NoteModule.getAllNotes('C1', 'C5').map(n => ({
-    label: n.name,
-    value: n.name,
-  }));
-
-  return (
-    <SelectField
-      id={id}
-      name={name}
-      label={label}
-      options={options}
-    />
-  )
-}
-
-
-function TextFieldField({
-  id,
-  name,
-  type,
-  label,
-}: Pick<Parameters<typeof MuiTextField>[0], "id" | "name" | "type" | "label">) {
-  return (
-    <Field
-      id={id}
-      name={name}
-      // placeholder="john@acme.com"
-      // type="email"
-    >
-      {props => (
-        <MuiTextField
-          fullWidth
-          id={id}
-          name={name}
-          label={label}
-          type={type}
-          value={props.field.value}
-          onChange={props.form.handleChange}
-          variant={'outlined'}
-          color={'primary'}
-          // error={formik.touched.password && Boolean(formik.errors.password)}
-          // helperText={formik.touched.password && formik.errors.password}
-        />
-      )}
-    </Field>
-  );
-}
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -182,12 +61,16 @@ function getPitch(analyserNode: any, detector: any, input: any, audioContext: an
   return [pitch, clarity, volume]
 }
 
+function IntervalMultiSelectField() {
+
+}
+
+
+function KeyTonicAndKeyTypeSelectField() {
+  
+}
 
 function ConfigPanelTimesCommon() {
-  // repeatTimes: 5,
-  // timePerNote: 1,
-  // timeBetweenNotes: 0.1,
-  // timeBetweenRepeats: 1,
   return (
     <>
       <Grid item xs={12}>
@@ -304,11 +187,44 @@ function ConfigPanelScale() {
 }
 
 function ConfigPanelChords() {
-  // chordNames: ['C4maj', 'G4maj', 'D4min']
+  const chords = ChordModule.getAllRelevantChords('C3', 'C5');
+  const options = chords.map(chord => ({
+    value: chord,
+    label: chord,
+  }))
   return (
     <>
+      <Grid item xs={12}>
+        <MultiSelectField
+          id={'chordNames'}
+          name={'chordNames'}
+          label={'Chords'}
+          options={options}
+        />
+      </Grid>
+      <ConfigPanelNoteBoundaries />
+      <ConfigPanelTimesCommon />
+      <Field
+        name={'includeAllChordComponents'}
+        id={'includeAllChordComponents'}
+      >
+        {props => (
+          <FormControlLabel
+          control={(
+            <Switch
+              id={props.field.id}
+              name={props.field.name}
+              onChange={props.form.handleChange}
+              value={props.field.value}
+            />
+            )}
+            labelPlacement="top"
+            label={"Sing all chord components"}
+          />
+        )}
+      </Field>
     </>
-  );
+  )
 }
 
 
@@ -385,34 +301,10 @@ function ConfigPanel({
     },
   ]
 
-  const getInitialValues = (configType: string) => {
-    const timeCommonInitialValues = {
-      repeatTimes: 1,
-      timePerNote: 1,
-      timeBetweenNotes: 0.1,
-      timeBetweenRepeats: 1,
-    };
-
-    switch(configType) {
-      case CONFIG_TYPE_INTERVAL:
-        return {
-          ...timeCommonInitialValues,
-        };
-      case CONFIG_TYPE_SCALE:
-        return {
-          ...timeCommonInitialValues,
-        };
-      case CONFIG_TYPE_CHORDS:
-        return {};
-      case CONFIG_TYPE_NOTES:
-        return {};
-    }
-  }
-
   return (
     <Formik
       initialValues={{
-        configType: CONFIG_TYPE_INTERVAL,
+        configType: CONFIG_TYPE_CHORDS,
         repeatTimes: 3,
         timePerNote: 1,
         timeBetweenNotes: 0.1,
@@ -423,18 +315,18 @@ function ConfigPanel({
         keyType: 'major',
         chordNames: [],
         intervalNames: [],
+        includeAllChordComponents: true,
       }}
       onSubmit={(
         values: ConfigPanelValues,
         { setSubmitting }: FormikHelpers<ConfigPanelValues>
       ) => {
         console.log('values', values);
-
         let config = null;
-        
 
         if (values.configType === CONFIG_TYPE_INTERVAL) {
           config = MelodyConfig.fromIntervals({
+            // TODO: type
             intervalNames: values.intervalNames.map(({ value }) => value),
             lowestNoteName: values.lowestNoteName,
             highestNoteName: values.highestNoteName,
@@ -456,7 +348,13 @@ function ConfigPanel({
           })
         } else if (values.configType === CONFIG_TYPE_CHORDS) { 
           config = MelodyConfig.fromChords({
-            chordNames: ['C4maj', 'G4maj', 'D4min']
+            // TODO: type
+            chordNames: values.chordNames.map(({ value }) => value),
+            includeAllChordComponents: values.includeAllChordComponents,
+            repeatTimes: values.repeatTimes,
+            timePerNote: values.timePerNote,
+            timeBetweenNotes: values.timeBetweenNotes,
+            timeBetweenRepeats: values.timeBetweenRepeats,
           })
         } else {
           throw new Error("Unrecognized config type")
@@ -467,12 +365,6 @@ function ConfigPanel({
       }}
     >
       {formik => {
-        // useEffect(() => {
-        //   formik.setValues({
-        //     configType: formik.values.configType,
-        //     ...getInitialValues(formik.values.configType),
-        //   })
-        // }, [formik.setValues, formik.values.configType])
         return (
           <Form>
             <Grid container spacing={2}>
@@ -551,6 +443,7 @@ export default function Home() {
       return;
     }
 
+    // TODO: what if notes are same? Should add padding of at least 1 note each direction
     const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(
       Math.min(...melody.melodySing.map(e => e.note.freq!)),
       Math.max(...melody.melodySing.map(e => e.note.freq!)),
@@ -759,7 +652,7 @@ export default function Home() {
         <Box flex={5}>
           <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
         </Box>
-        <Box flex={1} display={'flex'} flexDirection={'column'} p={2} component={Paper}>
+        <Box flex={1} p={2} sx={{ backgroundColor: 'common.white' }}>
           <ConfigPanel
             started={started}
             onStartClick={(melody: Melody) => {

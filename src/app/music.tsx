@@ -5,9 +5,14 @@ import {
     Note as TonalNote,
     Progression as TonalProgression,
     Chord as TonalChord,
+    ChordType as TonalChordType,
     Scale as TonalScale,
     Key as TonalKey,
+    // TODO: use for generating ranges - https://github.com/tonaljs/tonal/tree/main/packages/range
+    Range as TonalRange,
 } from '@tonaljs/tonal';
+
+window.TonalChordType = TonalChordType
 
 export interface ChordType extends ReturnType<typeof TonalChord.get> {
     readonly suffix: string;
@@ -87,6 +92,23 @@ export const ChordModule = {
             throw e;
         }
     },
+    getAllChords: (lowestNoteName: string, hightestNoteName: string): string[] => {
+      const chordSymbols = TonalChordType.symbols()
+      // const chordSymbols = ['maj', 'min']
+      const notes = NoteModule.getAllNotes(lowestNoteName, hightestNoteName)
+
+      return notes.map(n => (
+        chordSymbols.map(cs => `${n.name}${cs}`)
+      )).flat();
+    },
+    getAllRelevantChords: (lowestNoteName: string, hightestNoteName: string): string[] => {
+      const chordSymbols = ['maj', 'maj7', 'maj9', 'min', 'min7', 'min9', 'sus2', 'sus4', 'aug']
+      const notes = NoteModule.getAllNotes(lowestNoteName, hightestNoteName)
+
+      return notes.map(n => (
+        chordSymbols.map(cs => `${n.name}${cs}`)
+      )).flat();
+    }
 };
 
 export const ChordProgressionModule = {
