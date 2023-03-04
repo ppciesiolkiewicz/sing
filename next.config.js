@@ -10,12 +10,11 @@ const nextConfig = {
     { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
     // Important: return the modified config
+    config.externals = [{
+      canvas: {}
+    }];
     if (!isServer) {
-      config.externals = [nodeExternals()];
-    } else {
-      config.externals = {
-        canvas: {}
-      };
+      config.externals.push({ bufferutil: "bufferutil", "utf-8-validate": "utf-8-validate", });
     }
     return config
   },
