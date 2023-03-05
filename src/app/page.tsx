@@ -1,12 +1,12 @@
 "use client";
 import { Inter } from '@next/font/google'
 import { useRef, useState, useLayoutEffect } from 'react';
-import { PitchDetector as PD } from 'pitchy';
 import paper, { view, Path, Group, Point, Size, PointText, Rectangle } from 'paper'
 import * as Tone from 'tone';
 import Box from '@mui/material/Box';
 import { Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
+import PitchDetector from '@/lib/PitchDetector';
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
 
 const inter = Inter({ subsets: ['latin'] })
@@ -30,29 +30,11 @@ const theme = {
   },
 };
 
-type Hz = number;
-type LogHz = number;
-type Pixel = number;
-type PixelPerHz = number;
-
-function getPitch(analyserNode: any, detector: any, input: any, audioContext: any): [Hz, number, number] {
-  analyserNode.getFloatTimeDomainData(input);
-
-  let sumSquares = 0;
-  for (const amplitude of input) {
-    sumSquares += amplitude*amplitude;
-  }
-  const volume = Math.sqrt(sumSquares / input.length);
-  const [pitch, clarity] = detector.findPitch(input, audioContext.sampleRate);
-
-  return [pitch, clarity, volume]
-}
-
 
 export default function Home() {
   const [started, setStarted] = useState(false);
   const [melody, setMelody] = useState<Melody | null>(null);
-  const streamRef = useRef<any>(null);
+  const pitchDetectorRef = useRef<PitchDetector | null>(null);
   const canvasRef = useRef<any>(null);
 
   useLayoutEffect(() => {
@@ -61,30 +43,11 @@ export default function Home() {
       return;
     }
 
-    if (!started || streamRef.current) {
+    if (!started || pitchDetectorRef.current) {
       return;
     }
 
-    (async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const analyserMinDecibels = -35
-      const analyserMaxDecibels = -10
-      const analyserSmoothingTimeConstant = 0.85
-      const audioContext = new window.AudioContext();
-      const analyserNode = audioContext.createAnalyser();
-      analyserNode.minDecibels = analyserMinDecibels;
-      analyserNode.maxDecibels = analyserMaxDecibels;
-      analyserNode.smoothingTimeConstant = analyserSmoothingTimeConstant;
-    
-      const sourceNode = audioContext.createMediaStreamSource(stream);
-      sourceNode.connect(analyserNode);
-      const detector = PD.forFloat32Array(analyserNode.fftSize);
-      const input = new Float32Array(detector.inputLength);
-
-      streamRef.current = {
-        analyserNode, detector, input, audioContext,
-      };
-    })();
+    pitchDetectorRef.current = new PitchDetector();
   }, [started])
 
   useLayoutEffect(function render() {
@@ -143,14 +106,10 @@ export default function Home() {
       return Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq! * pixelsPerLogHertz + padding;
     };
 
-    function movePitchCircle(stream: any, pitchCircle: any) {
-      const [pitch, clarity, volume] = getPitch(
-        stream.analyserNode,
-        stream.detector,
-        stream.input,
-        stream.audioContext,
-      );
-    
+    function movePitchCircle(
+      [pitch, clarity, volume]: ReturnType<typeof PitchDetector.getPitch>,
+      pitchCircle: any
+    ) {
       if (volume < 0.02 || clarity < 0.5) {
         isSingPitchQualityAccepted = false;
         pitchCircle.fillColor = new paper.Color(theme.pitchCircle.fail)
@@ -224,11 +183,11 @@ export default function Home() {
 
     drawScaleLines();
     view.onFrame = async (ev: { delta: number, time: number, count: number }) => {
-      if (!streamRef.current) {
+      if (!pitchDetectorRef.current || !pitchDetectorRef.current.initialized) {
         return
       }
 
-      movePitchCircle(streamRef.current, pitchCircle);
+      movePitchCircle(pitchDetectorRef.current.getPitch(), pitchCircle);
 
 
       melody.melodyPlay

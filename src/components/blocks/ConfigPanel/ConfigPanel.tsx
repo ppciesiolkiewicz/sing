@@ -28,6 +28,12 @@ function KeyTonicAndKeyTypeSelectField() {
   
 }
 
+const CONFIG_TYPE_INTERVAL = 'Interval';
+const CONFIG_TYPE_SCALE = 'Scale';
+const CONFIG_TYPE_CHORDS = 'Chords';
+const CONFIG_TYPE_NOTES = 'Notes';
+
+
 function ConfigPanelTimesCommon() {
   return (
     <>
@@ -195,11 +201,6 @@ function ConfigPanelNotes() {
   );
 }
 
-const CONFIG_TYPE_INTERVAL = 'Interval';
-const CONFIG_TYPE_SCALE = 'Scale';
-const CONFIG_TYPE_CHORDS = 'Chords';
-const CONFIG_TYPE_NOTES = 'Notes';
-
 function ConfigPanelForm({ configType }: { configType: string }) {
   switch(configType) {
     case CONFIG_TYPE_INTERVAL:
@@ -226,9 +227,21 @@ function ConfigPanelForm({ configType }: { configType: string }) {
 }
 
 type ConfigPanelValues =
-    Parameters<typeof MelodyConfig.fromScale>[0] &
+    Omit<Parameters<typeof MelodyConfig.fromScale>[0], 'chordNames'> &
+    {
+      chordNames: {
+        label: string;
+        value: string;
+      }[];
+    } &
     Parameters<typeof MelodyConfig.fromChords>[0] &
-    Parameters<typeof MelodyConfig.fromIntervals>[0] &
+    Omit<Parameters<typeof MelodyConfig.fromIntervals>[0], 'intervalNames'> &
+    {
+      intervalNames: {
+        label: string;
+        value: string;
+      }[];
+    } &
     {
       configType: string;
     };
