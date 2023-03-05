@@ -1,5 +1,4 @@
-import { snackbarClasses } from '@mui/material';
-import { NoteModule, ScaleModule, ChordModule, IntervalModule } from './music';
+import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
 
 type NoteBase = {
   name: string;

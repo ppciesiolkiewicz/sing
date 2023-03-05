@@ -1,5 +1,5 @@
 import { SelectField } from '@/components/atoms/Select';
-import { NoteModule } from '@/app/music';
+import { NoteModule } from '@/lib/music';
 
 
 

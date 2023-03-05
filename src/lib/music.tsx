@@ -12,8 +12,6 @@ import {
     Range as TonalRange,
 } from '@tonaljs/tonal';
 
-window.TonalChordType = TonalChordType
-
 export interface ChordType extends ReturnType<typeof TonalChord.get> {
     readonly suffix: string;
 }
