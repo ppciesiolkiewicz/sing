@@ -107,7 +107,7 @@ export default function Home() {
     };
 
     function movePitchCircle(
-      [pitch, clarity, volume]: ReturnType<typeof PitchDetector.getPitch>,
+      [pitch, clarity, volume]: ReturnType<InstanceType<typeof PitchDetector>['getPitch']>,
       pitchCircle: any
     ) {
       if (volume < 0.02 || clarity < 0.5) {

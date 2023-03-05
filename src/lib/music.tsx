@@ -47,7 +47,7 @@ export const NoteModule = {
         });
     },
     getAllNotes: (lowestNote: number | string, highestNote: number | string) => {
-      let MIN_NOTE, MAX_NOTE;
+      let MIN_NOTE: NoteType, MAX_NOTE: NoteType;
       // TODO: improve , maybe take Note as param?
       if (typeof lowestNote === 'number') {
         MIN_NOTE = NoteModule.fromFreq(lowestNote)
@@ -158,19 +158,6 @@ export const ScaleModule = {
     getScaleNotes(keyTonic: string, keyType: string, lowestNoteName: string, highestNoteName: string) {
       const chromaticNotes = NoteModule.getAllNotes(lowestNoteName, highestNoteName)
       const scale = ScaleModule.get(keyTonic, keyType)
-      console.log(scale.notes)
-      // let scaleNotesBase = Array(octaveCount)
-      //   .fill(scale.notes)
-      //   .flat()
-      //   .map((note, i) => {
-      //     // TODO: broken Math.floor((i + 1) / scale.notes.length) because octave changes on C or other note
-      //     const octave = lowestOctave + Math.floor(i / scale.notes.length)
-      //     return `${note}${octave}`
-      //   })
-      //   .filter(note => {
-      //     const tmp = new MelodyNote(note, 0, 0)
-      //     return tmp.freq >= lowestNoteFreq && tmp.freq <= highestNoteFreq
-      //   })
 
       return chromaticNotes.filter(note => {
         return scale.notes.includes(note.pc)
