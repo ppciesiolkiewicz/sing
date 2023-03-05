@@ -12,6 +12,7 @@ import {
     Range as TonalRange,
 } from '@tonaljs/tonal';
 
+
 export interface ChordType extends ReturnType<typeof TonalChord.get> {
     readonly suffix: string;
 }
@@ -172,34 +173,42 @@ export const IntervalModule = {
 }
 
 
-
+// https://kathleenkarlsen.com/chakra-sounds
+// https://handicraftsinnepal.com/singing-bowl-chakras/
 const CHAKRA_NOTES = [
   {
     freq: 396,
-    name: 'Root',
+    longName: 'Root',
+    name: 'LAM',
   },
   {
     freq: 417,
-    name: 'Sacral',
+    longName: 'Sacral',
+    name: 'VAM',
   },
   {
     freq: 528,
-    name: 'Solar Plexus',
+    longName: 'Solar Plexus',
+    name: 'RAM',
   },
   {
     freq: 639,
-    name: 'Heart',
+    longName: 'Heart',
+    name: 'YAM',
   },
   {
     freq: 741,
-    name: 'Throat',
+    longName: 'Throat',
+    name: 'HAM',
   },
   {
     freq: 144,
-    name: 'Third Eye',
+    longName: 'Third Eye',
+    name: 'OM',
   },
   {
     freq: 963,
-    name: 'Crown',
+    longName: 'Crown',
+    name: 'AUM', // AH, ANG or AUM
   },
 ]
