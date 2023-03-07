@@ -8,10 +8,10 @@ type NoteBase = {
 class MelodyNote {
   name: string;
   freq: number;
-  start: number;
-  end: number;
+  start: Second;
+  end: Second;
 
-  constructor(noteName: string, start: number, end: number) {
+  constructor(noteName: string, start: Second, end: Second) {
     const note = NoteModule.get(noteName);
 
     this.name = note.name;
@@ -20,7 +20,7 @@ class MelodyNote {
     this.end = end;
   }
 
-  get duration(): number {
+  get duration(): Second {
     return this.end - this.start;
   }
 }
@@ -33,13 +33,13 @@ class MelodyChord {
   name: string;
   rootNote: MelodyNote;
   notes: MelodyNote[];
-  start: number;
-  end: number;
+  start: Second;
+  end: Second;
 
   constructor(
     chordName: string,
-    start: number,
-    end: number,
+    start: Second,
+    end: Second,
     mode: typeof SING_ALL_CHORD_COMPONENTS | typeof SING_CHORD_ROOT_ONLY,
   ) {
     this.mode = mode;
@@ -188,33 +188,23 @@ class MelodyConfig {
 }
 
 class MelodySingElement {
-  // todo encapsulation
+  // TODO encapsulation
   note: MelodyNote;
-  framesHit: number;
-  totalFrames: number;
-  started: boolean;
-  completed: boolean;
-  percentHit: number;
 
   constructor(note: MelodyNote) {
     this.note = note;
-    this.framesHit = 0;
-    this.totalFrames = 0;
-    this.started = false;
-    this.completed = false;
-    this.percentHit = 0;
   }
 
 
-  get start(): number {
+  get start(): Second {
     return this.note.start;
   }
 
-  get end(): number {
+  get end(): Second {
     return this.note.end;
   }
 
-  get duration(): number {
+  get duration(): Second {
     return this.note.duration;
   }
 };
@@ -224,7 +214,7 @@ class MelodyPlayElement {
   notes: MelodyNote[];
   played: boolean;
 
-  constructor(noteName: string | string[], start: number, end: number) {
+  constructor(noteName: string | string[], start: Second, end: Second) {
     if (Array.isArray(noteName)) {
       this.notes = noteName.map(n => new MelodyNote(n, start, end));
     } else {
@@ -241,7 +231,8 @@ class MelodyPlayElement {
     return this.notes[0].end;
   }
 
-  get duration(): number {
+  get duration(): Second {
+    // if playing chords then all of them need to have same duration, TOOD: assert?
     return this.notes[0].duration;
   }
 };

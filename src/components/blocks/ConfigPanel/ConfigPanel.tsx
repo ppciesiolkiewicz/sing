@@ -94,7 +94,7 @@ function ConfigPanel({
   onStartClick: (melody: Melody) => void,
   started: boolean,
 }) {
-  const [configType, setConfigType] = useState(CONFIG_TYPE_INTERVAL);
+  const [configType, setConfigType] = useState(CONFIG_TYPE_SCALE);
 
   return (
     <Box p={2} sx={{ backgroundColor: 'common.white' }}>
