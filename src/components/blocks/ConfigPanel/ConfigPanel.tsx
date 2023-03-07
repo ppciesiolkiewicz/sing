@@ -183,7 +183,7 @@ function ConfigPanelChords() {
             />
             )}
             labelPlacement="top"
-            label={"Sing all chord components"}
+            label={props.field.value ? "All chord notes" : "Root note only"}
           />
         )}
       </Field>
