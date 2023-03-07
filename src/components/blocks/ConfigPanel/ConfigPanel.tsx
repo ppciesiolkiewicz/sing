@@ -15,7 +15,7 @@ const CONFIG_TYPE_INTERVAL = 'Interval';
 const CONFIG_TYPE_SCALE = 'Scale';
 const CONFIG_TYPE_CHORDS = 'Chords';
 const CONFIG_TYPE_NOTES = 'Notes';
-const configTypeOptions = [
+const CONFIG_TYPE_OPTIONS = [
   {
     label: 'Interval',
     value: CONFIG_TYPE_INTERVAL,
@@ -104,7 +104,7 @@ function ConfigPanel({
             label="Exercise Type"
             id="configType"
             name="configType"
-            options={configTypeOptions}
+            options={CONFIG_TYPE_OPTIONS}
             onChange={ev => setConfigType(ev.target.value)}
             value={configType}
           />
@@ -129,22 +129,14 @@ function ConfigPanel({
   );
 }
 
-
+// TODO: extract isOpened
 function ConfigPanelDrawer({ started, onStartClick }: Parameters<typeof ConfigPanel>[0]) {
   const [isOpened, setIsOpened] = useState(true);
 
   // const toggleDrawer = (event: React.KeyboardEvent | React.MouseEvent) => {
   const toggleDrawer = () => {
-      // if (
-      //   event.type === 'keydown' &&
-      //   ((event as React.KeyboardEvent).key === 'Tab' ||
-      //     (event as React.KeyboardEvent).key === 'Shift')
-      // ) {
-      //   return;
-      // }
-
-      setIsOpened(!isOpened);
-    };
+    setIsOpened(!isOpened);
+  };
 
   return (
     <Fragment>
