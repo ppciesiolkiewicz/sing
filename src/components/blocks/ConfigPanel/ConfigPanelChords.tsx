@@ -44,9 +44,9 @@ function ConfigPanelChords({
 
   const initialValues: FormValues = {
     repeatTimes: 3,
-    timePerNote: 1,
-    timeBetweenNotes: 0.1,
-    timeBetweenRepeats: 1,
+    timePerNote: 3,
+    timeBetweenNotes: 0.2,
+    timeBetweenRepeats: 2,
     chordNames: [],
     includeAllChordComponents: true,
   };

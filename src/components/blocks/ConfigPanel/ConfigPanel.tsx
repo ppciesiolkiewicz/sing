@@ -15,7 +15,24 @@ const CONFIG_TYPE_INTERVAL = 'Interval';
 const CONFIG_TYPE_SCALE = 'Scale';
 const CONFIG_TYPE_CHORDS = 'Chords';
 const CONFIG_TYPE_NOTES = 'Notes';
-
+const configTypeOptions = [
+  {
+    label: 'Interval',
+    value: CONFIG_TYPE_INTERVAL,
+  },
+  {
+    label: 'Scale',
+    value: CONFIG_TYPE_SCALE,
+  },
+  {
+    label: 'Chords',
+    value: CONFIG_TYPE_CHORDS,
+  },
+  {
+    label: 'Notes',
+    value: CONFIG_TYPE_NOTES,
+  },
+];
 
 // TODO:
 function IntervalMultiSelectField() {}
@@ -78,24 +95,6 @@ function ConfigPanel({
   started: boolean,
 }) {
   const [configType, setConfigType] = useState(CONFIG_TYPE_INTERVAL);
-  const configTypeOptions = [
-    {
-      label: 'Interval',
-      value: CONFIG_TYPE_INTERVAL,
-    },
-    {
-      label: 'Scale',
-      value: CONFIG_TYPE_SCALE,
-    },
-    {
-      label: 'Chords',
-      value: CONFIG_TYPE_CHORDS,
-    },
-    {
-      label: 'Notes',
-      value: CONFIG_TYPE_NOTES,
-    },
-  ];
 
   return (
     <Box p={2} sx={{ backgroundColor: 'common.white' }}>
