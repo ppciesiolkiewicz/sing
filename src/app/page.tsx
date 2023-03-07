@@ -249,7 +249,7 @@ export default function Home() {
         }
       })
     }
-  }, [started]);
+  }, [started, melody]);
 
   return (
     <main

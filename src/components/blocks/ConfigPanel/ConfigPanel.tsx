@@ -118,7 +118,6 @@ function ConfigPanelInterval() {
 
 
 function ConfigPanelScale() {
-  // scale: ScaleModule.get('C', 'blues'),
   return (
     <>
       <Grid item xs={12}>
@@ -298,7 +297,6 @@ function ConfigPanel({
 
           if (values.configType === CONFIG_TYPE_INTERVAL) {
             config = MelodyConfig.fromIntervals({
-              // TODO: type
               intervalNames: values.intervalNames.map(({ value }) => value),
               lowestNoteName: values.lowestNoteName,
               highestNoteName: values.highestNoteName,
@@ -320,7 +318,6 @@ function ConfigPanel({
             })
           } else if (values.configType === CONFIG_TYPE_CHORDS) { 
             config = MelodyConfig.fromChords({
-              // TODO: type
               chordNames: values.chordNames.map(({ value }) => value),
               includeAllChordComponents: values.includeAllChordComponents,
               repeatTimes: values.repeatTimes,
