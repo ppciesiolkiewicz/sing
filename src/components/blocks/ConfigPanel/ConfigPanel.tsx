@@ -1,32 +1,15 @@
 import { Fragment, useState } from 'react';
-import { Formik, Field, Form, FormikHelpers, FieldProps } from 'formik';
 import MuiButton from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Fab from '@mui/material/Fab';
 import EditIcon from '@mui/icons-material/Edit';
-import { MultiSelectField } from '@/components/atoms/MultiSelect';
-import { TextFieldField } from '@/components/atoms/TextField';
-import { SelectField } from '@/components/atoms/Select';
-import { NoteSelectField } from '@/components/blocks/NoteSelect';
-import {
-  MelodyConfig,
-  Melody,
-} from '@/lib/Melody'
-import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
-
-
-function IntervalMultiSelectField() {
-
-}
-
-
-function KeyTonicAndKeyTypeSelectField() {
-  
-}
+import Select from '@/components/atoms/Select';
+import { Melody } from '@/lib/Melody'
+import ConfigPanelInterval from './ConfigPanelInterval';
+import ConfigPanelChords from './ConfigPanelChords';
+import ConfigPanelScale from './ConfigPanelScale';
 
 const CONFIG_TYPE_INTERVAL = 'Interval';
 const CONFIG_TYPE_SCALE = 'Scale';
@@ -34,161 +17,9 @@ const CONFIG_TYPE_CHORDS = 'Chords';
 const CONFIG_TYPE_NOTES = 'Notes';
 
 
-function ConfigPanelTimesCommon() {
-  return (
-    <>
-      <Grid item xs={12}>
-        <TextFieldField
-          id="repeatTimes"
-          name="repeatTimes"
-          label="Repeat"
-          type="number"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextFieldField
-          id="timePerNote"
-          name="timePerNote"
-          label="Time per note"
-          type="number"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextFieldField
-          id="timeBetweenNotes"
-          name="timeBetweenNotes"
-          label="Time between notes"
-          type="number"
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <TextFieldField
-          id="timeBetweenRepeats"
-          name="timeBetweenRepeats"
-          label="Time between repeats"
-          type="number"
-        />
-      </Grid>
-    </>
-  );
-}
-
-function ConfigPanelNoteBoundaries() {
-  return (
-    <>
-      <Grid item xs={12}>
-        <NoteSelectField
-          id={'lowestNoteName'}
-          name={'lowestNoteName'}
-          label={'Lowest Note'}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <NoteSelectField
-          id={'highestNoteName'}
-          name={'highestNoteName'}
-          label={'Highest Note'}
-        />
-      </Grid>
-    </>
-  );
-}
-
-function ConfigPanelInterval() {
-  const intervals = ['1P', '2M', '3M', '4P', '5P', '6m', '7m'];
-  const options = intervals.map(interval => ({
-    value: interval,
-    label: interval,
-  }))
-  return (
-    <>
-      <Grid item xs={12}>
-        <MultiSelectField
-          id={'intervalNames'}
-          name={'intervalNames'}
-          label={'Intervals'}
-          options={options}
-        />
-      </Grid>
-      <ConfigPanelNoteBoundaries />
-      <ConfigPanelTimesCommon />
-    </>
-  );
-}
-
-
-function ConfigPanelScale() {
-  return (
-    <>
-      <Grid item xs={12}>
-        <SelectField
-          id={'keyTonic'}
-          name={'keyTonic'}
-          label={'Key Tonic'}
-          // TODO: hack to get keyTonics...
-          options={NoteModule.getAllNotes('C1', 'C2').map(n => ({
-            label: n.pc,
-            value: n.pc,
-          }))}
-        />
-      </Grid>
-      <Grid item xs={12}>
-        <SelectField
-          id={'keyType'}
-          name={'keyType'}
-          label={'Key Type'}
-          options={ScaleModule.names().map(n => ({
-            label: n,
-            value: n,
-          }))}
-        />
-      </Grid>
-      <ConfigPanelNoteBoundaries />
-      <ConfigPanelTimesCommon />
-    </>
-  );
-}
-
-function ConfigPanelChords() {
-  const chords = ChordModule.getAllRelevantChords('C3', 'C5');
-  const options = chords.map(chord => ({
-    value: chord,
-    label: chord,
-  }))
-  return (
-    <>
-      <Grid item xs={12}>
-        <MultiSelectField
-          id={'chordNames'}
-          name={'chordNames'}
-          label={'Chords'}
-          options={options}
-        />
-      </Grid>
-      <ConfigPanelNoteBoundaries />
-      <ConfigPanelTimesCommon />
-      <Field
-        name={'includeAllChordComponents'}
-        id={'includeAllChordComponents'}
-      >
-        {props => (
-          <FormControlLabel
-          control={(
-            <Switch
-              id={props.field.id}
-              name={props.field.name}
-              onChange={props.form.handleChange}
-              value={props.field.value}
-            />
-            )}
-            labelPlacement="top"
-            label={props.field.value ? "All chord notes" : "Root note only"}
-          />
-        )}
-      </Field>
-    </>
-  )
-}
+// TODO:
+function IntervalMultiSelectField() {}
+function KeyTonicAndKeyTypeSelectField() {}
 
 
 function ConfigPanelNotes() {
@@ -200,19 +31,33 @@ function ConfigPanelNotes() {
   );
 }
 
-function ConfigPanelForm({ configType }: { configType: string }) {
+function ConfigPanelForm({
+  configType,
+  onStartClick,
+  children,
+}: {
+  configType: string,
+  onStartClick: (melody: Melody) => void,
+  children: JSX.Element,
+}) {
   switch(configType) {
     case CONFIG_TYPE_INTERVAL:
       return (
-        <ConfigPanelInterval />
+        <ConfigPanelInterval onStartClick={onStartClick}>
+          {children}
+        </ConfigPanelInterval>
       );
     case CONFIG_TYPE_SCALE:
       return (
-        <ConfigPanelScale />
+        <ConfigPanelScale onStartClick={onStartClick}>
+          {children}
+        </ConfigPanelScale>
       );
     case CONFIG_TYPE_CHORDS:
       return (
-        <ConfigPanelChords />
+        <ConfigPanelChords onStartClick={onStartClick}>
+          {children}
+        </ConfigPanelChords>
       );
     case CONFIG_TYPE_NOTES:
       return (
@@ -225,26 +70,6 @@ function ConfigPanelForm({ configType }: { configType: string }) {
   )
 }
 
-type ConfigPanelValues =
-    Omit<Parameters<typeof MelodyConfig.fromScale>[0], 'chordNames'> &
-    {
-      chordNames: {
-        label: string;
-        value: string;
-      }[];
-    } &
-    Parameters<typeof MelodyConfig.fromChords>[0] &
-    Omit<Parameters<typeof MelodyConfig.fromIntervals>[0], 'intervalNames'> &
-    {
-      intervalNames: {
-        label: string;
-        value: string;
-      }[];
-    } &
-    {
-      configType: string;
-    };
-
 function ConfigPanel({
   onStartClick,
   started,
@@ -252,6 +77,7 @@ function ConfigPanel({
   onStartClick: (melody: Melody) => void,
   started: boolean,
 }) {
+  const [configType, setConfigType] = useState(CONFIG_TYPE_INTERVAL);
   const configTypeOptions = [
     {
       label: 'Interval',
@@ -269,100 +95,37 @@ function ConfigPanel({
       label: 'Notes',
       value: CONFIG_TYPE_NOTES,
     },
-  ]
+  ];
 
   return (
     <Box p={2} sx={{ backgroundColor: 'common.white' }}>
-      <Formik
-        initialValues={{
-          configType: CONFIG_TYPE_CHORDS,
-          repeatTimes: 3,
-          timePerNote: 1,
-          timeBetweenNotes: 0.1,
-          timeBetweenRepeats: 1,
-          highestNoteName: 'G4',
-          lowestNoteName: 'A2',
-          keyTonic: 'C',
-          keyType: 'major',
-          chordNames: [],
-          intervalNames: [],
-          includeAllChordComponents: true,
-        }}
-        onSubmit={(
-          values: ConfigPanelValues,
-          { setSubmitting }: FormikHelpers<ConfigPanelValues>
-        ) => {
-          console.log('values', values);
-          let config = null;
-
-          if (values.configType === CONFIG_TYPE_INTERVAL) {
-            config = MelodyConfig.fromIntervals({
-              intervalNames: values.intervalNames.map(({ value }) => value),
-              lowestNoteName: values.lowestNoteName,
-              highestNoteName: values.highestNoteName,
-              repeatTimes: values.repeatTimes,
-              timePerNote: values.timePerNote,
-              timeBetweenNotes: values.timeBetweenNotes,
-              timeBetweenRepeats: values.timeBetweenRepeats,
-            })
-          }  else if (values.configType === CONFIG_TYPE_SCALE) {
-            config = MelodyConfig.fromScale({
-              keyTonic: values.keyTonic,
-              keyType: values.keyType,
-              lowestNoteName: values.lowestNoteName,
-              highestNoteName: values.highestNoteName,
-              repeatTimes: values.repeatTimes,
-              timePerNote: values.timePerNote,
-              timeBetweenNotes: values.timeBetweenNotes,
-              timeBetweenRepeats: values.timeBetweenRepeats,
-            })
-          } else if (values.configType === CONFIG_TYPE_CHORDS) { 
-            config = MelodyConfig.fromChords({
-              chordNames: values.chordNames.map(({ value }) => value),
-              includeAllChordComponents: values.includeAllChordComponents,
-              repeatTimes: values.repeatTimes,
-              timePerNote: values.timePerNote,
-              timeBetweenNotes: values.timeBetweenNotes,
-              timeBetweenRepeats: values.timeBetweenRepeats,
-            })
-          } else {
-            throw new Error("Unrecognized config type")
-          }
-          
-          const melody = new Melody(config);
-          onStartClick(melody);
-        }}
+      <Grid container spacing={2} mb={2}>
+        <Grid item xs={12}>
+          <Select
+            label="Exercise Type"
+            id="configType"
+            name="configType"
+            options={configTypeOptions}
+            onChange={ev => setConfigType(ev.target.value)}
+            value={configType}
+          />
+        </Grid>
+      </Grid>
+      <ConfigPanelForm
+        configType={configType}
+        onStartClick={onStartClick}
       >
-        {formik => {
-          return (
-            <Form>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <SelectField
-                    label="Exercise Type"
-                    id="configType"
-                    name="configType"
-                    options={configTypeOptions}
-                  />
-                </Grid>
-                <ConfigPanelForm
-                  configType={formik.values.configType}
-                />
-                <Grid item xs={12}>
-                  <MuiButton
-                    fullWidth
-                    variant={'contained'}
-                    color={'primary'}
-                    type={'submit'}
-                    >
-                    {started ? 'Stop' : 'Start'}
-                  </MuiButton>
-                </Grid>
-              </Grid>
-            </Form>
-          );
-        }}
-      </Formik>
+        <Grid item xs={12}>
+          <MuiButton
+            fullWidth
+            variant={'contained'}
+            color={'primary'}
+            type={'submit'}
+            >
+            {started ? 'Stop' : 'Start'}
+          </MuiButton>
+        </Grid>
+      </ConfigPanelForm>
     </Box>
   );
 }
