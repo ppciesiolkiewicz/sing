@@ -72,6 +72,10 @@ export const NoteModule = {
         .filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
 
       return CHROMATIC_SCALE_NOTES;
+    },
+    centsDistance: (freq: Hz, baseFreq: Hz) => {
+      /* How many cents freq is above or below baseFreq */
+      return 12 * Math.log2(freq / baseFreq)
     }
 };
 

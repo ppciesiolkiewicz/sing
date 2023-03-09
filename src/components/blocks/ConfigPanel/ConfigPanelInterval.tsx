@@ -44,8 +44,8 @@ function ConfigPanelInterval({
   const initialValues: FormValues = {
     repeatTimes: 3,
     timePerNote: 1,
-    timeBetweenNotes: 0.1,
-    timeBetweenRepeats: 1,
+    timeBetweenNotes: 0.5,
+    timeBetweenRepeats: 3,
     highestNoteName: 'C4',
     lowestNoteName: 'C3',
     intervalNames: [],

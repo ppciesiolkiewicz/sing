@@ -23,30 +23,19 @@ const theme = {
   },
 };
 
-class MelodyResults {
-  notesResults: {
-    framesHit: number;
-    totalFrames: number;
-    started: boolean;
-    completed: boolean;
-    percentHit: number;
-  }[];
-  constructor(melody: Melody, pixelsPerSecond: number) {
-    this.notesResults = melody.melodySing.map(n => ({
-      totalFrames: n.duration * pixelsPerSecond,
-      framesHit: 0,
-      started: false,
-      completed: false,
-      percentHit: 0,
-    }));
-  }
-
-  isMelodyCompleted() {
-    return this.notesResults[this.notesResults.length - 1].completed
-  }
+interface AnimationFrameEvent {
+  delta: number;
+  time: number;
+  count: number;
 }
 
+interface MelodyAnimationConfig {
+  melodySingPixelsPerSecond: number;
+  melodyNoteSelectedMaxFreqCentsDiff: number;
+  melodyPercentFrameHitToAccept: number;
+}
 type freqToCanvasYPosition = (freq: Hz) => Pixel;
+
 const getFreqToCanvasYPositionFn = (
   minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel
 ): freqToCanvasYPosition => (freq: Hz) => {
@@ -82,8 +71,8 @@ class PitchCircle {
     this.pitchDetector = pitchDetector;
     this.isSingPitchQualityAccepted = false;
 
-
-    this.pitchHistoryPaths = new Array(10).fill(null).map(() => (
+    const HISTORY_SAMPLES_COUNT = 20;
+    this.pitchHistoryPaths = new Array(HISTORY_SAMPLES_COUNT).fill(null).map(() => (
       new Path.Circle({
         center: view.center,
         radius: 2,
@@ -92,7 +81,7 @@ class PitchCircle {
       })
     ));
 
-    this.emaPitchHistoryPaths = new Array(10).fill(null).map(() => (
+    this.emaPitchHistoryPaths = new Array(HISTORY_SAMPLES_COUNT).fill(null).map(() => (
       new Path.Circle({
         center: view.center,
         radius: 2,
@@ -102,16 +91,24 @@ class PitchCircle {
     ));
   }
 
-  movePitchCircle() {
+  onAnimationFrame() {
     const [pitch, clarity, volume] = this.pitchDetector.getPitch();
 
-    const pitchHistory = this.pitchDetector.pitchHistory.slice(-10).reverse();
-    const emaPitchHistory = this.pitchDetector.emaPitchHistory.slice(-10).reverse();
+    const EVERY_N_HISTORY_SAMPLES = 1;
+    const PIXELS_PER_PITCH_HISTORY_IDX = 10;
+    const pitchHistory = this.pitchDetector.pitchHistory
+      .slice(-this.pitchHistoryPaths.length * EVERY_N_HISTORY_SAMPLES)
+      .filter((n, idx) => idx % EVERY_N_HISTORY_SAMPLES === 0)
+      .reverse();
+    const emaPitchHistory = this.pitchDetector.emaPitchHistory
+      .slice(-this.emaPitchHistoryPaths.length * EVERY_N_HISTORY_SAMPLES)
+      .filter((n, idx) => idx % EVERY_N_HISTORY_SAMPLES === 0)
+      .reverse();
 
     pitchHistory.forEach(([pitch], idx) => {
       const path = this.pitchHistoryPaths[idx]
       const y = this.freqToCanvasYPosition(pitch);
-      const dest = new Point(view.size.width/2 - idx * 10, y);
+      const dest = new Point(view.size.width/2 - idx * PIXELS_PER_PITCH_HISTORY_IDX, y);
       path.position = dest
       path.visible = true
     })
@@ -119,53 +116,11 @@ class PitchCircle {
     emaPitchHistory.forEach(([pitch], idx) => {
       const path = this.emaPitchHistoryPaths[idx]
       const y = this.freqToCanvasYPosition(pitch);
-      const dest = new Point(view.size.width/2 - idx * 10, y);
+      const dest = new Point(view.size.width/2 - idx * PIXELS_PER_PITCH_HISTORY_IDX, y);
       path.position = dest
       path.visible = true
     })
 
-
-
-
-    // console.log('[pitch, clarity, volume]', [pitch, clarity, volume])
-
-    // TODO draw a tail for the main circle
-    // const lastPitches = this.pitchDetector.getLastOutputs(10);
-
-    // if (volume < 0.0005 || clarity < 0.5) {
-    //   console.log([pitch, clarity, volume]);
-    //   this.isSingPitchQualityAccepted = false;
-    //   this.path.fillColor = new paper.Color(theme.pitchCircle.fail)
-    //   this.path.visible = false;
-    //   return null;
-    // }
-
-    // this.pitchHistory.push([pitch, clarity, volume])
-    // const smoothingSamples = 20;
-    // const alpha = .9;
-    // const beta = 1 - alpha;
-    // const [smoothPitch, smoothClarity, smoothVolume] = this.pitchHistory
-    //   .slice(this.pitchHistory.length - smoothingSamples, this.pitchHistory.length)
-    //   // .filter(([pitch, clarity, volume]) => {
-    //   //   return clarity > 0.9;
-    //   // })
-    //   .reduce(([emaPitch, emaClarity, emaVolume], [pitch, clarity, volume]) => [
-    //     emaPitch*beta + pitch*alpha,
-    //     emaClarity*beta + clarity*alpha,  
-    //     emaVolume*beta + volume*alpha,
-    //   ], [pitch, clarity, volume]);
-
-    // if (smoothClarity < 0.0005 || smoothClarity < this.clarityThreshold) {
-    //   console.log([pitch, clarity, volume], [smoothPitch, smoothClarity, smoothVolume]);
-    //   this.isSingPitchQualityAccepted = false;
-    //   this.path.fillColor = new paper.Color(theme.pitchCircle.fail)
-    //   this.path.visible = false;
-    //   return null;
-    // } else {
-    //   this.path.visible = true;
-    // }
-    // this.smoothPitchHistory.push([smoothPitch, smoothClarity, smoothVolume]);
-    
     const y = this.freqToCanvasYPosition(pitch);
     if (y == -Infinity || y == Infinity || y < 0 || !y) {
       this.isSingPitchQualityAccepted = false;
@@ -215,16 +170,123 @@ class NotesLines {
   }
 }
 
+class MelodySingNoteAnimatonElement {
+  path: Path.Rectangle;
+  melodySingElement: Melody['melodySing'][0];
+  result: {
+    framesHit: number;
+    totalFrames: number;
+    started: boolean;
+    completed: boolean;
+    percentHit: number;
+  };
+  config: MelodyAnimationConfig;
+  
+  constructor({
+    melodySingElement,
+    freqToCanvasYPosition,
+    config,
+  }: {
+    melodySingElement: Melody['melodySing'][0],
+    freqToCanvasYPosition: freqToCanvasYPosition,
+    config: MelodyAnimationConfig,
+  }) {
+    this.config = config;
+    this.melodySingElement = melodySingElement;
+    const note = melodySingElement.note;
+
+    this.result = {
+      totalFrames: note.duration * 60, // TODO: not *60 ?
+      framesHit: 0,
+      started: false,
+      completed: false,
+      percentHit: 0,
+    }
+
+    const startPosX = note.start * this.config.melodySingPixelsPerSecond;
+    const startPosY = freqToCanvasYPosition(note.freq!) - 10;
+    const endPosX = note.end * this.config.melodySingPixelsPerSecond;
+    const endPosY = freqToCanvasYPosition(note.freq!) + 10;
+
+    const rect = new Rectangle(
+      new Point(view.center.x + startPosX, startPosY),
+      new Size(endPosX - startPosX, endPosY - startPosY),
+    )
+    this.path = new Path.Rectangle(rect);
+    this.path.fillColor = new paper.Color(theme.noteRects.normal);
+    this.path.selected = false;
+  }
+
+  onAnimationFrame(ev: AnimationFrameEvent, pitch: Hz) {
+    const note = this.melodySingElement.note;
+    const result = this.result;
+    const path = this.path;
+
+    const dest = new Point(this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond, this.path.position.y);
+    this.path.position = dest;
+
+
+    if (!result.completed) {
+      if (path.bounds.left < view.center.x) {
+
+        if (!result.started) {
+          result.started = true;
+        }
+
+        const freqDiffInCents = Math.abs(NoteModule.centsDistance(pitch, note.freq))
+        if (
+          // pitchCircle.isSingPitchQualityAccepted &&
+          freqDiffInCents < this.config.melodyNoteSelectedMaxFreqCentsDiff
+        ) {
+          path.selected = true;
+          result.framesHit += 1;
+        } else {
+          path.selected = false;
+        }
+      }
+    }
+
+    if (!result.completed && path.bounds.right < view.center.x) {
+      result.completed = true;
+      result.percentHit = (
+        result.framesHit / result.totalFrames
+      );
+      path.selected = false;
+    }
+
+    if (result.completed) {
+      if (result.percentHit > this.config.melodyPercentFrameHitToAccept) {
+        path.fillColor = new paper.Color(theme.noteRects.success);
+      } else {
+        path.fillColor = new paper.Color(theme.noteRects.fail);
+      }
+    }
+  }
+
+  isCompleted() {
+    return this.result.completed;
+  }
+}
+
+
 class MelodyAnimation {
   melody: Melody;
+
   canvas: HTMLCanvasElement;
+  
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
-  freqToCanvasYPosition: freqToCanvasYPosition;
+  
+  
   pitchDetector: PitchDetector = new PitchDetector();
   synth: Tone.PolySynth = new Tone.PolySynth().toDestination();
-  melodySingPixelsPerSecond = 100;
-  melodyNoteSelectedMaxFreqCentsDiff: number = 0.1;
-  melodyPercentFrameHitToAccept = 0.5;
+  
+  freqToCanvasYPosition: freqToCanvasYPosition;
+  config: MelodyAnimationConfig = {
+    melodySingPixelsPerSecond: 100,
+    melodyNoteSelectedMaxFreqCentsDiff: 0.2,
+    melodyPercentFrameHitToAccept: 0.2,
+
+  }
   onStopped: () => void;
 
   static runChecks(): { error: string } | null {
@@ -287,11 +349,8 @@ class MelodyAnimation {
   }
 
   start() {
-    // if (!this.pitchDetector.initialized) {
-    //   throw Error("PitchDetector not initialized")
-    // }
     const melody = this.melody;
-    const results = new MelodyResults(melody, this.melodySingPixelsPerSecond);
+
     const noteLines = new NotesLines({
       freqToCanvasYPosition: this.freqToCanvasYPosition,
       notes: this.notesForNoteLines,
@@ -300,89 +359,42 @@ class MelodyAnimation {
       freqToCanvasYPosition: this.freqToCanvasYPosition,
       pitchDetector: this.pitchDetector,
     });
-    const melodySingRects = melody.melodySing.map(m => {
-      const startPosX =  m.note.start * this.melodySingPixelsPerSecond;
-      const startPosY = this.freqToCanvasYPosition(m.note.freq!) - 10;
-      const endPosX = m.note.end * this.melodySingPixelsPerSecond;
-      const endPosY = this.freqToCanvasYPosition(m.note.freq!) + 10;
-  
-      const rect = new Rectangle(
-        new Point(view.center.x + startPosX, startPosY),
-        new Size(endPosX - startPosX, endPosY - startPosY),
-      )
-      const path = new Path.Rectangle(rect);
-      path.fillColor = new paper.Color(theme.noteRects.normal);
-      path.selected = false;
-  
-      return [path, rect];
-    });
 
-    // TODO: wait unitl PitchDetector is initialized
-    setTimeout(() => {
-      view.onFrame = async (ev: { delta: number, time: number, count: number }) => {
-        pitchCircle.movePitchCircle()
-  
-        // melodyPlay
-        melody.melodyPlay
-          .forEach((m) => {
-            if (!m.played && ev.time >= m.start) {
-              this.synth.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
-              m.played = true;
-            }
-          });
-  
-          // melodySign
-          melodySingRects.forEach(([path, rect], idx) => {
-            var dest = new Point(path.position.x - ev.delta * this.melodySingPixelsPerSecond, path.position.y);
-            path.position = dest;
-      
-      
-            if (!results.notesResults[idx].completed) {
-              
-              if (path.bounds.left < view.center.x) {
-      
-                if (!results.notesResults[idx].started) {
-                  results.notesResults[idx].started = true;
-                }
-      
-                if (
-                  pitchCircle.isSingPitchQualityAccepted &&
-                  pitchCircle.path.position.y < path.bounds.bottom &&
-                  pitchCircle.path.position.y > path.bounds.top
-                ) {
-                  path.selected = true;
-                  melody.melodySing[idx].framesHit += 1;
-                } else {
-                  path.selected = false;
-                }
-              }
-            }
-  
-            if (!results.notesResults[idx].completed && path.bounds.right < view.center.x) {
-              results.notesResults[idx].completed = true;
-              results.notesResults[idx].percentHit = (
-                results.notesResults[idx].framesHit / results.notesResults[idx].totalFrames
-              );
-              path.selected = false;
-            }
-      
-            if (results.notesResults[idx].completed) {
-              if (results.notesResults[idx].percentHit > this.melodyPercentFrameHitToAccept) {
-                path.fillColor = new paper.Color(theme.noteRects.success);
-              } else {
-                path.fillColor = new paper.Color(theme.noteRects.fail);
-              }
-            }
-          });
-          
-    
-          if (results.isMelodyCompleted()) {
-            // TODO show results - have a function that runs on Stop as well
-            console.log(results);
-            this.stop();
+    const melodySingAnimationElements = melody.melodySing.map(m => new MelodySingNoteAnimatonElement({
+      melodySingElement: m,
+      freqToCanvasYPosition: this.freqToCanvasYPosition,
+      config: this.config,
+    }));
+
+    const onFrame = async (ev: AnimationFrameEvent) => {
+      melody.melodyPlay
+        .forEach((m) => {
+          if (!m.played && ev.time >= m.start) {
+            this.synth.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
+            m.played = true;
           }
-      };
-    }, 1000);
+        });
+
+      const pitch = this.pitchDetector.getPitch()[0];
+
+      pitchCircle.onAnimationFrame()
+      melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, this.pitchDetector.getPitch()[0]))
+  
+      if (melodySingAnimationElements.every(m => m.isCompleted())) {
+        // TODO show results - have a function that runs on Stop as well
+        console.log(melodySingAnimationElements.map(m => m.result));
+        this.stop();
+      }
+    };
+
+    const startAnimation = () => {
+      if (!this.pitchDetector.initialized) {
+        setTimeout(startAnimation, 100);
+      }
+      view.onFrame = onFrame
+    }
+
+    startAnimation();
   }
 
   stop() {

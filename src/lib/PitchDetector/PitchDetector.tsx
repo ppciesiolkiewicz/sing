@@ -45,6 +45,8 @@ function getFilteredOutliers(array: [Hz, number, number][], samplesCount = 10) {
   return filteredValues;
 }
 
+
+// TODO: EMA can be calculated using EMA(t-1)*beta + pitch(t)*alpha for speed
 function exponentialMovingAverage(array: [Hz, number, number][], samplesCount = 3, alpha = 0.9): [Hz, number, number] {  
   const beta = 1 - alpha;
 
@@ -430,6 +432,13 @@ class PitchDetector2 {
 }
 
 
+// TODO:  change shape of pitchHistory: [Hz, number, number][] for PitchDetector3
+interface PitchResult {
+  pitch: Hz;
+  isAccepted: boolean;
+  volume: number;
+}
+
 class PitchDetector3 {
   private  modelUrl = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
   public pitchHistory: [Hz, number, number][] = [];
@@ -459,6 +468,7 @@ class PitchDetector3 {
       if (err) throw new Error(err.message)
       if (frequency) {
         this.pitchHistory.push([frequency, 1, 1])
+        this.emaPitchHistory.push(exponentialMovingAverage(this.pitchHistory, 10, 0.1))
       }
 
       setTimeout(() => {
@@ -472,10 +482,7 @@ class PitchDetector3 {
       return [0, 0, 0];
     }
 
-    const ema = exponentialMovingAverage(this.pitchHistory, 10, 0.2);
-    this.emaPitchHistory.push(ema)
-
-    return ema;
+    return this.emaPitchHistory[this.emaPitchHistory.length - 1];
   }
 
   get initialized() {
