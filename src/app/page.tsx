@@ -4,7 +4,7 @@ import { useRef, useState, useLayoutEffect } from 'react';
 import Box from '@mui/material/Box';
 import { Melody } from '@/lib/Melody'
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
-import MelodyAnimation from '@/lib/animation/notes';
+import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 
 const inter = Inter({ subsets: ['latin'] })
 

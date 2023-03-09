@@ -25,6 +25,7 @@
     "eslint-config-next": "13.1.6",
     "formik": "^2.2.9",
     "lodash.times": "^4.3.2",
+    "ml5": "^0.12.2",
     "next": "^13.1.6",
     "paper": "^0.12.17",
     "paper-jsdom-canvas": "^0.12.17",

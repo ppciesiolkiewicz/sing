@@ -46,8 +46,8 @@ function ConfigPanelInterval({
     timePerNote: 1,
     timeBetweenNotes: 0.1,
     timeBetweenRepeats: 1,
-    highestNoteName: 'G4',
-    lowestNoteName: 'A2',
+    highestNoteName: 'C4',
+    lowestNoteName: 'C3',
     intervalNames: [],
   };
 
