@@ -61,6 +61,17 @@ function exponentialMovingAverage(array: [Hz, number, number][], samplesCount = 
     return [smoothPitch, smoothClarity, smoothVolume];
 }
 
+// // TODO: EMA can be calculated using EMA(t-1)*beta + pitch(t)*alpha for speed
+// function exponentialMovingAverage(array: number[], samplesCount = 3, alpha = 0.9): number {  
+//   const beta = 1 - alpha;
+
+//   const ema = array
+//     .slice(-1 * samplesCount)
+//     .reduce((emaValue, value) => emaValue * beta + value*alpha, array[array.length - 1]);
+
+//     return ema;
+// }
+
 
 class PitchDetector {
   private initialized_: boolean = false;
@@ -441,9 +452,13 @@ interface PitchResult {
 
 class PitchDetector3 {
   private  modelUrl = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
-  public pitchHistory: [Hz, number, number][] = [];
-  public emaPitchHistory: [Hz, number, number][] = [];
+  // public pitchHistory: Hz[] = [];
+  // public emaPitchHistory: Hz[] = [];
+
+  private pitch: Hz = -1;
+  private emaPitch: Hz = -1;
   private pitchDetector: ReturnType<typeof ml5.pitchDetection>;
+  private initialized_: boolean = false;
 
   constructor() {
     (async () => {
@@ -467,9 +482,32 @@ class PitchDetector3 {
     this.pitchDetector.getPitch((err: Error, frequency: Hz) => {
       if (err) throw new Error(err.message)
       if (frequency) {
-        this.pitchHistory.push([frequency, 1, 1])
-        this.emaPitchHistory.push(exponentialMovingAverage(this.pitchHistory, 10, 0.1))
+        const alpha = 0.2
+        const beta = 1 - alpha
+        this.pitch = frequency;
+
+        if (this.emaPitch === -1) {
+          this.emaPitch = frequency;
+        } else {
+          this.emaPitch = this.emaPitch*beta + frequency*alpha;
+        }
+        
+        // this.pitchHistory.push(frequency)
+        // if (this.pitchHistory.length == 1) {
+        //   this.emaPitchHistory.push(this.pitchHistory[0])
+        // } else {
+        //   const alpha = 0.2
+        //   const beta = 1 - alpha
+        //   const lastEmaPitch = this.emaPitchHistory[this.emaPitchHistory.length - 1]
+        //   this.emaPitchHistory.push(lastEmaPitch*beta + this.pitchHistory[this.pitchHistory.length - 1]*alpha)
+        // }
+
+      } else {
+        this.pitch = -1;
+        this.emaPitch = -1;
       }
+
+      this.initialized_ = true;
 
       setTimeout(() => {
         this.startPitchLoop()
@@ -477,16 +515,17 @@ class PitchDetector3 {
     });
   }
 
-  getPitch(): [Hz, number, number] {
+  getPitch(): Hz {
     if (!this.initialized) {
-      return [0, 0, 0];
+      return -1;
     }
 
-    return this.emaPitchHistory[this.emaPitchHistory.length - 1];
+    return this.emaPitch;
+    // return this.emaPitchHistory[this.emaPitchHistory.length - 1];
   }
 
   get initialized() {
-    return this.pitchHistory.length > 0
+    return this.initialized_;
   }
 }
 

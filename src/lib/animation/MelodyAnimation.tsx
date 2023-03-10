@@ -37,30 +37,24 @@ interface MelodyAnimationConfig {
 type freqToCanvasYPosition = (freq: Hz) => Pixel;
 
 const getFreqToCanvasYPositionFn = (
-  minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel
+  minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel, height: Pixel
 ): freqToCanvasYPosition => (freq: Hz) => {
-  return Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq! * pixelsPerLogHertz + padding;
+  return height - (Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + padding);
 };
 
 class PitchCircle {
   path: Path.Circle;
+  pitchHistory: Hz[] = [];
   pitchHistoryPaths: Path.Circle[];
-  emaPitchHistoryPaths: Path.Circle[];
 
   freqToCanvasYPosition: freqToCanvasYPosition;
   isSingPitchQualityAccepted: boolean;
-  pitchHistory: ReturnType<InstanceType<typeof PitchDetector>['getPitch']>[] = [];
-  smoothPitchHistory: ReturnType<InstanceType<typeof PitchDetector>['getPitch']>[] = [];
-  clarityThreshold: number = 0.5;
-  pitchDetector: PitchDetector;
 
 
   constructor({
     freqToCanvasYPosition,
-    pitchDetector,
   }: {
     freqToCanvasYPosition: freqToCanvasYPosition,
-    pitchDetector: PitchDetector;
   }) {
     this.path = new Path.Circle({
       center: view.center,
@@ -68,20 +62,10 @@ class PitchCircle {
       fillColor: new paper.Color(theme.pitchCircle.normal)
     });
     this.freqToCanvasYPosition = freqToCanvasYPosition;
-    this.pitchDetector = pitchDetector;
     this.isSingPitchQualityAccepted = false;
 
     const HISTORY_SAMPLES_COUNT = 20;
     this.pitchHistoryPaths = new Array(HISTORY_SAMPLES_COUNT).fill(null).map(() => (
-      new Path.Circle({
-        center: view.center,
-        radius: 2,
-        fillColor: new paper.Color('#c9d128'),
-        visible: false,
-      })
-    ));
-
-    this.emaPitchHistoryPaths = new Array(HISTORY_SAMPLES_COUNT).fill(null).map(() => (
       new Path.Circle({
         center: view.center,
         radius: 2,
@@ -91,35 +75,27 @@ class PitchCircle {
     ));
   }
 
-  onAnimationFrame() {
-    const [pitch, clarity, volume] = this.pitchDetector.getPitch();
-
-    const EVERY_N_HISTORY_SAMPLES = 1;
+  onAnimationFrame(ev: AnimationFrameEvent, pitch: Hz) {
+    const EVERY_N_HISTORY_SAMPLES = 2;
     const PIXELS_PER_PITCH_HISTORY_IDX = 10;
-    const pitchHistory = this.pitchDetector.pitchHistory
+
+    this.pitchHistory.push(pitch);
+
+    this.pitchHistory
       .slice(-this.pitchHistoryPaths.length * EVERY_N_HISTORY_SAMPLES)
       .filter((n, idx) => idx % EVERY_N_HISTORY_SAMPLES === 0)
-      .reverse();
-    const emaPitchHistory = this.pitchDetector.emaPitchHistory
-      .slice(-this.emaPitchHistoryPaths.length * EVERY_N_HISTORY_SAMPLES)
-      .filter((n, idx) => idx % EVERY_N_HISTORY_SAMPLES === 0)
-      .reverse();
-
-    pitchHistory.forEach(([pitch], idx) => {
-      const path = this.pitchHistoryPaths[idx]
-      const y = this.freqToCanvasYPosition(pitch);
-      const dest = new Point(view.size.width/2 - idx * PIXELS_PER_PITCH_HISTORY_IDX, y);
-      path.position = dest
-      path.visible = true
-    })
-
-    emaPitchHistory.forEach(([pitch], idx) => {
-      const path = this.emaPitchHistoryPaths[idx]
-      const y = this.freqToCanvasYPosition(pitch);
-      const dest = new Point(view.size.width/2 - idx * PIXELS_PER_PITCH_HISTORY_IDX, y);
-      path.position = dest
-      path.visible = true
-    })
+      .reverse()
+      .forEach((pitch, idx) => {
+        const path = this.pitchHistoryPaths[idx]
+        const y = this.freqToCanvasYPosition(pitch);
+        if (y == -Infinity || y == Infinity || y < 0 || !y) {
+          path.visible = false;
+          return;
+        }
+        const dest = new Point(view.size.width/2 - (idx + 1) * PIXELS_PER_PITCH_HISTORY_IDX, y);
+        path.position = dest
+        path.visible = true
+      })
 
     const y = this.freqToCanvasYPosition(pitch);
     if (y == -Infinity || y == Infinity || y < 0 || !y) {
@@ -305,6 +281,7 @@ class MelodyAnimation {
     this.canvas = canvas;
     paper.setup(canvas)
 
+    
     // window.devicePixelRatio logic
     if (window.devicePixelRatio > 1) {
       const ctx = canvas.getContext('2d');
@@ -317,10 +294,6 @@ class MelodyAnimation {
       canvas.height = canvasHeight * window.devicePixelRatio;  
       ctx.scale(window.devicePixelRatio * 2, window.devicePixelRatio * 2);
     }
-    
-    // set origin to bottom-left corner
-    // ctx.translate(0, canvas.height);
-    // ctx.scale(1, -1);
 
     // TODO: add padding if of few notes on each side there's only 1 note, e.g min 5 notes displayed
     this.notesForNoteLines = NoteModule.getAllNotes(
@@ -333,7 +306,7 @@ class MelodyAnimation {
     const maxNoteLogFreq: LogHz = Math.log2(this.notesForNoteLines[this.notesForNoteLines.length - 1].freq!);
     const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
-    this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding);
+    this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
 
 
     this.synth.set({
@@ -343,7 +316,7 @@ class MelodyAnimation {
       },
       portamento: 10,
       envelope: {
-        attack: 0.5,
+        attack: 0.2,
       }
     });
   }
@@ -357,7 +330,6 @@ class MelodyAnimation {
     });
     const pitchCircle = new PitchCircle({
       freqToCanvasYPosition: this.freqToCanvasYPosition,
-      pitchDetector: this.pitchDetector,
     });
 
     const melodySingAnimationElements = melody.melodySing.map(m => new MelodySingNoteAnimatonElement({
@@ -375,10 +347,10 @@ class MelodyAnimation {
           }
         });
 
-      const pitch = this.pitchDetector.getPitch()[0];
+      const currentPitch = this.pitchDetector.getPitch();
 
-      pitchCircle.onAnimationFrame()
-      melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, this.pitchDetector.getPitch()[0]))
+      pitchCircle.onAnimationFrame(ev, currentPitch)
+      melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, currentPitch))
   
       if (melodySingAnimationElements.every(m => m.isCompleted())) {
         // TODO show results - have a function that runs on Stop as well
@@ -390,8 +362,9 @@ class MelodyAnimation {
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
         setTimeout(startAnimation, 100);
+      } else {
+        view.onFrame = onFrame
       }
-      view.onFrame = onFrame
     }
 
     startAnimation();

@@ -1,5 +1,8 @@
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
 
+
+const START_TIME = 3;
+
 type NoteBase = {
   name: string;
   freq: number;
@@ -77,12 +80,10 @@ class MelodyConfig {
     timeBetweenNotes: number,
     timeBetweenRepeats: number,
   }) {
-    const startTime = 0;
-
     const notes = chordNames
       .reduce((acc: any, chordName, idx) => {
         const previousElement = acc[idx - 1];
-        const endOfPreviousElement = !previousElement ? startTime : previousElement.notes[previousElement.notes.length - 1].end;
+        const endOfPreviousElement = !previousElement ? START_TIME : previousElement.notes[previousElement.notes.length - 1].end;
         const start = endOfPreviousElement + timeBetweenNotes;
         const end = endOfPreviousElement + timePerNote + timeBetweenNotes;
         const chordConfigElement = new MelodyChord(
@@ -129,8 +130,8 @@ class MelodyConfig {
   
     const scaleNotesElements = scaleNotesNamesBaseRepeated
       .map((noteName, i) => {
-        const start = i * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
-        const end = (i + 1) * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
+        const start = START_TIME + i * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
+        const end = START_TIME + (i + 1) * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length);
         return {
           name: noteName,
           start,
@@ -163,6 +164,7 @@ class MelodyConfig {
     timeBetweenRepeats: number,
   }) {
     const intervals = intervalNames.map(name => IntervalModule.get(name));
+    const intervalsCount = intervals.length;
     const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
 
     let intervalNotesBase = CHROMATIC_SCALE_NOTES
@@ -172,16 +174,25 @@ class MelodyConfig {
         })
       })
       .flat()
-    intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
+    // intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
+    const timeBetweenRootNoteChange = timeBetweenNotes * 4;
 
-      const notes = new Array(repeatTimes)
-        .fill(intervalNotesBase)
-        .flat()
-        .map((n, i) => {
-          const start = i * timePerNote + timeBetweenNotes * i + timeBetweenRepeats * Math.floor(i/intervalNotesBase.length);
-          const end = (i + 1) * timePerNote + timeBetweenNotes * i  + timeBetweenRepeats * Math.floor(i/intervalNotesBase.length);
-          return new MelodyNote(n, start, end)
-        })
+    const notes = new Array(repeatTimes)
+      .fill(intervalNotesBase)
+      .flat()
+      .map((n, i) => {
+        const start = START_TIME +
+          i * timePerNote +
+          timeBetweenNotes * i +
+          timeBetweenRootNoteChange * Math.floor(i/intervalsCount)
+          timeBetweenRepeats * Math.floor(i/intervalNotesBase.length);
+        const end = START_TIME +
+          (i + 1) * timePerNote +
+          timeBetweenNotes * i  +
+          timeBetweenRootNoteChange * Math.floor(i/intervalsCount)
+          timeBetweenRepeats * Math.floor(i/intervalNotesBase.length);
+        return new MelodyNote(n, start, end)
+      })
 
       return new MelodyConfig(notes);
     }
