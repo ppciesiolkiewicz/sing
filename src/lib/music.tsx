@@ -76,7 +76,11 @@ export const NoteModule = {
     centsDistance: (freq: Hz, baseFreq: Hz) => {
       /* How many cents freq is above or below baseFreq */
       return 12 * Math.log2(freq / baseFreq)
-    }
+    },
+    addCents: (freq: Hz, cents: number): Hz => {
+      /* 10 cents = 0.1 */
+      return freq * Math.pow(2, cents/12)
+    },
 };
 
 export const ChordModule = {

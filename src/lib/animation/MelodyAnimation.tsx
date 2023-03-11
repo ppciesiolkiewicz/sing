@@ -46,10 +46,8 @@ class PitchCircle {
   path: Path.Circle;
   pitchHistory: Hz[] = [];
   pitchHistoryPaths: Path.Circle[];
-
   freqToCanvasYPosition: freqToCanvasYPosition;
   isSingPitchQualityAccepted: boolean;
-
 
   constructor({
     freqToCanvasYPosition,
@@ -58,7 +56,7 @@ class PitchCircle {
   }) {
     this.path = new Path.Circle({
       center: view.center,
-      radius: 10,
+      radius: 5,
       fillColor: new paper.Color(theme.pitchCircle.normal)
     });
     this.freqToCanvasYPosition = freqToCanvasYPosition;
@@ -128,7 +126,7 @@ class NotesLines {
         new Point(0, noteYPosition),
         new Point(view.size.width, noteYPosition),
       );
-      line.strokeWidth = 1;// * window.devicePixelRatio;
+      line.strokeWidth = 1 * window.devicePixelRatio; // TODO:
       line.strokeColor = new paper.Color(theme.noteLines.line);
       line.strokeCap = 'round';
 
@@ -170,24 +168,31 @@ class MelodySingNoteAnimatonElement {
     this.config = config;
     this.melodySingElement = melodySingElement;
     const note = melodySingElement.note;
-
     this.result = {
-      totalFrames: note.duration * 60, // TODO: not *60 ?
+      totalFrames: note.duration * 60, // TODO: not *60?
       framesHit: 0,
       started: false,
       completed: false,
       percentHit: 0,
-    }
+    };
+    const startFreq = NoteModule.addCents(
+      this.melodySingElement.note.freq!,
+      this.config.melodyNoteSelectedMaxFreqCentsDiff,
+    );
+    const endFreq = NoteModule.addCents(
+      this.melodySingElement.note.freq!,
+      -this.config.melodyNoteSelectedMaxFreqCentsDiff,
+    );
 
     const startPosX = note.start * this.config.melodySingPixelsPerSecond;
-    const startPosY = freqToCanvasYPosition(note.freq!) - 10;
+    const startPosY = freqToCanvasYPosition(startFreq);
     const endPosX = note.end * this.config.melodySingPixelsPerSecond;
-    const endPosY = freqToCanvasYPosition(note.freq!) + 10;
+    const endPosY = freqToCanvasYPosition(endFreq);
 
     const rect = new Rectangle(
       new Point(view.center.x + startPosX, startPosY),
       new Size(endPosX - startPosX, endPosY - startPosY),
-    )
+    );
     this.path = new Path.Rectangle(rect);
     this.path.fillColor = new paper.Color(theme.noteRects.normal);
     this.path.selected = false;
@@ -197,8 +202,10 @@ class MelodySingNoteAnimatonElement {
     const note = this.melodySingElement.note;
     const result = this.result;
     const path = this.path;
-
-    const dest = new Point(this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond, this.path.position.y);
+    const dest = new Point(
+      this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
+      this.path.position.y,
+    );
     this.path.position = dest;
 
 
@@ -211,7 +218,7 @@ class MelodySingNoteAnimatonElement {
 
         const freqDiffInCents = Math.abs(NoteModule.centsDistance(pitch, note.freq))
         if (
-          // pitchCircle.isSingPitchQualityAccepted &&
+          // TODO: pitchCircle.isSingPitchQualityAccepted &&
           freqDiffInCents < this.config.melodyNoteSelectedMaxFreqCentsDiff
         ) {
           path.selected = true;
@@ -247,21 +254,15 @@ class MelodySingNoteAnimatonElement {
 
 class MelodyAnimation {
   melody: Melody;
-
   canvas: HTMLCanvasElement;
-  
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
-  
-  
   pitchDetector: PitchDetector = new PitchDetector();
   synth: Tone.PolySynth = new Tone.PolySynth().toDestination();
-  
   freqToCanvasYPosition: freqToCanvasYPosition;
   config: MelodyAnimationConfig = {
     melodySingPixelsPerSecond: 100,
-    melodyNoteSelectedMaxFreqCentsDiff: 0.2,
+    melodyNoteSelectedMaxFreqCentsDiff: 0.3,
     melodyPercentFrameHitToAccept: 0.2,
-
   }
   onStopped: () => void;
 
@@ -293,7 +294,7 @@ class MelodyAnimation {
       canvas.width = canvasWidth * window.devicePixelRatio;
       canvas.height = canvasHeight * window.devicePixelRatio;  
       ctx.scale(window.devicePixelRatio * 2, window.devicePixelRatio * 2);
-    }
+    };
 
     // TODO: add padding if of few notes on each side there's only 1 note, e.g min 5 notes displayed
     this.notesForNoteLines = NoteModule.getAllNotes(
@@ -307,7 +308,6 @@ class MelodyAnimation {
     const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
     this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
-
 
     this.synth.set({
       oscillator: {
@@ -323,7 +323,6 @@ class MelodyAnimation {
 
   start() {
     const melody = this.melody;
-
     const noteLines = new NotesLines({
       freqToCanvasYPosition: this.freqToCanvasYPosition,
       notes: this.notesForNoteLines,
@@ -357,7 +356,7 @@ class MelodyAnimation {
         console.log(melodySingAnimationElements.map(m => m.result));
         this.stop();
       }
-    };
+    }
 
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
@@ -372,7 +371,7 @@ class MelodyAnimation {
 
   stop() {
     if (view) {
-      view.remove() 
+      view.remove();
     }
     this.onStopped();
   }
