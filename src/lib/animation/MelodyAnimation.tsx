@@ -329,7 +329,7 @@ class MelodyAnimation {
       },
       baseUrl: "https://tonejs.github.io/audio/casio/",
       attack: 0.2,
-      release: 0.2,
+      release: 0,
     }).toDestination();
   }
 
