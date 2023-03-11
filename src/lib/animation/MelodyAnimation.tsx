@@ -257,7 +257,9 @@ class MelodyAnimation {
   canvas: HTMLCanvasElement;
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
   pitchDetector: PitchDetector = new PitchDetector();
-  synth: Tone.PolySynth = new Tone.PolySynth().toDestination();
+  soundGenerator: {
+    triggerAttackRelease: (notes: string | string[], duration: number) => void;
+  };
   freqToCanvasYPosition: freqToCanvasYPosition;
   config: MelodyAnimationConfig = {
     melodySingPixelsPerSecond: 100,
@@ -309,16 +311,26 @@ class MelodyAnimation {
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
     this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
 
-    this.synth.set({
-      oscillator: {
-        // partialCount: 10,
-        // type: 'sine',
+    // this.soundGenerator = new Tone.PolySynth().toDestination();
+    // this.soundGenerator.set({
+    //   oscillator: {
+    //     // partialCount: 10,
+    //     // type: 'sine',
+    //   },
+    //   portamento: 10,
+    //   envelope: {
+    //     attack: 0.2,
+    //   }
+    // });
+    this.soundGenerator = new Tone.Sampler({
+      urls: {
+        A1: "A1.mp3",
+        A2: "A2.mp3",
       },
-      portamento: 10,
-      envelope: {
-        attack: 0.2,
-      }
-    });
+      baseUrl: "https://tonejs.github.io/audio/casio/",
+      attack: 0.2,
+      release: 0.2,
+    }).toDestination();
   }
 
   start() {
@@ -341,7 +353,7 @@ class MelodyAnimation {
       melody.melodyPlay
         .forEach((m) => {
           if (!m.played && ev.time >= m.start) {
-            this.synth.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
+            this.soundGenerator.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
             m.played = true;
           }
         });
