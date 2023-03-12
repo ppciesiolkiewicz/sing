@@ -1,7 +1,7 @@
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
 
 
-const START_TIME = 3;
+const START_TIME = 5;
 
 type NoteBase = {
   name: string;

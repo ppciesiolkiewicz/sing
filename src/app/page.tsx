@@ -6,7 +6,6 @@ import { Melody } from '@/lib/Melody'
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   const [started, setStarted] = useState(false);

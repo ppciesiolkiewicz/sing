@@ -47,7 +47,6 @@ class PitchCircle {
   pitchHistory: Hz[] = [];
   pitchHistoryPaths: Path.Circle[];
   freqToCanvasYPosition: freqToCanvasYPosition;
-  isSingPitchQualityAccepted: boolean;
 
   constructor({
     freqToCanvasYPosition,
@@ -60,7 +59,6 @@ class PitchCircle {
       fillColor: new paper.Color(theme.pitchCircle.normal)
     });
     this.freqToCanvasYPosition = freqToCanvasYPosition;
-    this.isSingPitchQualityAccepted = false;
 
     const HISTORY_SAMPLES_COUNT = 20;
     this.pitchHistoryPaths = new Array(HISTORY_SAMPLES_COUNT).fill(null).map(() => (
@@ -97,14 +95,12 @@ class PitchCircle {
 
     const y = this.freqToCanvasYPosition(pitch);
     if (y == -Infinity || y == Infinity || y < 0 || !y) {
-      this.isSingPitchQualityAccepted = false;
       this.path.fillColor = new paper.Color(theme.pitchCircle.fail);
 
       return;
     }
 
     this.path.visible = true;
-    this.isSingPitchQualityAccepted = true;
     this.path.fillColor = new paper.Color(theme.pitchCircle.success)
     const dest = new Point(view.size.width/2, y);
     this.path.position = dest
@@ -218,7 +214,6 @@ class MelodySingNoteAnimatonElement {
 
         const freqDiffInCents = Math.abs(NoteModule.centsDistance(pitch, note.freq))
         if (
-          // TODO: pitchCircle.isSingPitchQualityAccepted &&
           freqDiffInCents < this.config.melodyNoteSelectedMaxFreqCentsDiff
         ) {
           path.selected = true;
