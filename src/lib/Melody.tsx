@@ -1,5 +1,10 @@
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
-
+import {
+  CONFIG_TYPE_INTERVAL,
+  CONFIG_TYPE_SCALE,
+  CONFIG_TYPE_CHORDS,
+  CONFIG_TYPE_NOTES,
+} from '@/constants';
 
 const START_TIME = 5;
 
@@ -63,6 +68,26 @@ class MelodyConfig {
   notes: (MelodyNote | MelodyChord)[];
   constructor(notes: (MelodyNote | MelodyChord)[]) {
     this.notes = notes;
+  }
+
+  static fromObject({
+    configType,
+    config
+  }: {
+    configType: string,
+    config: any,
+  }) {
+    if (configType === CONFIG_TYPE_CHORDS) {
+      return MelodyConfig.fromChords(config);
+    } else if (configType === CONFIG_TYPE_INTERVAL) {
+      return MelodyConfig.fromIntervals(config);
+    } else if (configType === CONFIG_TYPE_SCALE) {
+      return MelodyConfig.fromScale(config);
+    } else if (configType === CONFIG_TYPE_NOTES) {
+      throw new Error('Not implemented');
+    }
+
+    throw new Error('Incorrect configType');
   }
 
   static fromChords({
@@ -286,8 +311,6 @@ class Melody {
     this.melodyPlay = melodyPlay;
   }
 }
-
-
 
 export {
   MelodyConfig,

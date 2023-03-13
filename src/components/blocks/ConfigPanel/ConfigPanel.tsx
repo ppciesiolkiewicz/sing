@@ -10,11 +10,13 @@ import { Melody } from '@/lib/Melody'
 import ConfigPanelInterval from './ConfigPanelInterval';
 import ConfigPanelChords from './ConfigPanelChords';
 import ConfigPanelScale from './ConfigPanelScale';
+import {
+  CONFIG_TYPE_INTERVAL,
+  CONFIG_TYPE_SCALE,
+  CONFIG_TYPE_CHORDS,
+  CONFIG_TYPE_NOTES,
+} from '@/constants';
 
-const CONFIG_TYPE_INTERVAL = 'Interval';
-const CONFIG_TYPE_SCALE = 'Scale';
-const CONFIG_TYPE_CHORDS = 'Chords';
-const CONFIG_TYPE_NOTES = 'Notes';
 const CONFIG_TYPE_OPTIONS = [
   {
     label: 'Interval',

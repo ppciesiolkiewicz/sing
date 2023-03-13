@@ -1,11 +1,7 @@
 "use client";
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react';
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import { Melody } from '@/lib/Melody';
+import { Melody, MelodyConfig } from '@/lib/Melody';
 import Container from '@/components/atoms/Container';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
 import { useFetchExercise  } from '@/hooks/fetch';
@@ -19,11 +15,15 @@ export default function Exercise() {
     return <Box>Loading...</Box>
   }
 
+  const melodyConfig = MelodyConfig.fromObject(exerciseQuery.data)
+  const melody = new Melody(melodyConfig)
   return (
     <Container>
-      <pre>
-        {JSON.stringify(exerciseQuery.data)}
-      </pre>
+      <MelodyExercise
+        melody={melody}
+        started={true}
+        setStarted={() => {}}
+      />
     </Container>
   )
 }

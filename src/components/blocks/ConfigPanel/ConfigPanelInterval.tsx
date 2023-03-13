@@ -3,6 +3,7 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import Grid from '@mui/material/Grid';
 import { MelodyConfig, Melody } from '@/lib/Melody'
+import { IntervalModule } from '@/lib/music'
 import { MultiSelectField } from '@/components/atoms/MultiSelect';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
@@ -35,7 +36,7 @@ function ConfigPanelInterval({
   onStartClick: (melody: Melody) => void,
   children: JSX.Element,
 }) {
-  const intervals = ['1P', '2M', '3M', '4P', '5P', '6m', '7m'];
+  const intervals = IntervalModule.names();
   const options = intervals.map(interval => ({
     value: interval,
     label: interval,
