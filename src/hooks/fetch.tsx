@@ -2,7 +2,7 @@ import useSWR from 'swr';
 
 
 export function useFetchExercises() {
-  const query = useSWR('/api/exercises', (url) => {
+  const query = useSWR('/api/exercise', (url: string) => {
     return fetch(url).then((res) => res.json())
   });
 
@@ -10,7 +10,7 @@ export function useFetchExercises() {
 }
 
 export function useFetchExercise({ id }: { id: string | number }) {
-  const query = useSWR(`/api/exercises/${id}`, (url) => {
+  const query = useSWR(`/api/exercise/${id}`, (url: string) => {
     return fetch(url).then((res) => res.json())
   });
 
