@@ -7,11 +7,11 @@ import Paper from "@mui/material/Paper";
 import { Melody } from '@/lib/Melody';
 import Container from '@/components/atoms/Container';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
-import { fetchExercises  } from '@/hooks/fetch';
+import { useFetchExercises  } from '@/hooks/fetch';
 
 
 export default function Exercises() {
-  const exercisesQuery = fetchExercises();
+  const exercisesQuery = useFetchExercises();
 
   if (exercisesQuery.isLoading) {
     return <Box>Loading...</Box>

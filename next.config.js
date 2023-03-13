@@ -9,9 +9,16 @@ const nextConfig = {
     config,
     { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }
   ) => {
-    config.externals = [{
-      canvas: {}
-    }];
+    config.module.rules.push(
+      {
+        test: /\.node$/,
+        use: [
+          {
+            loader: "node-loader",
+          }
+        ]
+      }
+    );
     // config.externals.push(nodeExternals()); - TODO: causes error: "Currently React only supports one RSC renderer at a time.""
     config.externals.push({
       bufferutil: "bufferutil",
