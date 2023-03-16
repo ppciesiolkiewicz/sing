@@ -67,10 +67,10 @@ interface NoteFactoryReturn {
   lyrics: Lyrics[];
 }
 
-interface NoteConfig extends NoteBase {
+export interface NoteConfig extends NoteBase {
   noteValue: number;
 }
-interface LyricsConfig extends LyricsBase {
+export interface LyricsConfig extends LyricsBase {
   noteValue: number;
 }
 interface ChordConfig {
@@ -92,9 +92,9 @@ class NoteFactory {
     const notesSing_ = notesPlay_;
 
     beatCounter = START_BEAT;
-    const lyrics_ = lyrics ? lyrics.map(n => {
-      const lyrics = new Lyrics(n.text, n.noteValue, beatCounter);
-      beatCounter += n.noteValue;
+    const lyrics_ = lyrics ? lyrics.map(l => {
+      const lyrics = new Lyrics(l.text, l.noteValue, beatCounter);
+      beatCounter += l.noteValue;
       return lyrics
     }): [];
 

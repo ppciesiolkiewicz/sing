@@ -78,7 +78,7 @@ function MelodyExercise({
         <Box>
           Congratulations! Here is your score:
           {score && Object.keys(score)?.map(noteName => (
-            <Box>
+            <Box key={noteName}>
               {noteName}: {score[noteName].toFixed(0)}% hit
             </Box>
           ))}

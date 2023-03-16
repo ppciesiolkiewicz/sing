@@ -3,6 +3,7 @@ import * as Tone from 'tone';
 import { Melody } from '@/lib/Melody/index'
 import { NoteModule } from '@/lib/music';
 import PitchDetector from '@/lib/PitchDetector';
+import type { AnimationFrameEvent } from './types';
 
 const theme = {
   background: '#fff',
@@ -23,11 +24,6 @@ const theme = {
   },
 };
 
-interface AnimationFrameEvent {
-  delta: number;
-  time: number;
-  count: number;
-}
 
 export interface MelodySingNoteScore {
   noteName: string;
@@ -42,6 +38,8 @@ interface MelodyAnimationConfig {
   melodySingPixelsPerSecond: number;
   melodyNoteSelectedMaxFreqCentsDiff: number;
   melodyPercentFrameHitToAccept: number;
+  paddingTop: Pixel;
+  paddingBottom: Pixel;
 }
 type freqToCanvasYPosition = (freq: Hz) => Pixel;
 
@@ -56,9 +54,9 @@ const beatToTime = (beatNo: number, tempo: number): Second => {
 }
 
 const getFreqToCanvasYPositionFn = (
-  minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel, height: Pixel
+  minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, paddingBottom: Pixel, height: Pixel
 ): freqToCanvasYPosition => (freq: Hz) => {
-  return height - (Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + padding);
+  return height - (Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + paddingBottom);
 };
 
 class PitchCircle {
@@ -208,7 +206,8 @@ class MelodySingNoteAnimatonElement {
       new Point(view.center.x + startPosX, startPosY),
       new Size(endPosX - startPosX, endPosY - startPosY),
     );
-    this.path = new Path.Rectangle(rect);
+    var radius = new Size(20, 20);
+    this.path = new Path.Rectangle(rect, radius);
     this.path.fillColor = new paper.Color(theme.noteRects.normal);
     this.path.selected = false;
   }
@@ -274,12 +273,59 @@ class MelodySingNoteAnimatonElement {
   }
 }
 
+class MelodyLyricsAnimatonElement {
+  path: PointText;
+  tempo: number;
+  lyricsElement: Melody['lyrics'][number];
+  config: MelodyAnimationConfig;
+  
+  constructor({
+    lyricsElement,
+    tempo,
+    config,
+  }: {
+    lyricsElement: Melody['lyrics'][number],
+    tempo: number,
+    config: MelodyAnimationConfig,
+  }) {
+    this.config = config;
+    this.lyricsElement = lyricsElement;
+    this.tempo = tempo;
+
+    const fontSize = 12 * window.devicePixelRatio;
+    const startPosX = beatToTime(lyricsElement.startBeat, this.tempo) * this.config.melodySingPixelsPerSecond;
+    this.path = new PointText(
+      new Point(
+        view.center.x + startPosX,
+        view.size.height - this.config.paddingBottom/2 + fontSize/2,
+      ));
+    this.path.content = lyricsElement.text;
+    this.path.style = {
+        ...this.path.style,
+        fontFamily: 'Courier New',
+        fontWeight: 'bold',
+        fontSize: fontSize,
+        fillColor: new paper.Color(theme.noteLines.text),
+        justification: 'center'
+    };
+  }
+
+  onAnimationFrame(ev: AnimationFrameEvent) {
+    const dest = new Point(
+      this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
+      this.path.position.y,
+    );
+    this.path.position = dest;
+  }
+}
+
 
 class MelodyAnimation {
   melody: Melody;
   canvas: HTMLCanvasElement;
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
   melodySingAnimationElements: MelodySingNoteAnimatonElement[];
+  melodyLyricsAnimationElements: MelodyLyricsAnimatonElement[];
   pitchDetector: PitchDetector = new PitchDetector();
   soundGenerator: {
     triggerAttackRelease: (notes: string | string[], duration: number) => void;
@@ -289,6 +335,8 @@ class MelodyAnimation {
     melodySingPixelsPerSecond: 100,
     melodyNoteSelectedMaxFreqCentsDiff: 0.3,
     melodyPercentFrameHitToAccept: 0.2,
+    paddingTop: 20 * window.devicePixelRatio,
+    paddingBottom: 60 * window.devicePixelRatio,
   }
   // TODO: onFinished?
   onStopped: (score: MelodySingNoteScore[]) => void;
@@ -329,13 +377,16 @@ class MelodyAnimation {
       Math.max(...melody.notesSing.filter(ns => !!ns.freq).map(ns => ns.freq!)),
     );
 
-    const padding: Pixel = 20 * window.devicePixelRatio;
-    const heightWithoutPadding: Pixel = view.size.height - padding*2;
+    const paddingTop: Pixel = this.config.paddingTop;
+    const paddingBottom: Pixel = this.config.paddingBottom;
+    const heightWithoutPadding: Pixel = view.size.height - paddingTop - paddingBottom;
     const minNoteLogFreq: LogHz = Math.log2(this.notesForNoteLines[0].freq!);
     const maxNoteLogFreq: LogHz = Math.log2(this.notesForNoteLines[this.notesForNoteLines.length - 1].freq!);
     const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
-    this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
+    this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(
+      minNoteLogFreq, pixelsPerLogHertz, paddingBottom, view.size.height
+    );
 
     this.melodySingAnimationElements = melody.notesSing
       .map(ns =>
@@ -348,6 +399,15 @@ class MelodyAnimation {
       )
       .filter(Boolean) as MelodySingNoteAnimatonElement[];
 
+    this.melodyLyricsAnimationElements = melody.lyrics
+      .map(l =>
+        new MelodyLyricsAnimatonElement({
+          lyricsElement: l,
+          tempo: melody.tempo,
+          config: this.config,
+        })
+      )
+      .filter(Boolean) as MelodyLyricsAnimatonElement[];
     // this.soundGenerator = new Tone.PolySynth().toDestination();
     // this.soundGenerator.set({
     //   oscillator: {
@@ -400,8 +460,8 @@ class MelodyAnimation {
       const currentPitch = this.pitchDetector.getPitch();
 
       pitchCircle.onAnimationFrame(ev, currentPitch)
-      this.melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, currentPitch))
-  
+      this.melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, currentPitch));
+      this.melodyLyricsAnimationElements.forEach(e => e.onAnimationFrame(ev));
       if (this.melodySingAnimationElements.every(m => m.isCompleted())) {
         // TODO show results - have a function that runs on Stop as well | onFinished?
         this.stop();

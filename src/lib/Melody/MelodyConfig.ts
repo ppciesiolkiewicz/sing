@@ -13,7 +13,7 @@ import {
   SING_CHORD_ROOT_ONLY,
   PAUSE_NOTE_NAME,
 } from './MelodyNote'
-import type { NoteFactoryReturn } from './MelodyNote'
+import type { NoteFactoryReturn, NoteConfig, LyricsConfig } from './MelodyNote'
 
 
 class MelodyConfig implements NoteFactoryReturn {
@@ -143,6 +143,15 @@ class MelodyConfig implements NoteFactoryReturn {
         NoteFactory.fromNotesNotesPlayEqualNotesSing(
           intervalNotesBase,
         )
+    );
+  }
+
+  static fromNotes(notes: NoteConfig[], lyrics?: LyricsConfig[]) {
+    return new MelodyConfig(
+      NoteFactory.fromNotesNotesPlayEqualNotesSing(
+        notes,
+        lyrics,
+      )
     );
   }
 }

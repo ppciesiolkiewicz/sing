@@ -3,19 +3,8 @@ import Link from 'next/link'
 import Box from '@mui/material/Box';
 import Container from '@/components/atoms/Container';
 import { Melody, MelodyConfig } from '@/lib/Melody/index';
-
-const chordsConfig = MelodyConfig.fromChords({
-  chordNames: ['C3maj', 'G3maj'],
-  includeAllChordComponents: true,
-  repeatTimes: 3,
-  noteValue: 1,
-})
-
-const chordsMelody = new Melody(chordsConfig, 60);
-
-
 import { useRef, useLayoutEffect, useState } from 'react';
-import MelodyAnimation from '@/lib/animation/MelodyAnimationTempoBased';
+import MelodyAnimation from '@/lib/animation/MelodyAnimationTempoBased/MelodyAnimationTempoBased';
 import Modal from '@/components/atoms/Modal';
 
 function MelodyExercise({
@@ -91,7 +80,7 @@ function MelodyExercise({
         <Box>
           Congratulations! Here is your score:
           {score && Object.keys(score)?.map(noteName => (
-            <Box>
+            <Box key={noteName}>
               {noteName}: {score[noteName].toFixed(0)}% hit
             </Box>
           ))}
@@ -100,6 +89,16 @@ function MelodyExercise({
     </>
   );
 }
+
+
+const chordsConfig = MelodyConfig.fromChords({
+  chordNames: ['C3maj', 'G3maj'],
+  includeAllChordComponents: true,
+  repeatTimes: 3,
+  noteValue: 1,
+})
+
+const chordsMelody = new Melody(chordsConfig, 60);
 
 
 const intervalConfig = MelodyConfig.fromIntervals({
@@ -122,12 +121,67 @@ const scaleConfig = MelodyConfig.fromScale({
 })
 const scaleMelody = new Melody(scaleConfig, 60);
 
+const notesConfig = MelodyConfig.fromNotes([
+  {
+    noteName: 'C3',
+    noteValue: 1/4,
+  },
+  {
+    noteName: 'E3',
+    noteValue: 1,
+  },
+  {
+    noteName: 'G3',
+    noteValue: 1/4,
+  },
+  {
+    noteName: 'F3',
+    noteValue: 1/4,
+  },
+  {
+    noteName: 'F3',
+    noteValue: 1/4,
+  },
+  {
+    noteName: 'F3',
+    noteValue: 1/4,
+  }
+], [
+  {
+    text: 'C3',
+    noteValue: 1/4,
+  },
+  {
+    text: 'E3',
+    noteValue: 1,
+  },
+  {
+    text: 'G3',
+    noteValue: 1/4,
+  },
+  {
+    text: 'F3',
+    noteValue: 1/4,
+  },
+  {
+    text: 'F3',
+    noteValue: 1/4,
+  },
+  {
+    text: 'F3',
+    noteValue: 1/4,
+  }
+])
+const notesMelody = new Melody(notesConfig, 60);
+
 console.log('intervalsConfig', intervalConfig)
 console.log('intervalMelody', intervalMelody)
 console.log('scaleConfig', scaleConfig)
 console.log('scaleMelody', scaleMelody)
 console.log('chordsConfig', chordsConfig)
 console.log('chordsMelody', chordsMelody)
+console.log('notesConfig', notesConfig)
+console.log('notesMelody', notesMelody)
 
 export default function Home() {
   return (
@@ -138,7 +192,7 @@ export default function Home() {
       </Box> */}
         <Box width={'100%'}>
           <MelodyExercise
-            melody={intervalMelody}
+            melody={notesMelody}
             started={true}
             setStarted={() => {}}
           />
