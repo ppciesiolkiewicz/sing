@@ -358,18 +358,20 @@ class MelodyAnimation {
     paper.setup(canvas)
 
     // TODO: breaks on mobile. Is it even necessary?
+    // Looks important. Maybe just don't include this logic on mobile?
     // window.devicePixelRatio logic
-    // if (window.devicePixelRatio > 1) {
-    //   const ctx = canvas.getContext('2d');
-    //   if (!ctx) {
-    //     throw new Error("Something went wrong getting canvas context");
-    //   }
-    //   const canvasWidth = canvas.width;
-    //   const canvasHeight = canvas.height;
-    //   canvas.width = canvasWidth * window.devicePixelRatio;
-    //   canvas.height = canvasHeight * window.devicePixelRatio;
-    //   ctx.scale(window.devicePixelRatio * 2, window.devicePixelRatio * 2);
-    // };
+    if (window.devicePixelRatio > 1) {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error("Something went wrong getting canvas context");
+      }
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      canvas.width = canvasWidth * window.devicePixelRatio;
+      canvas.height = canvasHeight * window.devicePixelRatio;  
+      // WAS ctx.scale(window.devicePixelRatio * 2, window.devicePixelRatio * 2);
+      ctx.scale(window.devicePixelRatio * window.devicePixelRatio, window.devicePixelRatio * window.devicePixelRatio);
+    };
 
     // TODO: add padding if of few notes on each side there's only 1 note, e.g min 5 notes displayed
     this.notesForNoteLines = NoteModule.getAllNotes(
