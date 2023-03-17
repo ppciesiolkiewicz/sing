@@ -11,7 +11,7 @@ function Container({
       sx={{
         width: '100vw',
         minHeight: 'calc(100vh - 68.5px)', // AppBar.height
-        paddingTop: '10px',
+        p: 6,
       }}
     >
       {children}

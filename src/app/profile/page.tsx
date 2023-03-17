@@ -12,14 +12,30 @@ const options = NoteModule.getAllNotes('C1', 'C5').map(n => ({
   value: n.name,
 }));
 
+type FormValues = {
+  voiceRange: [string, string];
+};
+
 export default function Home() {
   const initialValues = {
-    voiceRange: ['C3', 'G3']
+    voiceRange: ['C3', 'G3'] as [string, string],
   }
-
-
-  const handleSubmit = () => {
-
+  const handleSubmit = (
+    values: FormValues,
+    { setSubmitting }: FormikHelpers<FormValues>,
+  ) => {
+    fetch(
+      '/user/',
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title: 'foo',
+        }),
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      },
+    );
   }
 
   return (
