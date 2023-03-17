@@ -10,9 +10,8 @@ function Container({
       component={'main'}
       sx={{
         width: '100vw',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'row',
+        minHeight: 'calc(100vh - 68.5px)', // AppBar.height
+        paddingTop: '10px',
       }}
     >
       {children}

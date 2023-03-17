@@ -51,8 +51,6 @@ function SelectField({
     <Field
       id={id}
       name={name}
-      // placeholder="john@acme.com"
-      // type="email"
     >
       {(props) => {
         return (

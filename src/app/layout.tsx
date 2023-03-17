@@ -2,6 +2,7 @@
 import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import NoSSRWrapper from '@/components/atoms/NoSSRWrapper';
+import AppBar from '@/components/atoms/AppBar';
 
 const theme = createTheme({
   palette: {
@@ -25,6 +26,7 @@ export default function RootLayout({
         */}
         <head />
         <body>
+          <AppBar />
           <NoSSRWrapper>
             {children}
           </NoSSRWrapper>

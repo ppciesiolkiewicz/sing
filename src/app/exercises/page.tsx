@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import { Melody } from '@/lib/Melody';
 import Container from '@/components/atoms/Container';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
@@ -17,22 +18,22 @@ export default function Exercises() {
     return <Box>Loading...</Box>
   }
 
-  console.log(exercisesQuery)
-
   return (
     <Container>
-      <Grid container spacing={2}>
-        {exercisesQuery.data.map((e) => (
-          <Grid item xs={12} key={e.title}>
-            <Link href={`/exercises/exercise?id=${e.id}`}>
-              <Paper>
+      {exercisesQuery.data.map((e) => (
+        <Box>
+          <Link href={`/exercises/exercise?id=${e.id}`}>
+            <Box>
+              <Typography variant="h6">
                 {e.title}
+              </Typography>
+              <Typography variant="body1">
                 {e.description}
-              </Paper>
-            </Link>
-          </Grid>
-        ))}
-      </Grid>
+              </Typography>
+            </Box>
+          </Link>
+        </Box>
+      ))}
     </Container>
   )
 }
