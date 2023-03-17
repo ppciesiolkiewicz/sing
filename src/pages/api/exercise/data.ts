@@ -38,6 +38,21 @@ const EXERCISES = [
       timeBetweenRepeats: 3,
     },
   },
+  {
+    id: 3,
+    title: 'Intervals - 1P 2M 3M 4P 5P 4P 3M 2M 1P',
+    description: '',
+    configType: CONFIG_TYPE_INTERVAL,
+    config: {
+      repeatTimes: 3,
+      timePerNote: 2,
+      timeBetweenNotes: 0.2,
+      timeBetweenRepeats: 3,
+      highestNoteName: 'C4',
+      lowestNoteName: 'C3',
+      intervalNames: ['1P', '2M', '3M', '4P', '5P', '4P', '3M', '2M', '1P'],
+    },
+  },
 ];
 
 export default EXERCISES;

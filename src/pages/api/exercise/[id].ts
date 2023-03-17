@@ -11,7 +11,7 @@ export default function handler(
 ) {
   const id = req.query.id as string;
   if (id) {
-    res.status(200).json(EXERCISES.find(e => e.id === parseInt(id)))
+    return res.status(200).json(EXERCISES.find(e => e.id === parseInt(id)))
   }
   res.status(400).json({ error: 'TODO: error handling' })
 }
