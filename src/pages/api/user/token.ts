@@ -1,18 +1,26 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import usersData from './usersData';
-import { setCookie, deleteCookie, Jwt } from '@/lib-api/utils';
+import { setCookie, deleteCookie, Jwt, hashPassword } from '@/lib-api/utils';
+import { PrismaClient } from '@prisma/client'
 
 type Data = any;
 
 
-export default function handler(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
+  const prisma = new PrismaClient()
+  await prisma.$connect()
+
   if (req.method === 'POST') {
     const { email, password } = req.body;
-    const user = usersData.find(u => u.email === email && u.password === password);
+    const user = prisma.user.findUnique({
+      where: {
+        email,
+        passwordHash: hashPassword(password),
+      }
+    });
     if (user) {
       const token = Jwt.sign(user.id)
       setCookie(res, 'token', token);
@@ -26,8 +34,12 @@ export default function handler(
   if (req.method === 'GET') {
     const decoded = Jwt.verify(req.cookies.token);
     console.log('decoded', decoded)
-    const user = usersData[0];
-    const token = Jwt.sign(user.id)
+    const user = prisma.user.findUnique({
+      where: {
+        id: decoded.userId,
+      }
+    });
+    const token = Jwt.sign(decoded.userId)
 
     setCookie(res, 'token', token);
     return res.status(200).json({});

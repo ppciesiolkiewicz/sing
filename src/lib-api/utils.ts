@@ -1,11 +1,15 @@
 import { serialize, CookieSerializeOptions } from 'cookie'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'; 
-import usersData from '@/pages/api/user/userData';
+import { PrismaClient } from '@prisma/client'
 
 
 const PRIVATE_KEY = 'TODO';
 
+
+export const hashPassword = (password: string) => {
+  return password;
+}
 
 export const setCookie = (
   res: NextApiResponse,
@@ -46,18 +50,25 @@ export class Jwt {
 }
 
 
-export function requiresAuthenticationHandler<T>(
+export async function requiresAuthenticationHandler<T>(
   req: NextApiRequest,
   res: NextApiResponse<T>,
   next: any,
 ) {
+  const prisma = new PrismaClient()
+  await prisma.$connect()
   const decoded = Jwt.verify(req.cookies.token);
-  const user = usersData.find(u => u.id === decoded.userId);
+  const user = await prisma.user.findUnique({
+    where: {
+      id: decoded.userId,
+    },
+  });
+
   if (!user) {
     // TOOD: handle error
   }
 
   req.user = user;
 
-  next(req, res);
+  return next(req, res);
 }
