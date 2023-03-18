@@ -4,7 +4,6 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Container from '@/components/atoms/Container';
 import { TextFieldField } from '@/components/atoms/TextField';
 
 type FormValues = {
@@ -13,7 +12,7 @@ type FormValues = {
   password: string;
 };
 
-export default function Login() {
+export default function SignUp() {
   const router = useRouter();
   const initialValues = {
     name: '',
@@ -44,53 +43,51 @@ export default function Login() {
   }
 
   return (
-    <Container>
-      <Box display={'flex'} justifyContent={'center'} alignItems={'center'} height={'100%'}>
-        <Formik
-          initialValues={initialValues}
-          onSubmit={handleSubmit}
-        >
-          {formik => (
-            <Form>
-              <Grid container spacing={2} maxWidth={'600px'}>
-                <Grid item xs={12}>
-                  <TextFieldField
-                    id="name"
-                    name="name"
-                    label="name"
-                    type="text"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextFieldField
-                    id="email"
-                    name="email"
-                    label="E-mail"
-                    type="email"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextFieldField
-                    id="password"
-                    name="password"
-                    label="Password"
-                    type="password"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <Button
-                    type={'submit'}
-                    variant={'contained'}
-                    disabled={formik.isSubmitting}
-                  >
-                    Sign Up
-                  </Button>
-                </Grid>
+    <Box display={'flex'} justifyContent={'center'} alignItems={'center'} height={'100%'}>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={handleSubmit}
+      >
+        {formik => (
+          <Form>
+            <Grid container spacing={2} maxWidth={'600px'}>
+              <Grid item xs={12}>
+                <TextFieldField
+                  id="name"
+                  name="name"
+                  label="Name"
+                  type="text"
+                />
               </Grid>
-            </Form>
-          )}
-        </Formik>
-      </Box>
-    </Container>
+              <Grid item xs={12}>
+                <TextFieldField
+                  id="email"
+                  name="email"
+                  label="E-mail"
+                  type="email"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextFieldField
+                  id="password"
+                  name="password"
+                  label="Password"
+                  type="password"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  type={'submit'}
+                  variant={'contained'}
+                  disabled={formik.isSubmitting}
+                >
+                  Sign Up
+                </Button>
+              </Grid>
+            </Grid>
+          </Form>
+        )}
+      </Formik>
+    </Box>
   )
 }

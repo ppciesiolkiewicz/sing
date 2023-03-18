@@ -16,29 +16,30 @@ import AdbIcon from '@mui/icons-material/Adb';
 
 const pages = [
   {
-    href: '/profile',
+    href: '/app/profile',
     label: 'Dashboard',
   },
   {
-    href: '/exercises',
+    href: '/app/exercises',
     label: 'Exercises',
   },
   {
-    href: '/exercise-configurator',
+    href: '/app/exercise-configurator',
     label: 'Custom Exercises',
   },
   {
+    // TODO: open in a new tab
     href: '/blog',
     label: 'Blog'
   }
 ];
 const settings = [
   {
-    href: '/profile',
+    href: '/app/profile',
     label: 'Profile',
   }, {
-    href: '/logout',
-    label: 'Logout',
+    href: '/app/logout',
+    label: 'Log Out',
   }
 ];
 

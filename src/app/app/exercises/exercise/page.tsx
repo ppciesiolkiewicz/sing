@@ -3,7 +3,6 @@ import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
 import Box from "@mui/material/Box";
 import { Melody, MelodyConfig } from '@/lib/Melody';
-import Container from '@/components/atoms/Container';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
 import { useFetchExercise } from '@/hooks/fetch';
 
@@ -29,16 +28,12 @@ export default function Exercise() {
 
 
   return (
-    <Container>
-      <>
-        <Box width={'100%'}>
-          <MelodyExercise
-            melody={melody}
-            started={true}
-            setStarted={() => {}}
-          />
-        </Box>
-      </>
-    </Container>
+    <Box width={'100%'}>
+      <MelodyExercise
+        melody={melody}
+        started={true}
+        setStarted={() => {}}
+      />
+    </Box>
   )
 }

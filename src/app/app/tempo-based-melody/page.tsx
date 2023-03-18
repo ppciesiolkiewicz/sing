@@ -1,7 +1,6 @@
 "use client";
 import Link from 'next/link'
 import Box from '@mui/material/Box';
-import Container from '@/components/atoms/Container';
 import { Melody, MelodyConfig } from '@/lib/Melody/index';
 import { useRef, useLayoutEffect, useState } from 'react';
 import MelodyAnimation from '@/lib/animation/MelodyAnimationTempoBased/MelodyAnimationTempoBased';
@@ -185,14 +184,12 @@ console.log('notesMelody', notesMelody)
 
 export default function Home() {
   return (
-    <Container>
-        <Box width={'100%'}>
-          <MelodyExercise
-            melody={notesMelody}
-            started={true}
-            setStarted={() => {}}
-          />
-        </Box>
-    </Container>
-  )
+    <Box width={'100%'}>
+      <MelodyExercise
+        melody={notesMelody}
+        started={true}
+        setStarted={() => {}}
+      />
+    </Box>
+  );
 }

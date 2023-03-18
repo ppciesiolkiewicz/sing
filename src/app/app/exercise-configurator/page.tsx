@@ -4,7 +4,6 @@ import Box from '@mui/material/Box';
 import { Melody } from '@/lib/Melody';
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
-import Container from '@/components/atoms/Container';
 
 
 export default function ExerciseConfigurator() {
@@ -12,7 +11,7 @@ export default function ExerciseConfigurator() {
   const [melody, setMelody] = useState<Melody | null>(null);
 
   return (
-    <Container>
+    <>
       <>
         <Box width={'100%'}>
           <MelodyExercise
@@ -29,6 +28,6 @@ export default function ExerciseConfigurator() {
           }}
         />
       </>
-    </Container>
+    </>
   )
 }

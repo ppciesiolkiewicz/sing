@@ -55,17 +55,21 @@ export async function requiresAuthenticationHandler<T>(
   res: NextApiResponse<T>,
   next: any,
 ) {
+  console.log(req.cookies)
   const prisma = new PrismaClient()
   await prisma.$connect()
   const decoded = Jwt.verify(req.cookies.token);
+  console.log('requiresAuthenticationHandler.decoded', decoded);
   const user = await prisma.user.findUnique({
     where: {
       id: decoded.userId,
     },
   });
 
+  console.log(user);
+
   if (!user) {
-    // TOOD: handle error
+    throw new Error('400 - Forbidden');
   }
 
   req.user = user;

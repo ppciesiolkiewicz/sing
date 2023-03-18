@@ -1,13 +1,21 @@
 "use client";
 import Link from 'next/link'
 import Box from '@mui/material/Box';
-import Container from '@/components/atoms/Container';
+import Typography from '@mui/material/Typography';
 import { useRef, useLayoutEffect, useState } from 'react';
 
 export default function Home() {
   return (
-    <Container>
+    <>
+      <Typography variant={'h5'}>
         Home Page
-    </Container>
+      </Typography>
+      <Box>
+        <Link href="/login">Log in</Link>
+      </Box>
+      <Box>
+        <Link href="/signup">Sign up</Link>
+      </Box>
+    </>
   )
 }

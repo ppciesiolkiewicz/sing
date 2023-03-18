@@ -1,14 +1,12 @@
 "use client"
 import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import NoSSRWrapper from '@/components/atoms/NoSSRWrapper';
-import AppBar from '@/components/atoms/AppBar';
 
 const theme = createTheme({
   palette: {
     primary: {
       main: '#fa6'
-    }
+    },
   }
 });
 
@@ -26,10 +24,7 @@ export default function RootLayout({
         */}
         <head />
         <body>
-          <AppBar />
-          <NoSSRWrapper>
-            {children}
-          </NoSSRWrapper>
+          {children}
         </body>
       </html>
     </ThemeProvider>

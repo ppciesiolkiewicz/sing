@@ -15,12 +15,14 @@ export default async function handler(
 
   if (req.method === 'POST') {
     const { email, password } = req.body;
-    const user = prisma.user.findUnique({
+    const user =  await prisma.user.findUnique({
       where: {
         email,
-        passwordHash: hashPassword(password),
+        // passwordHash: hashPassword(password), // TODO:
       }
     });
+
+    console.log('[POST token] user', user)
     if (user) {
       const token = Jwt.sign(user.id)
       setCookie(res, 'token', token);
@@ -33,12 +35,13 @@ export default async function handler(
 
   if (req.method === 'GET') {
     const decoded = Jwt.verify(req.cookies.token);
-    console.log('decoded', decoded)
-    const user = prisma.user.findUnique({
+    console.log('[GET token] decoded', decoded)
+    const user = await prisma.user.findUnique({
       where: {
         id: decoded.userId,
       }
     });
+    console.log("[GET token] user", user)
     const token = Jwt.sign(decoded.userId)
 
     setCookie(res, 'token', token);

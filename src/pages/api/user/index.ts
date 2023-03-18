@@ -24,7 +24,7 @@ async function updateUserHandler(
       id: req.user.id,
     },
     data: {
-      highNote: req.body.hightNote,
+      highNote: req.body.highNote,
       lowNote: req.body.lowNote,
     },
   })

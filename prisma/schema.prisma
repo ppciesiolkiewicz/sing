@@ -18,4 +18,5 @@ model User {
   name          String?
   lowNote       String?
   highNote      String?
+  createdAt DateTime @default(now())
 }
