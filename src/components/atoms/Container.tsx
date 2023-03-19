@@ -15,14 +15,7 @@ function Container({
         display: 'flex',
       }}
     >
-      <Box sx={theme => ({
-        flex: 1,
-        p: 6,
-        m: 0,
-        // backgroundColor: theme.palette.background.default, 
-      })}>
-        {children}
-      </Box>
+      {children}
     </MuiContainer>
   );
 }

@@ -45,6 +45,10 @@ class Lyrics implements MeasureBase, LyricsBase {
     this.noteValue = noteValue;
     this.startBeat = startBeat;
   }
+
+  get endBeat(): number {
+    return this.startBeat + this.noteValue;
+  }
 }
 
 class Measure<T extends Note[] | Lyrics[]> {
@@ -53,7 +57,6 @@ class Measure<T extends Note[] | Lyrics[]> {
   constructor(elements: T) {
     this.elements = elements;
   }
-
 }
 
 export const SING_ALL_CHORD_COMPONENTS = 'SING_ALL_CHORD_COMPONENTS';

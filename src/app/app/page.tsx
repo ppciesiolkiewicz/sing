@@ -7,18 +7,19 @@ import Button from '@mui/material/Button';
 import Card from '@/components/atoms/Card';
 import ProfilePage from './profile/page'
 import {
-  getBlogPath,
-  getAppDashboardPath,
   getAppExercisesPath,
   getAppCustomExercisesPath,
-  getAppLogoutPath,
-  getAppProfilePath,
 } from '@/lib/urls';
 
 
 export default function Dashboard() {
   return (
-    <>
+    <Box sx={theme => ({
+      flex: 1,
+      p: 6,
+      m: 0,
+      // backgroundColor: theme.palette.background.default, 
+    })}>
       <ProfilePage />
       <Grid container spacing={2} mt={4} alignItems="stretch">
         <Grid item xs={6}>
@@ -54,6 +55,6 @@ export default function Dashboard() {
           </Link>
         </Grid>
       </Grid>
-    </>
+    </Box>
   )
 }

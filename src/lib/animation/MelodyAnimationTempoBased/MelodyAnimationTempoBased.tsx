@@ -275,47 +275,58 @@ class MelodySingNoteAnimatonElement {
 
 class MelodyLyricsAnimatonElement {
   path: PointText;
+  highlight: Path.Rectangle;
   tempo: number;
-  lyricsElement: Melody['lyrics'][number];
+  lyrics: Melody['lyrics'];
+  currentLyricsLine?: Melody['lyrics'][number];
   config: MelodyAnimationConfig;
   
   constructor({
-    lyricsElement,
+    lyrics,
     tempo,
     config,
   }: {
-    lyricsElement: Melody['lyrics'][number],
+    lyrics: Melody['lyrics'],
     tempo: number,
     config: MelodyAnimationConfig,
   }) {
     this.config = config;
-    this.lyricsElement = lyricsElement;
+    this.lyrics = lyrics;
     this.tempo = tempo;
 
-    const fontSize = 12 * window.devicePixelRatio;
-    const startPosX = beatToTime(lyricsElement.startBeat, this.tempo) * this.config.melodySingPixelsPerSecond;
-    this.path = new PointText(
-      new Point(
-        view.center.x + startPosX,
-        view.size.height - this.config.paddingBottom/2 + fontSize/2,
-      ));
-    this.path.content = lyricsElement.text;
-    this.path.style = {
-        ...this.path.style,
-        fontFamily: 'Courier New',
-        fontWeight: 'bold',
-        fontSize: fontSize,
-        fillColor: new paper.Color(theme.noteLines.text),
-        justification: 'center'
-    };
+    // this.highlight = new Path.Rectangle(view.bounds);
+    // this.highlight.fillColor = 'white';
+    // this.highlight.blendMode = 'multiply';
   }
 
   onAnimationFrame(ev: AnimationFrameEvent) {
-    const dest = new Point(
-      this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
-      this.path.position.y,
-    );
-    this.path.position = dest;
+    const beatNo = timeToBeat(ev.time, this.tempo);
+
+    const l = this.lyrics.find(l => l.startBeat < beatNo && l.endBeat > beatNo);
+    if (l && this.currentLyricsLine !== l) {
+      console.log('lyrics', l)
+      if (this.path) {
+        this.path.remove()
+      }
+      this.currentLyricsLine = l;
+      
+      const fontSize = 12 * window.devicePixelRatio;
+      this.path = new PointText(
+        new Point(
+          view.center.x,
+          view.size.height - this.config.paddingBottom/2 + fontSize/2,
+        )
+      );
+      this.path.content = l.text;
+      this.path.style = {
+          ...this.path.style,
+          fontFamily: 'Courier New',
+          fontWeight: 'bold',
+          fontSize: fontSize,
+          fillColor: new paper.Color(theme.noteLines.text),
+          justification: 'center'
+      };
+    }
   }
 }
 
@@ -325,7 +336,7 @@ class MelodyAnimation {
   canvas: HTMLCanvasElement;
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
   melodySingAnimationElements: MelodySingNoteAnimatonElement[];
-  melodyLyricsAnimationElements: MelodyLyricsAnimatonElement[];
+  melodyLyricsAnimationElement: MelodyLyricsAnimatonElement;
   pitchDetector: PitchDetector;
   soundGenerator: {
     triggerAttackRelease: (notes: string | string[], duration: number) => void;
@@ -401,15 +412,11 @@ class MelodyAnimation {
       )
       .filter(Boolean) as MelodySingNoteAnimatonElement[];
 
-    this.melodyLyricsAnimationElements = melody.lyrics
-      .map(l =>
-        new MelodyLyricsAnimatonElement({
-          lyricsElement: l,
-          tempo: melody.tempo,
-          config: this.config,
-        })
-      )
-      .filter(Boolean) as MelodyLyricsAnimatonElement[];
+    this.melodyLyricsAnimationElement = new MelodyLyricsAnimatonElement({
+      lyrics: melody.lyrics,
+      tempo: melody.tempo,
+      config: this.config,
+    });
     // this.soundGenerator = new Tone.PolySynth().toDestination();
     // this.soundGenerator.set({
     //   oscillator: {
@@ -465,7 +472,7 @@ class MelodyAnimation {
 
       pitchCircle.onAnimationFrame(ev, currentPitch)
       this.melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, currentPitch));
-      this.melodyLyricsAnimationElements.forEach(e => e.onAnimationFrame(ev));
+      this.melodyLyricsAnimationElement.onAnimationFrame(ev);
       if (this.melodySingAnimationElements.every(m => m.isCompleted())) {
         // TODO show results - have a function that runs on Stop as well | onFinished?
         this.stop();
