@@ -30,10 +30,10 @@ const CONFIG_TYPE_OPTIONS = [
     label: 'Chords',
     value: CONFIG_TYPE_CHORDS,
   },
-  {
-    label: 'Notes',
-    value: CONFIG_TYPE_NOTES,
-  },
+  // {
+  //   label: 'Notes',
+  //   value: CONFIG_TYPE_NOTES,
+  // },
 ];
 
 // TODO:
