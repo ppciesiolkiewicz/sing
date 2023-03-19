@@ -18,7 +18,12 @@ export default function Exercises() {
   }
 
   return (
-    <>
+    <Box sx={theme => ({
+      flex: 1,
+      p: 6,
+      m: 0,
+      // backgroundColor: theme.palette.background.default, 
+    })}>
       {exercisesQuery.data.map((e) => (
         <Box key={e.id}>
           <Link href={`/app/exercises/exercise?id=${e.id}`}>
@@ -33,6 +38,6 @@ export default function Exercises() {
           </Link>
         </Box>
       ))}
-    </>
+    </Box>
   );
 }
