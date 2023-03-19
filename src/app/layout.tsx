@@ -4,6 +4,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 import ErrorBoundary from '@/components/atoms/ErrorBoundary'
 
+
 const theme = createTheme({
   palette: {
     primary: {
