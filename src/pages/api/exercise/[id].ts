@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { MiddlewareBuilder } from '@/lib-api/utils';
+import { MiddlewareBuilder, ServerError } from '@/lib-api/utils';
 import EXERCISES from './data';
 
 
@@ -22,7 +22,7 @@ function handler(
     exercise.config.highestNoteName = req.user.highNote;
     return res.status(200).json(exercise)
   }
-  res.status(400).json({ error: 'TODO: error handling' })
+  throw new ServerError('Exercise not found', 404);
 }
 
 

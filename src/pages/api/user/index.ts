@@ -11,7 +11,6 @@ async function getUserHandler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  console.log('user.COOKIES:', req.cookies)
   return res.status(200).json(req.user);
 }
 
@@ -48,7 +47,6 @@ async function createUserHandler(
       highNote: 'D4',
     }
   })
-  console.log(user)
   return res.status(200).json(user);
 }
 
@@ -71,7 +69,7 @@ export default async (
 
   if (req.method === 'POST') {
     return new MiddlewareBuilder(
-      updateUserHandler,
+      createUserHandler,
     ).buildNonAuthenticatedMiddleware()(req, res);
   }
 

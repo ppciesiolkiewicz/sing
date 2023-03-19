@@ -2,6 +2,7 @@
 import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
+import ErrorBoundary from '@/components/atoms/ErrorBoundary'
 
 const theme = createTheme({
   palette: {
@@ -16,7 +17,7 @@ const theme = createTheme({
     },
     text: {
       primary: '#102E4A',
-      secondary:'#102E4A',
+      secondary:'#000',
       disabled: '#88A09E',
     }
   },
@@ -32,18 +33,20 @@ export default function RootLayout({
 }) {
   return (
     <ThemeProvider theme={theme}>
-      <SnackbarProvider>
-        <html lang="en">
-          {/*
-            <head /> will contain the components returned by the nearest parent
-            head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-          */}
-          <head />
-          <body>
-            {children}
-          </body>
-        </html>
-      </SnackbarProvider>
+      <ErrorBoundary>
+        <SnackbarProvider>
+          <html lang="en">
+            {/*
+              <head /> will contain the components returned by the nearest parent
+              head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
+            */}
+            <head />
+            <body>
+              {children}
+            </body>
+          </html>
+        </SnackbarProvider>
+      </ErrorBoundary>
     </ThemeProvider>
   )
 }

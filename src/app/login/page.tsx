@@ -4,6 +4,7 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import { Typography } from '@mui/material';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { logIn } from '@/lib/fetch/api';
 import { getAppDashboardPath } from '@/lib/urls';
@@ -41,7 +42,8 @@ export default function Login() {
         onSubmit={handleSubmit}
       >
         {formik => (
-          <Form>
+          <Form style={{ width: '100%' }}>
+            <Typography sx={{ mb: 2 }} variant={'h6'}>Log In</Typography>
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextFieldField

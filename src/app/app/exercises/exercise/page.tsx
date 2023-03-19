@@ -24,7 +24,6 @@ export default function Exercise() {
   }, [exerciseQuery.isLoading]);
 
   
-  
   if (shouldRenderSWRResponseHandler(exerciseQuery)) {
     return (
       <Box width={'100vw'} height={'100vh'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
