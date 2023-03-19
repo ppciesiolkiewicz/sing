@@ -1,6 +1,7 @@
 "use client"
 import './globals.css'
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 
 const theme = createTheme({
   palette: {
@@ -17,16 +18,18 @@ export default function RootLayout({
 }) {
   return (
     <ThemeProvider theme={theme}>
-      <html lang="en">
-        {/*
-          <head /> will contain the components returned by the nearest parent
-          head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-        */}
-        <head />
-        <body>
-          {children}
-        </body>
-      </html>
+      <SnackbarProvider>
+        <html lang="en">
+          {/*
+            <head /> will contain the components returned by the nearest parent
+            head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
+          */}
+          <head />
+          <body>
+            {children}
+          </body>
+        </html>
+      </SnackbarProvider>
     </ThemeProvider>
   )
 }

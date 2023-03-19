@@ -12,7 +12,7 @@ export function useFetchUser() {
 
 export function useFetchExercises() {
   const query = useSWR('/api/exercise', (url: string) => {
-    return fetch(url).then((res) => res.json())
+    return fetch(url, { credentials: 'include' }).then((res) => res.json())
   });
 
   return query;

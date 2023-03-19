@@ -1,46 +1,53 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { setCookie, deleteCookie, Jwt, checkPasswordHash } from '@/lib-api/utils';
-import { PrismaClient } from '@prisma/client'
+import { MiddlewareBuilder, ServerError } from '@/lib-api/utils';
+
 
 type Data = any;
 
 
-export default async function handler(
+async function logInHandler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const prisma = new PrismaClient()
-  await prisma.$connect()
-
-  if (req.method === 'POST') {
-    const { email, password } = req.body;
-    const user =  await prisma.user.findUnique({
-      where: {
-        email,
-      }
-    });
-
-    if (!user || !checkPasswordHash(password, user?.passwordHash)) {
-      return res.status(404).json({});
-
+  const { email, password } = req.body;
+  const user =  await req.prisma.user.findUnique({
+    where: {
+      email,
     }
+  });
 
-    console.log('[POST token] user', user)
-    if (user) {
-      const token = Jwt.sign(user.id)
-      setCookie(res, 'token', token, { secure: true });
-
-      return res.status(200).json({});
-    }
-
-    return res.status(500).json({});
+  if (!user || !checkPasswordHash(password, user?.passwordHash)) {
+    return res.status(404).json({});
   }
 
-  if (req.method === 'GET') {
-    const decoded = Jwt.verify(req.cookies.token);
+  console.log('[POST token] user', user)
+  if (user) {
+    const token = Jwt.sign(user.id)
+    setCookie(res, 'token', token, { secure: true, httpOnly: true, sameSite: 'lax', path: '/api' });
+
+    return res.status(200).json({});
+  }
+
+  return res.status(500).json({});
+}
+
+function logOutHandler(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  deleteCookie(res, 'token');
+  return res.status(200).json({});
+}
+
+async function refreshTokenHandler(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  const decoded = Jwt.verify(req.cookies.token);
     console.log('[GET token] decoded', decoded)
-    const user = await prisma.user.findUnique({
+    const user = await req.prisma.user.findUnique({
       where: {
         id: decoded.userId,
       }
@@ -48,13 +55,31 @@ export default async function handler(
     console.log("[GET token] user", user)
     const token = Jwt.sign(decoded.userId)
 
-    setCookie(res, 'token', token, { secure: true });
+    setCookie(res, 'token', token, { secure: true, httpOnly: true, sameSite: 'lax', path: '/api' });
     return res.status(200).json({});
+}
+
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) {
+  if (req.method === 'POST') {
+    return new MiddlewareBuilder(
+      logInHandler,
+    ).buildNonAuthenticatedMiddleware()(req, res);
+  }
+
+  if (req.method === 'GET') {
+    return new MiddlewareBuilder(
+      refreshTokenHandler,
+    ).buildAuthenticatedMiddleware()(req, res);
   }
 
   if (req.method === 'DELETE') {
-    deleteCookie(res, 'token');
-    return res.status(200).json({});
+    return new MiddlewareBuilder(
+      logOutHandler,
+    ).buildAuthenticatedMiddleware()(req, res);
   }
 
   return res.status(404).json({});

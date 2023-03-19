@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'; 
 import { PrismaClient } from '@prisma/client'
 import bcrypt from "bcrypt";
+import curryRight from 'lodash.curryright';
 
 const PRIVATE_KEY = 'TODO';
 const PASSWORD_HASH_SALT_ROUNDS = 10;
@@ -56,30 +57,109 @@ export class Jwt {
   }
 }
 
-
-export async function requiresAuthenticationHandler<T>(
+type HandlerType<T> = (
   req: NextApiRequest,
   res: NextApiResponse<T>,
-  next: any,
-) {
-  console.log(req.cookies)
-  const prisma = new PrismaClient()
-  await prisma.$connect()
-  const decoded = Jwt.verify(req.cookies.token);
-  console.log('requiresAuthenticationHandler.decoded', decoded);
-  const user = await prisma.user.findUnique({
-    where: {
-      id: decoded.userId,
-    },
-  });
+) => any;
 
-  console.log(user);
+export class MiddlewareBuilder<T> {
+  handler: HandlerType<T>;
 
-  if (!user) {
-    throw new Error('400 - Forbidden');
+  constructor(
+    handler: HandlerType<T>,
+  ) {
+    this.handler = handler;
   }
 
-  req.user = user;
+  buildAuthenticatedMiddleware() {
+    return async (
+      req: NextApiRequest,
+      res: NextApiResponse<T>,
+    ) => {
+      return curryRight(this.errorHandlerMiddleware)(
+        curryRight(this.prismaMiddleware)(
+          curryRight(this.requiresAuthenticationMiddleware)(
+            this.handler
+          )
+        )
+      )(req, res);
+    }
+  }
 
-  return next(req, res);
+  buildNonAuthenticatedMiddleware() {
+    return async (
+      req: NextApiRequest,
+      res: NextApiResponse<T>,
+    ) => {
+      return curryRight(this.errorHandlerMiddleware)(
+        curryRight(this.prismaMiddleware)(
+          this.handler
+        )
+      )(req, res);
+    }
+  }
+
+  private async prismaMiddleware<T>(
+    req: NextApiRequest,
+    res: NextApiResponse<T>,
+    next: any,
+  ) {
+    console.log('[prismaMiddleware]')
+    const prisma = new PrismaClient()
+    await prisma.$connect()
+    req.prisma = prisma;
+    return next(req, res);
+  }
+
+  private async requiresAuthenticationMiddleware<T>(
+    req: NextApiRequest,
+    res: NextApiResponse<T>,
+    next: any,
+    ) {
+    console.log('[requiresAuthenticationMiddleware]', req.cookies)
+    const decoded = Jwt.verify(req.cookies.token);
+    console.log('requiresAuthenticationHandler.decoded', decoded);
+    const user = await req.prisma.user.findUnique({
+      where: {
+        id: decoded.userId,
+      },
+    });
+  
+    console.log(user);
+  
+    if (!user) {
+      throw new Error('400 - Forbidden');
+    }
+  
+    req.user = user;
+  
+    return next(req, res);
+  }
+  
+  
+  private async errorHandlerMiddleware(
+    req: NextApiRequest,
+    res: NextApiResponse<{ error: string } | T>,
+    next: any,
+  ) {
+    console.log('[errorHandlerMiddleware]')
+    try {
+      return await next(req, res);
+    } catch (e) {
+      console.log('[ErrorHandler]', e)
+      if (e instanceof ServerError) {
+        return res.status(e.statusCode).json({ error: e.message });
+      }
+      return res.status(500).json({ error: e?.message || 'Something went wrong' });
+    }
+  } 
+}
+
+export class ServerError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode: number) {
+    super(message)
+    this.statusCode = statusCode;
+  }
 }
