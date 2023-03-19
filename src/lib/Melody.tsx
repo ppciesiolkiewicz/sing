@@ -193,6 +193,8 @@ class MelodyConfig {
     const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
 
     let intervalNotesBase = CHROMATIC_SCALE_NOTES
+      .map(note => new Array(repeatTimes).fill(note))
+      .flat()
       .map(note => {
         return intervals.map(interval => {
           return NoteModule.transpose(note.name, interval);
@@ -200,9 +202,9 @@ class MelodyConfig {
       })
       .flat()
     // intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
-    const timeBetweenRootNoteChange = timeBetweenNotes * 4;
+    const timeBetweenRootNoteChange = 2; // TODO:
 
-    const notes = new Array(repeatTimes)
+    const notes = new Array(1)
       .fill(intervalNotesBase)
       .flat()
       .map((n, i) => {
@@ -282,7 +284,7 @@ class Melody {
       if (e instanceof MelodyNote) {
         return new MelodyPlayElement(e.name, e.start, e.end);
       } else if (e instanceof MelodyChord) {
-        const start = e.start;
+        const start = e.start - 0.1;
         const end = e.end;
 
         return new MelodyPlayElement(e.notes.map(n => n.name), start, end);

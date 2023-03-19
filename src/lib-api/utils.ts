@@ -1,5 +1,6 @@
 import { serialize, CookieSerializeOptions } from 'cookie'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { NextResponse } from 'next/server'
 import jwt from 'jsonwebtoken'; 
 import { PrismaClient } from '@prisma/client'
 import bcrypt from "bcrypt";
@@ -39,7 +40,7 @@ export const deleteCookie = (
   res: NextApiResponse,
   name: string,
 ) => {
-  res.setHeader('Delete-Cookie', name)
+  res.setHeader('Set-Cookie', `${name}=deleted; path=/api; expires=Thu, 01 Jan 1970 00:00:00 GMT`)
 }
 
 export class Jwt {
@@ -115,20 +116,24 @@ export class MiddlewareBuilder<T> {
     req: NextApiRequest,
     res: NextApiResponse<T>,
     next: any,
-    ) {
-    console.log('[requiresAuthenticationMiddleware]', req.cookies)
-    const decoded = Jwt.verify(req.cookies.token);
-    console.log('requiresAuthenticationHandler.decoded', decoded);
-    const user = await req.prisma.user.findUnique({
-      where: {
-        id: decoded.userId,
-      },
-    });
-  
-    console.log(user);
-  
+  ) {
+    let user;
+    try {
+      console.log('[requiresAuthenticationMiddleware]', req.cookies)
+      const decoded = Jwt.verify(req.cookies.token);
+      console.log('requiresAuthenticationHandler.decoded', decoded);
+      user = await req.prisma.user.findUnique({
+        where: {
+          id: decoded.userId,
+        },
+      });
+    } catch(e) {
+      console.log('[requiresAuthenticationMiddleware]', e)
+    }
+    console.log('User:', user);
+    
     if (!user) {
-      throw new Error('400 - Forbidden');
+      return res.redirect(`http://localhost:3000`)
     }
   
     req.user = user;
