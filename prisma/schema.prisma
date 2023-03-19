@@ -16,7 +16,7 @@ model User {
   email         String   @unique
   passwordHash  String
   name          String?
-  lowNote       String?
-  highNote      String?
+  lowNote       String
+  highNote      String
   createdAt DateTime @default(now())
 }

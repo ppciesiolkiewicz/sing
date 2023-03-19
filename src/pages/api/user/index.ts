@@ -39,11 +39,15 @@ async function createUserHandler(
   const prisma = new PrismaClient()
   await prisma.$connect()
   const { email, password, name }: { email: string, password: string, name: string }  = req.body;
+  const passwordHash = hashPassword(password);
+
   const user = await prisma.user.create({
     data: {
       name,
       email,
-      passwordHash: hashPassword(password),
+      passwordHash,
+      lowNote: 'C3',
+      highNote: 'D4',
     }
   })
   console.log(user)

@@ -29,7 +29,11 @@ export type ChordProgressionType = {
 
 export type NoteType = ReturnType<typeof TonalNote.get>;
 
+
 export const NoteModule = {
+    names: () => {
+      return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    },
     get: TonalNote.get,
     fromFreq: (freq: number): NoteType => {
         const noteName = TonalNote.fromFreq(freq);
@@ -164,6 +168,9 @@ export const ScaleModule = {
         };
     },
     names: TonalScale.names,
+    relevantNames: () => {
+      return ['major', 'minor']
+    },
     getScaleNotes(keyTonic: string, keyType: string, lowestNoteName: string, highestNoteName: string) {
       const chromaticNotes = NoteModule.getAllNotes(lowestNoteName, highestNoteName)
       const scale = ScaleModule.get(keyTonic, keyType)

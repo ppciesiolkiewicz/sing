@@ -2,13 +2,20 @@ import { serialize, CookieSerializeOptions } from 'cookie'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'; 
 import { PrismaClient } from '@prisma/client'
-
+import bcrypt from "bcrypt";
 
 const PRIVATE_KEY = 'TODO';
+const PASSWORD_HASH_SALT_ROUNDS = 10;
 
 
 export const hashPassword = (password: string) => {
-  return password;
+  const hash = bcrypt.hashSync(password, PASSWORD_HASH_SALT_ROUNDS);
+  return hash;
+}
+
+export const checkPasswordHash = (password: string, hash: string) => {
+  const result = bcrypt.compareSync(password, hash)
+  return result;
 }
 
 export const setCookie = (

@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Loader from '@/components/atoms/Loader';
-import { useFetchExercises  } from '@/hooks/fetch';
+import { useFetchExercises  } from '@/lib/fetch/hooks';
 
 
 export default function Exercises() {
@@ -19,7 +19,7 @@ export default function Exercises() {
     <>
       {exercisesQuery.data.map((e) => (
         <Box>
-          <Link href={`/exercises/exercise?id=${e.id}`}>
+          <Link href={`/app/exercises/exercise?id=${e.id}`}>
             <Box>
               <Typography variant="h6">
                 {e.title}

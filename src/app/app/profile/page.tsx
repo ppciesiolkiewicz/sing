@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 import { OptionsSliderField } from '@/components/atoms/Slider';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { NoteModule } from '@/lib/music';
-import { useFetchUser } from '@/hooks/fetch';
-
+import { useFetchUser } from '@/lib/fetch/hooks';
+import { updateUser } from '@/lib/fetch/api';
 
 const options = NoteModule.getAllNotes('C1', 'C5').map(n => ({
   label: n.name,
@@ -30,19 +30,10 @@ export default function Home() {
     { setSubmitting }: FormikHelpers<FormValues>,
   ) => {
     setSubmitting(true)
-    const resp = await fetch(
-      '/api/user/',
-      {
-        method: 'PATCH',
-        body: JSON.stringify({
-          lowNote: values.voiceRange[0],
-          highNote: values.voiceRange[1],
-        }),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      },
-    );
+    const resp = await updateUser({
+      lowNote: values.voiceRange[0],
+      highNote: values.voiceRange[1],
+    });
     setSubmitting(false)
   }
 

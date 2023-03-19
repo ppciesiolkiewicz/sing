@@ -5,6 +5,10 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { TextFieldField } from '@/components/atoms/TextField';
+import { signUp, logIn } from '@/lib/fetch/api';
+import {
+  getAppProfilePath,
+} from '@/lib/urls';
 
 type FormValues = {
   name: string;
@@ -25,21 +29,11 @@ export default function SignUp() {
     { setSubmitting }: FormikHelpers<FormValues>,
   ) => {
     setSubmitting(true);
-    const resp = await fetch(
-      '/api/user',
-      {
-        method: 'POST',
-        body: JSON.stringify(values),
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      },
-    );
+    const respSignUp = await signUp(values);
+    const respLogIn = await logIn({ email: values.email, password: values.password });
     setSubmitting(false);
 
-    if (resp.status === 200) {
-      router.push('/profile')
-    }
+    router.push(getAppProfilePath())
   }
 
   return (
@@ -50,7 +44,7 @@ export default function SignUp() {
       >
         {formik => (
           <Form>
-            <Grid container spacing={2} maxWidth={'600px'}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <TextFieldField
                   id="name"

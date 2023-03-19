@@ -13,32 +13,40 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
+import {
+  getBlogPath,
+  getAppDashboardPath,
+  getAppExercisesPath,
+  getAppCustomExercisesPath,
+  getAppLogoutPath,
+  getAppProfilePath,
+} from '@/lib/urls';
 
 const pages = [
   {
-    href: '/app/profile',
+    href: getAppProfilePath(),
     label: 'Dashboard',
   },
   {
-    href: '/app/exercises',
+    href: getAppExercisesPath(),
     label: 'Exercises',
   },
   {
-    href: '/app/exercise-configurator',
+    href: getAppCustomExercisesPath(),
     label: 'Custom Exercises',
   },
   {
     // TODO: open in a new tab
-    href: '/blog',
-    label: 'Blog'
+    href: getBlogPath(),
+    label: 'Blog',
   }
 ];
 const settings = [
   {
-    href: '/app/profile',
+    href: getAppProfilePath(),
     label: 'Profile',
   }, {
-    href: '/app/logout',
+    href: getAppLogoutPath(),
     label: 'Log Out',
   }
 ];
@@ -71,7 +79,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-            href="/"
+            href={getAppDashboardPath()}
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
