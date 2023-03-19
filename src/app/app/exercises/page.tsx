@@ -1,8 +1,7 @@
 "use client";
 import Link from 'next/link'
 import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
+import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { useFetchExercises  } from '@/lib/fetch/hooks';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
@@ -27,15 +26,14 @@ export default function Exercises() {
       {exercisesQuery.data.map((e) => (
         <Box key={e.id}>
           <Link href={`/app/exercises/exercise?id=${e.id}`}>
-            <Box>
-              <Typography variant="h6">
-                {e.title}
-              </Typography>
-              <Typography variant="body1">
-                {e.description}
-              </Typography>
-            </Box>
+            <Typography variant="h6">
+              {e.title}
+            </Typography>
+            <Typography variant="body1">
+              {e.description}
+            </Typography>
           </Link>
+          <Divider sx={{ my: 2 }} />
         </Box>
       ))}
     </Box>

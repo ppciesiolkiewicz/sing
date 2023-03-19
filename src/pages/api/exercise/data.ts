@@ -12,7 +12,7 @@ const SCALE_EXERCISES = NoteModule.names().map((noteName, i) =>
       // TODO:
       id: (i+1)*100+j,
       title: `${noteName} ${scaleName} scale`,
-      description: '',
+      description: `Enhance your singing precision by practicing the ${noteName} ${scaleName} scale.`,
       configType: CONFIG_TYPE_SCALE,
       config: {
         keyTonic: noteName,
@@ -31,8 +31,8 @@ const EXERCISES = [
   ...SCALE_EXERCISES,
   {
     id: 3,
-    title: 'Intervals - 1P 2M 3M 4P 5P 4P 3M 2M 1P',
-    description: '',
+    title: 'Intervals - 5T Scale Exercise',
+    description: `Intervals: 1P 2M 3M 4P 5P 4P 3M 2M 1P`,
     configType: CONFIG_TYPE_INTERVAL,
     config: {
       repeatTimes: 3,
