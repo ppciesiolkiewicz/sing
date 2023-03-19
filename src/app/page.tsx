@@ -10,7 +10,7 @@ import Footer from '@/components/atoms/Footer'
 export default function Home() {
   return (
     <>
-      <Box maxWidth={800} margin={'auto'} p={8}>
+      <Box maxWidth={'md'} margin={'auto'} p={8}>
         <Typography variant={'h3'}>
             Sing5
         </Typography>

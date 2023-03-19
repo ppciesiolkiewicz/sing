@@ -2,6 +2,7 @@ import * as React from 'react';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MuiSlider from '@mui/material/Slider';
+import Box from '@mui/material/Box';
 import { Field } from 'formik';
 
 type Props =
@@ -40,7 +41,8 @@ function OptionsSlider({
 
   return (
     <FormControl fullWidth>
-      <InputLabel id={`${id}-label`}>{label}</InputLabel>
+      <InputLabel id={`${id}-label`} sx={{ ml: -2 }}>{label}</InputLabel>
+      <Box mt={12}>
         <MuiSlider
           color={'secondary'}
           id={id}
@@ -60,6 +62,7 @@ function OptionsSlider({
           step={1}
           max={max}
         />
+      </Box>
     </FormControl>
   );
 }

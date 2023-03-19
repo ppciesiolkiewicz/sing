@@ -41,7 +41,7 @@ export default function Profile() {
 
   return (
     <Paper sx={{ p: 4 }}>
-      <Typography mb={8} variant={'h5'}>
+      <Typography mb={2} variant={'h5'}>
         Just set your voice range and you're good to go!
       </Typography>
       <Formik
@@ -49,9 +49,9 @@ export default function Profile() {
         onSubmit={handleSubmit}
       >
         {formik => (
-          <Form>
+          <Form style={{ width: '100%' }}>
             <Box display={'flex'} justifyContent={'center'}>
-              <Grid container spacing={6} maxWidth={600}>
+              <Grid container spacing={6} maxWidth={'sm'}>
                 <Grid item xs={12}>
                   <OptionsSliderField
                     id={'voiceRange'}
