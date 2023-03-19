@@ -6,7 +6,7 @@ import { useRef, useLayoutEffect, useState } from 'react';
 export default function Dashboard() {
   return (
     <>
-      Dashboard
+      Start by setting your voice range and saving in Profile section
     </>
   )
 }

@@ -6,13 +6,16 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Loader from '@/components/atoms/Loader';
 import { useFetchExercises  } from '@/lib/fetch/hooks';
-
+import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SWRResponseHandler'
 
 export default function Exercises() {
   const exercisesQuery = useFetchExercises();
 
-  if (exercisesQuery.isLoading) {
-    return <Loader />
+  if (shouldRenderSWRResponseHandler(exercisesQuery)) {
+    return <SWRResponseHandler
+      query={exercisesQuery}
+      errorMessage={exercisesQuery.error?.error}
+    />
   }
 
   return (

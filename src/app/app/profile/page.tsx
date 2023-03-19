@@ -1,8 +1,9 @@
 "use client";
-import { Formik, Field, Form, FormikHelpers } from 'formik';
+import { Formik, Form, FormikHelpers } from 'formik';
 import { Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { OptionsSliderField } from '@/components/atoms/Slider';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { NoteModule } from '@/lib/music';
@@ -38,6 +39,10 @@ export default function Home() {
   }
 
   return (
+    <>
+      <Typography mb={8} variant={'h5'}>
+        Just set your voice range and you're good to go!
+      </Typography>
       <Formik
         initialValues={initialValues}
         onSubmit={handleSubmit}
@@ -76,5 +81,6 @@ export default function Home() {
           </Form>
         )}
     </Formik>
+    </>
   );
 }

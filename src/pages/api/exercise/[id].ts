@@ -18,6 +18,8 @@ function handler(
       return res.status(404).json({});
     }
 
+    exercise.config.lowestNoteName = req.user.lowNote;
+    exercise.config.highestNoteName = req.user.highNote;
     return res.status(200).json(exercise)
   }
   res.status(400).json({ error: 'TODO: error handling' })

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Box from "@mui/material/Box";
 import { Melody, MelodyConfig } from '@/lib/Melody';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
+import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SWRResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
 
 export default function Exercise() {
@@ -22,11 +23,23 @@ export default function Exercise() {
     setMelody(melody);
   }, [exerciseQuery.isLoading]);
 
-  if (exerciseQuery.isLoading || !melody) {
-    return <Box>Loading...</Box>
+  
+  
+  if (shouldRenderSWRResponseHandler(exerciseQuery)) {
+    return (
+      <Box width={'100vw'} height={'100vh'} display={'flex'} alignItems={'center'} justifyContent={'center'}>
+        <SWRResponseHandler
+          query={exerciseQuery}
+          errorMessage={exerciseQuery.error?.error}
+          />
+      </Box>
+    );
   }
 
-
+  if (!melody) {
+    return <Box>Loading...</Box>
+  }
+  
   return (
     <Box width={'100%'}>
       <MelodyExercise

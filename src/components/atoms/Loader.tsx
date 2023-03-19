@@ -1,9 +1,9 @@
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
-function Loader() {
+function Loader({ m }: { m?: number }) {
   return (
-    <Box display={'flex'} justifyContent={'center'} alignItems={'center'} width={'100%'} height={'100%'}>
+    <Box m={m} display={'flex'} justifyContent={'center'} alignItems={'center'} width={'100%'} height={'100%'}>
       <CircularProgress />
     </Box>
   );

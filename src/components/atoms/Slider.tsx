@@ -3,7 +3,6 @@ import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import MuiSlider from '@mui/material/Slider';
 import { Field } from 'formik';
-import { avatarClasses } from '@mui/material';
 
 type Props =
   Pick<Parameters<typeof MuiSlider>[0], | 'value' | 'name' | 'id'> &
