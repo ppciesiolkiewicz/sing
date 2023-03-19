@@ -33,21 +33,21 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ThemeProvider theme={theme}>
-      <ErrorBoundary>
-        <SnackbarProvider>
-          <html lang="en">
-            {/*
-              <head /> will contain the components returned by the nearest parent
-              head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
-            */}
-            <head />
-            <body>
+    <html lang="en">
+      {/*
+        <head /> will contain the components returned by the nearest parent
+        head.tsx. Find out more at https://beta.nextjs.org/docs/api-reference/file-conventions/head
+      */}
+      <head />
+      <body>
+        <ThemeProvider theme={theme}>
+          <ErrorBoundary>
+            <SnackbarProvider>
               {children}
-            </body>
-          </html>
-        </SnackbarProvider>
-      </ErrorBoundary>
-    </ThemeProvider>
+            </SnackbarProvider>
+          </ErrorBoundary>
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

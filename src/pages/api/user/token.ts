@@ -19,18 +19,15 @@ async function logInHandler(
   });
 
   if (!user || !checkPasswordHash(password, user?.passwordHash)) {
-    return res.status(404).json({});
-  }
-
-  console.log('[POST token] user', user)
-  if (user) {
+    throw new ServerError('Invalid email or password', 400);
+  } else if (user) {
     const token = Jwt.sign(user.id)
     setCookie(res, 'token', token, { secure: true, httpOnly: true, sameSite: 'lax', path: '/api' });
 
     return res.status(200).json({});
   }
 
-  return res.status(500).json({});
+  throw new ServerError('Something went wrong - should not happen', 500);
 }
 
 function logOutHandler(
@@ -82,5 +79,5 @@ export default async function handler(
     ).buildAuthenticatedMiddleware()(req, res);
   }
 
-  return res.status(404).json({});
+  throw new ServerError('Method Not Allowed', 405)
 }

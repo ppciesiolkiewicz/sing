@@ -79,5 +79,5 @@ export default async (
     ).buildNonAuthenticatedMiddleware()(req, res);
   }
 
-  return res.status(404).json({});
+  throw new ServerError('Method Not Allowed', 405)
 }

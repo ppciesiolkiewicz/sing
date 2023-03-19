@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { Formik, Form, FormikHelpers } from 'formik';
+import { enqueueSnackbar } from 'notistack';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -26,13 +27,19 @@ export default function Login() {
     values: FormValues,
     { setSubmitting }: FormikHelpers<FormValues>,
   ) => {
-    setSubmitting(true);
-    const resp = await logIn(values);
-    setSubmitting(false);
-
-    // TODO: improve handling with try-catch
-    // if (resp.status === 200) {
-    router.push(getAppDashboardPath())
+    try {
+      setSubmitting(true);
+      const resp = await logIn(values);
+      setSubmitting(false);
+      router.push(getAppDashboardPath())
+    } catch(e: any) {
+      setSubmitting(false);
+      console.log('ERROR:', e);
+      enqueueSnackbar({
+        message: e.message || 'TEST',
+        variant: 'error',
+      })
+    }
   }
 
   return (

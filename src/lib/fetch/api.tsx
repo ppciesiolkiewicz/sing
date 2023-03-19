@@ -1,6 +1,5 @@
 import { DifficultyLevel } from "@/constants";
 
-
 export const signUp = async (values: { email: string; password: string; name?: string; }) => {
   const resp = await fetch(
     '/api/user',
@@ -12,6 +11,11 @@ export const signUp = async (values: { email: string; password: string; name?: s
       },
     },
   );
+
+  if (resp.status >= 400) {
+    const data = await resp.json();
+    throw new Error(data?.error || 'Something unexpected happened')
+  }
 
   return resp.json();
 }
@@ -29,6 +33,11 @@ export const logIn = async (values: { email: string; password: string }) => {
     },
   );
 
+  if (resp.status >= 400) {
+    const data = await resp.json();
+    throw new Error(data?.error || 'Something unexpected happened')
+  }
+
   return resp.json();
 }
 
@@ -39,6 +48,11 @@ export const logOut = async () => {
       method: 'DELETE',
     },
   );
+
+  if (resp.status >= 400) {
+    const data = await resp.json();
+    throw new Error(data?.error || 'Something unexpected happened')
+  }
 
   return resp.json();
 }
@@ -63,6 +77,11 @@ export const updateUser = async (values: {
       },
     },
   );
+
+  if (resp.status >= 400) {
+    const data = await resp.json();
+    throw new Error(data?.error || 'Something unexpected happened')
+  }
 
   return resp.json();
 }
