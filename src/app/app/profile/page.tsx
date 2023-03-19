@@ -3,6 +3,7 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import { Button } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { OptionsSliderField } from '@/components/atoms/Slider';
 import { TextFieldField } from '@/components/atoms/TextField';
@@ -19,7 +20,7 @@ type FormValues = {
   voiceRange: [string, string];
 };
 
-export default function Home() {
+export default function Profile() {
   const userQuery = useFetchUser();
 
   const initialValues = {
@@ -39,7 +40,7 @@ export default function Home() {
   }
 
   return (
-    <>
+    <Paper sx={{ p: 4 }}>
       <Typography mb={8} variant={'h5'}>
         Just set your voice range and you're good to go!
       </Typography>
@@ -72,6 +73,7 @@ export default function Home() {
                     variant={'contained'}
                     type={'submit'}
                     disabled={formik.isSubmitting}
+                    color={'secondary'}
                   >
                     Save
                   </Button>
@@ -81,6 +83,6 @@ export default function Home() {
           </Form>
         )}
     </Formik>
-    </>
+  </Paper>
   );
 }

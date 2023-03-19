@@ -1,4 +1,5 @@
 import MuiContainer from "@mui/material/Container";
+import Box from "@mui/material/Box";
 
 
 function Container({
@@ -11,10 +12,17 @@ function Container({
       sx={{
         width: '100vw',
         minHeight: 'calc(100vh - 68.5px)', // AppBar.height
-        p: 6,
+        display: 'flex',
       }}
     >
-      {children}
+      <Box sx={theme => ({
+        flex: 1,
+        p: 6,
+        m: 0,
+        // backgroundColor: theme.palette.background.default, 
+      })}>
+        {children}
+      </Box>
     </MuiContainer>
   );
 }

@@ -6,8 +6,22 @@ import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#fa6'
+      main: '#F4D35E'
     },
+    secondary: {
+      main: '#0D82B5',
+    },
+    error: {
+      main: '#F95738',
+    },
+    text: {
+      primary: '#102E4A',
+      secondary:'#102E4A',
+      disabled: '#88A09E',
+    }
+  },
+  typography: {
+    fontFamily: ['Montserrat', 'sans-serif'].join(','),
   }
 });
 

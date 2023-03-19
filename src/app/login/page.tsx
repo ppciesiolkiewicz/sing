@@ -6,9 +6,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { logIn } from '@/lib/fetch/api';
-import {
-  getAppProfilePath,
-} from '@/lib/urls';
+import { getAppDashboardPath } from '@/lib/urls';
 
 
 type FormValues = {
@@ -33,7 +31,7 @@ export default function Login() {
 
     // TODO: improve handling with try-catch
     // if (resp.status === 200) {
-    router.push(getAppProfilePath())
+    router.push(getAppDashboardPath())
   }
 
   return (

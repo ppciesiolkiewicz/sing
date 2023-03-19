@@ -6,9 +6,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { signUp, logIn } from '@/lib/fetch/api';
-import {
-  getAppProfilePath,
-} from '@/lib/urls';
+import { getAppDashboardPath } from '@/lib/urls';
 
 type FormValues = {
   name: string;
@@ -33,7 +31,7 @@ export default function SignUp() {
     const respLogIn = await logIn({ email: values.email, password: values.password });
     setSubmitting(false);
 
-    router.push(getAppProfilePath())
+    router.push(getAppDashboardPath())
   }
 
   return (
