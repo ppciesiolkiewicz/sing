@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Box from "@mui/material/Box";
 import { Melody, MelodyConfig } from '@/lib/Melody';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
-import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SWRResponseHandler'
+import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
 
 export default function Exercise() {

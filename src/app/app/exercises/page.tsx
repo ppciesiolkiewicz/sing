@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import { useFetchExercises  } from '@/lib/fetch/hooks';
-import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SWRResponseHandler'
+import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 
 export default function Exercises() {
   const exercisesQuery = useFetchExercises();
