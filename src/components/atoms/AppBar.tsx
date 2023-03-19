@@ -123,7 +123,7 @@ function ResponsiveAppBar() {
               }}
             >
               {pages.map((page) => (
-                <Link href={page.href}>
+                <Link href={page.href} key={page.href}>
                   <MenuItem key={page.href} onClick={handleCloseNavMenu}>
                     <Typography textAlign="center">{page.label}</Typography>
                   </MenuItem>
@@ -152,7 +152,7 @@ function ResponsiveAppBar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Link href={page.href}>
+              <Link href={page.href} key={page.href}>
                 <Button
                   key={page.href}
                   onClick={handleCloseNavMenu}
@@ -187,7 +187,7 @@ function ResponsiveAppBar() {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <Link href={setting.href}>
+                <Link href={setting.href} key={page.href}>
                   <MenuItem key={setting.href} onClick={handleCloseUserMenu}>
                     <Typography textAlign="center">{setting.label}</Typography>
                   </MenuItem>

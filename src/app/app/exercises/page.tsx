@@ -18,7 +18,7 @@ export default function Exercises() {
   return (
     <>
       {exercisesQuery.data.map((e) => (
-        <Box>
+        <Box key={e.id}>
           <Link href={`/app/exercises/exercise?id=${e.id}`}>
             <Box>
               <Typography variant="h6">
