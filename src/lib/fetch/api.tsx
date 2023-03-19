@@ -1,3 +1,4 @@
+import { DifficultyLevel } from "@/constants";
 
 
 export const signUp = async (values: { email: string; password: string; name?: string; }) => {
@@ -43,7 +44,11 @@ export const logOut = async () => {
 }
 
 
-export const updateUser = async (values: { lowNote: string; highNote: string; }) => {
+export const updateUser = async (values: {
+  lowNote: string;
+  highNote: string;
+  difficultyLevel: DifficultyLevel,
+}) => {
   const resp = await fetch(
     '/api/user/',
     {
@@ -51,6 +56,7 @@ export const updateUser = async (values: { lowNote: string; highNote: string; })
       body: JSON.stringify({
         lowNote: values.lowNote,
         highNote: values.highNote,
+        difficultyLevel: values.difficultyLevel,
       }),
       headers: {
         'Content-type': 'application/json; charset=UTF-8',

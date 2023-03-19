@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { Melody } from '@/lib/Melody'
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 import Modal from '@/components/atoms/Modal';
+import { useFetchUser } from '@/lib/fetch/hooks';
 
 function MelodyExercise({
   melody,
@@ -14,6 +15,7 @@ function MelodyExercise({
   setStarted: (started: boolean) => void,
   melody: Melody | null,
 }) {
+  const userQuery = useFetchUser();
   const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
   const canvasRef = useRef<any>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
@@ -64,6 +66,7 @@ function MelodyExercise({
 
         setScore(processedScore);
       },
+      userQuery.data.difficultyLevel,
     );
     animationRef.current.start();
   }, [started, melody]);

@@ -3,6 +3,8 @@ import * as Tone from 'tone';
 import { Melody } from '@/lib/Melody/index'
 import { NoteModule } from '@/lib/music';
 import PitchDetector from '@/lib/PitchDetector';
+import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';
+import type { DifficultyLevel } from '@/constants';
 import type { AnimationFrameEvent } from './types';
 
 const theme = {
@@ -342,13 +344,7 @@ class MelodyAnimation {
     triggerAttackRelease: (notes: string | string[], duration: number) => void;
   };
   freqToCanvasYPosition: freqToCanvasYPosition;
-  config: MelodyAnimationConfig = {
-    melodySingPixelsPerSecond: 100,
-    melodyNoteSelectedMaxFreqCentsDiff: 0.3,
-    melodyPercentFrameHitToAccept: 0.2,
-    paddingTop: 20 * window.devicePixelRatio,
-    paddingBottom: 60 * window.devicePixelRatio,
-  }
+  config: MelodyAnimationConfig;
   // TODO: onFinished?
   onStopped: (score: MelodySingNoteScore[]) => void;
 
@@ -361,7 +357,18 @@ class MelodyAnimation {
     return null;
   }
 
-  constructor(melody: Melody, canvas: HTMLCanvasElement, onStopped: (score: MelodySingNoteScore[]) => void) {
+  constructor(
+    melody: Melody,
+    canvas: HTMLCanvasElement,
+    onStopped: (score: MelodySingNoteScore[]) => void,
+    difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
+  ) {
+    this.config = {
+      paddingTop: 20 * window.devicePixelRatio,
+      paddingBottom: 60 * window.devicePixelRatio,
+      melodySingPixelsPerSecond: 100,
+      ...DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP[difficultyLevel],
+    }
     this.onStopped = onStopped;
     this.melody = melody;
     // setup paper.js

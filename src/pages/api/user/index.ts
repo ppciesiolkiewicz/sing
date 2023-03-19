@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { hashPassword } from '@/lib-api/utils';
+import { DIFFICULTY_LEVEL_EASY } from '@/constants';
 import { MiddlewareBuilder, ServerError } from '@/lib-api/utils';
 
 
@@ -25,8 +26,12 @@ async function updateUserHandler(
     data: {
       highNote: req.body.highNote,
       lowNote: req.body.lowNote,
+      difficultyLevel: req.body.difficultyLevel,
+      name: req.body.name,
     },
   })
+
+  // TODO: should update cache for user
   return res.status(200).json(updateUser);
 }
 
@@ -45,6 +50,7 @@ async function createUserHandler(
       passwordHash,
       lowNote: 'C3',
       highNote: 'D4',
+      difficultyLevel: DIFFICULTY_LEVEL_EASY,
     }
   })
   return res.status(200).json(user);
