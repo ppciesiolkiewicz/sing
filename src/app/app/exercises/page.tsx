@@ -1,8 +1,6 @@
 "use client";
 import Link from 'next/link'
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import Typography from "@mui/material/Typography";
+import { Box, Divider, Typography } from '@mui/material';
 import { useFetchExercises  } from '@/lib/fetch/hooks';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 

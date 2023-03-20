@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import { Melody } from '@/lib/Melody';
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
 import MelodyExercise from '@/components/blocks/MelodyExercise';

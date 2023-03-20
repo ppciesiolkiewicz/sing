@@ -1,11 +1,9 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { Formik, Form, FormikHelpers } from 'formik';
-import { enqueueSnackbar } from 'notistack';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import * as Yup from 'yup';
+import { Grid, Box, Button, Typography } from '@mui/material';
+import { enqueueSnackbar } from '@/components/atoms/Snackbar';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { logIn } from '@/lib/fetch/api';
 import { getAppDashboardPath } from '@/lib/urls';
@@ -15,6 +13,11 @@ type FormValues = {
   email: string;
   password: string;
 };
+
+const FormValidationSchema = Yup.object().shape({
+  email: Yup.string().email().required(),
+  password: Yup.string().required(),
+});
 
 export default function Login() {
   const router = useRouter();
@@ -34,9 +37,8 @@ export default function Login() {
       router.push(getAppDashboardPath())
     } catch(e: any) {
       setSubmitting(false);
-      console.log('ERROR:', e);
       enqueueSnackbar({
-        message: e.message || 'TEST',
+        message: e.message,
         variant: 'error',
       })
     }
@@ -46,6 +48,7 @@ export default function Login() {
     <Box display={'flex'} justifyContent={'center'} alignItems={'center'} height={'100%'}>
       <Formik
         initialValues={initialValues}
+        validationSchema={FormValidationSchema}
         onSubmit={handleSubmit}
       >
         {formik => (

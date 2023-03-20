@@ -1,19 +1,25 @@
 "use client";
 import { useRouter } from 'next/navigation';
 import { Formik, Form, FormikHelpers } from 'formik';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import { Typography } from '@mui/material';
+import * as Yup from 'yup';
+import { Grid, Box, Button, Typography } from '@mui/material';
+import { enqueueSnackbar } from '@/components/atoms/Snackbar';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { signUp, logIn } from '@/lib/fetch/api';
 import { getAppDashboardPath } from '@/lib/urls';
+
 
 type FormValues = {
   name: string;
   email: string;
   password: string;
 };
+
+const FormValidationSchema = Yup.object().shape({
+  name: Yup.string().required(),
+  email: Yup.string().email().required(),
+  password: Yup.string().required().min(8, 'Password has to be at least 8 characters'),
+});
 
 export default function SignUp() {
   const router = useRouter();
@@ -27,18 +33,26 @@ export default function SignUp() {
     values: FormValues,
     { setSubmitting }: FormikHelpers<FormValues>,
   ) => {
-    setSubmitting(true);
-    const respSignUp = await signUp(values);
-    const respLogIn = await logIn({ email: values.email, password: values.password });
-    setSubmitting(false);
-
-    router.push(getAppDashboardPath())
+    try {
+      setSubmitting(true);
+      const respSignUp = await signUp(values);
+      const respLogIn = await logIn({ email: values.email, password: values.password });
+      setSubmitting(false);
+      router.push(getAppDashboardPath())
+    } catch(e: any) {
+      setSubmitting(false);
+      enqueueSnackbar({
+        message: e.message,
+        variant: 'error',
+      })
+    }
   }
 
   return (
     <Box display={'flex'} justifyContent={'center'} alignItems={'center'} height={'100%'}>
       <Formik
         initialValues={initialValues}
+        validationSchema={FormValidationSchema}
         onSubmit={handleSubmit}
       >
         {formik => (

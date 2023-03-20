@@ -1,10 +1,8 @@
 "use client";
 import { Formik, Form, FormikHelpers } from 'formik';
-import { Button } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
+import * as Yup from 'yup';
+import { enqueueSnackbar } from '@/components/atoms/Snackbar';
+import { Grid, Box, Button, Typography, Paper } from '@mui/material';
 import { OptionsSliderField } from '@/components/atoms/Slider';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { SelectField } from '@/components/atoms/Select';
@@ -12,6 +10,8 @@ import { NoteModule } from '@/lib/music';
 import { useFetchUser } from '@/lib/fetch/hooks';
 import { updateUser } from '@/lib/fetch/api';
 import { DIFFICULTY_LEVEL_OPTIONS } from '@/constants';
+import type { DifficultyLevel } from '@/constants';
+
 
 const options = NoteModule.getAllNotes('C1', 'C6').map(n => ({
   label: n.name,
@@ -19,8 +19,17 @@ const options = NoteModule.getAllNotes('C1', 'C6').map(n => ({
 }));
 
 type FormValues = {
+  name: string;
   voiceRange: [string, string];
+  difficultyLevel: DifficultyLevel;
 };
+
+const FormValidationSchema = Yup.object().shape({
+  voiceRange: Yup.array().required('Voice range is required field').min(2),
+  name: Yup.string().required(),
+  difficultyLevel: Yup.string().required('Difficulty level is required field'),
+});
+
 
 export default function Profile() {
   const userQuery = useFetchUser();
@@ -30,18 +39,26 @@ export default function Profile() {
     difficultyLevel: userQuery.data.difficultyLevel,
     name: userQuery.data.name,
   }
-  console.log(initialValues)
+
   const handleSubmit = async (
     values: FormValues,
     { setSubmitting }: FormikHelpers<FormValues>,
   ) => {
-    setSubmitting(true)
-    const resp = await updateUser({
-      lowNote: values.voiceRange[0],
-      highNote: values.voiceRange[1],
-      difficultyLevel: values.difficultyLevel,
-    });
-    setSubmitting(false)
+    try {
+      setSubmitting(true)
+      const resp = await updateUser({
+        lowNote: values.voiceRange[0],
+        highNote: values.voiceRange[1],
+        difficultyLevel: values.difficultyLevel,
+      });
+      setSubmitting(false)
+    } catch(e: any) {
+      setSubmitting(false)
+      enqueueSnackbar({
+        message: e.message,
+        variant: 'error',
+      });
+    }
   }
 
   return (
@@ -51,6 +68,7 @@ export default function Profile() {
       </Typography>
       <Formik
         initialValues={initialValues}
+        validationSchema={FormValidationSchema}
         onSubmit={handleSubmit}
       >
         {formik => (

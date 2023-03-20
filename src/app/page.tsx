@@ -1,8 +1,5 @@
 "use client";
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Divider from '@mui/material/Divider'
+import { Box, Typography, Divider, Paper } from '@mui/material';
 import LogIn from './login/page';
 import SignUp from './signup/page';
 import Footer from '@/components/atoms/Footer'
@@ -117,7 +114,6 @@ export default function Home() {
             </Typography>
           </Box>
         </Box>
-
       </Box>
       <Footer />
     </>

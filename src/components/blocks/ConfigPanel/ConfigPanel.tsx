@@ -1,9 +1,5 @@
 import { Fragment, useState } from 'react';
-import MuiButton from '@mui/material/Button';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import SwipeableDrawer from '@mui/material/SwipeableDrawer';
-import Fab from '@mui/material/Fab';
+import { Grid, Box, Button, SwipeableDrawer, Fab } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import Select from '@/components/atoms/Select';
 import { Melody } from '@/lib/Melody'
@@ -117,14 +113,14 @@ function ConfigPanel({
         onStartClick={onStartClick}
       >
         <Grid item xs={12}>
-          <MuiButton
+          <Button
             fullWidth
             variant={'contained'}
             color={'primary'}
             type={'submit'}
             >
             {started ? 'Stop' : 'Start'}
-          </MuiButton>
+          </Button>
         </Grid>
       </ConfigPanelForm>
     </Box>

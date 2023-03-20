@@ -11,8 +11,6 @@ function TextFieldField({
     <Field
       id={id}
       name={name}
-      // placeholder="john@acme.com"
-      // type="email"
     >
       {props => (
         <MuiTextField
@@ -21,6 +19,8 @@ function TextFieldField({
           name={name}
           label={label}
           type={type}
+          error={!!props.form.errors[props.field.name]} 
+          helperText={props.form.errors[props.field.name] || ' '}
           value={props.field.value}
           onChange={props.form.handleChange}
           variant={'outlined'}
