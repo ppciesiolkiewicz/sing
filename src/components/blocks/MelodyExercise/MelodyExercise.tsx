@@ -1,9 +1,10 @@
 
 import { useRef, useLayoutEffect, useState } from 'react';
-import Box from '@mui/material/Box';
+import { Box, Typography } from '@mui/material';
 import { Melody } from '@/lib/Melody'
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 import Modal from '@/components/atoms/Modal';
+import LinearProgressWithLabel from '@/components/atoms/LinearProgressWithLabel';
 import { useFetchUser } from '@/lib/fetch/hooks';
 
 
@@ -83,8 +84,11 @@ function MelodyExercise({
         <Box>
           Congratulations! Here is your score:
           {score && Object.keys(score)?.map(noteName => (
-            <Box key={noteName}>
-              {noteName}: {score[noteName].toFixed(0)}% hit
+            <Box key={noteName} display={'flex'} width={'100%'}>
+              <Typography variant={'overline'} mr={1}>
+                {noteName}
+              </Typography>
+              <LinearProgressWithLabel sx={{ flex: 1 }} color={"success"} value={score[noteName]} />
             </Box>
           ))}
         </Box>
