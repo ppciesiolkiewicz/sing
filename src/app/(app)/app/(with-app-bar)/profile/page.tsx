@@ -51,6 +51,10 @@ export default function Profile() {
         highNote: values.voiceRange[1],
         difficultyLevel: values.difficultyLevel,
       });
+      enqueueSnackbar({
+        message: "Profile updated",
+        variant: 'success',
+      });
       setSubmitting(false)
     } catch(e: any) {
       setSubmitting(false)

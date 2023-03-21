@@ -18,7 +18,7 @@ function MelodyExercise({
   melody: Melody | null,
 }) {
   const userQuery = useFetchUser();
-  const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
+  const [score, setScore] = useState<{ [noteName: string]: number } | null>();
   const canvasRef = useRef<any>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
 
