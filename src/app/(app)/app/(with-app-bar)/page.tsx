@@ -13,7 +13,7 @@ export default function Dashboard() {
   return (
     <Box sx={theme => ({
       flex: 1,
-      p: [1, 4, 8],
+      p: [2, 4, 8],
       m: 0,
       // backgroundColor: theme.palette.background.default, 
     })}>
