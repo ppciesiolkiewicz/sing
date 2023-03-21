@@ -43,17 +43,22 @@ async function createUserHandler(
   const { email, password, name }: { email: string, password: string, name: string }  = req.body;
   const passwordHash = hashPassword(password);
 
-  const user = await req.prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      lowNote: 'C3',
-      highNote: 'D4',
-      difficultyLevel: DIFFICULTY_LEVEL_EASY,
-    }
-  })
-  return res.status(200).json(user);
+  try {
+
+    const user = await req.prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        lowNote: 'C3',
+        highNote: 'D4',
+        difficultyLevel: DIFFICULTY_LEVEL_EASY,
+      }
+    })
+    return res.status(200).json(user);
+  } catch(e) {
+    throw new ServerError('Failed to create account', 400);
+  }
 }
 
 
