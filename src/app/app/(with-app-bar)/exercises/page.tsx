@@ -24,10 +24,9 @@ export default function Exercises() {
       </Typography>
       <Grid mt={2} container spacing={2}>
         {exercisesQuery.data.map((e) => (
-          <Grid item xs={12} sm={4} md={4} xl={6}>
+          <Grid item xs={12} sm={4} md={4} xl={6} key={e.id}>
             <Link href={getAppExercisesExercisePath({ exerciseId: e.id })}>
               <Card
-                key={e.id}
                 cardContentSlot={
                   <>
                     <Typography variant="h6">
