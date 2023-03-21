@@ -343,6 +343,15 @@ class MelodyAnimation {
       notes: this.notesForNoteLines,
     });
 
+    const middleLine = new Path.Line(
+      new Point(view.center.x, 0),
+      new Point(view.center.x, view.bounds.bottom)
+    );
+    middleLine.strokeColor = 'black';
+    middleLine.strokeWidth = 1;
+    middleLine.strokeCap = 'round';
+    middleLine.dashArray = [10, 12];
+
     // this.soundGenerator = new Tone.PolySynth().toDestination();
     // this.soundGenerator.set({
     //   oscillator: {
