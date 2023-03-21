@@ -213,7 +213,11 @@ class MelodyConfig {
   }) {
     const intervals = intervalNames.map(name => IntervalModule.get(name));
     const intervalsCount = intervals.length;
-    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
+    const highestInterval = IntervalModule.getHighestInterval(intervals);
+    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(
+      lowestNoteName,
+      NoteModule.transpose(highestNoteName, `-${highestInterval.name}`),
+    );
 
     let intervalNotesBase = CHROMATIC_SCALE_NOTES
       .map(note => new Array(repeatTimes).fill(note))
@@ -224,8 +228,8 @@ class MelodyConfig {
         })
       })
       .flat()
-    // intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
-    const timeBetweenRootNoteChange = 2; // TODO:
+    intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
+    const timeBetweenRootNoteChange = 0.5; // TODO:
 
     const notes = new Array(1)
       .fill(intervalNotesBase)

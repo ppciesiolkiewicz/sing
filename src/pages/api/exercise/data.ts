@@ -34,7 +34,7 @@ const INTERVAL_ERXERCISES = [
   },
   ...IntervalModule.names().map(intervalName => ({
     title: `Interval ${intervalName}`,
-    intervalNames: ['1P', intervalName],
+    intervalNames: ['1P', intervalName, '1P'],
   })),
 ].map((e, i) => ({
   id: i,
@@ -42,8 +42,8 @@ const INTERVAL_ERXERCISES = [
   description: `Intervals: ${e.intervalNames.join('-')}`,
   configType: CONFIG_TYPE_INTERVAL,
   config: {
-    repeatTimes: 3,
-    timePerNote: 2,
+    repeatTimes: 1,
+    timePerNote: 1,
     timeBetweenNotes: 0.2,
     timeBetweenRepeats: 3,
     highestNoteName: 'C4',

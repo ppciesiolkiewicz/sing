@@ -14,17 +14,17 @@ import {
 
 
 export interface ChordType extends ReturnType<typeof TonalChord.get> {
-    readonly suffix: string;
+  readonly suffix: string;
 }
 
 export interface ScaleType extends ReturnType<typeof TonalScale.get> {
-    readonly chordTypes: ReturnType<typeof TonalScale.scaleChords>;
-    readonly allChords: ChordType[];
+  readonly chordTypes: ReturnType<typeof TonalScale.scaleChords>;
+  readonly allChords: ChordType[];
 }
 
 export type ChordProgressionType = {
-    readonly chord: ChordType;
-    readonly beats: number;
+  readonly chord: ChordType;
+  readonly beats: number;
 }[];
 
 export type NoteType = ReturnType<typeof TonalNote.get>;
@@ -182,11 +182,28 @@ export const ScaleModule = {
 };
 
 export const IntervalModule = {
-  get(name: string) {
+  get(name: string[]) {
     return TonalInterval.get(name);
   },
   names() {
     return ['1P', '2m', '2M', '3m', '3M', '4P', '5P', '6m', '6M', '7m', '7M', '8P'];
+  },
+  getHighestInterval(intervals: any[]) {
+    const sorted = [...intervals].sort((i1, i2) => {
+      const diff =  i2.name[0] - i1.name[0];
+      if (diff === 0) {
+        // TODO: test
+        if (i1.name[1] === 'M') {
+          return 1;
+        }
+      }
+
+      return diff;
+    });
+
+    console.log(sorted)
+
+    return sorted[0];
   }
 }
 
