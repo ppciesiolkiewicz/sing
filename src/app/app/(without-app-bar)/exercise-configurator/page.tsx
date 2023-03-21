@@ -13,7 +13,7 @@ export default function ExerciseConfigurator() {
   return (
     <>
       <>
-        <Box width={'100%'}>
+        <Box width={'100%'} height={'100%'}>
           <MelodyExercise
             started={started}
             setStarted={setStarted}

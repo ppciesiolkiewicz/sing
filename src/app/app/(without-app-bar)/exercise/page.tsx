@@ -7,7 +7,7 @@ import MelodyExercise from '@/components/blocks/MelodyExercise';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
 
-export default function Exercise() {
+export default function ExercisePage() {
   const params = useSearchParams()
   const id = params?.get('id') as string;
   const exerciseQuery = useFetchExercise({ id });
@@ -40,7 +40,7 @@ export default function Exercise() {
   }
   
   return (
-    <Box width={'100%'}>
+    <Box width={'100%'} height={'100%'}>
       <MelodyExercise
         melody={melody}
         started={true}

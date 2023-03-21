@@ -9,7 +9,7 @@ const APP_PATH = '/app/';
 const APP_DASHBOARD_PATH = APP_PATH;
 const APP_PROFILE_PATH = `${APP_PATH}profile/`;
 const APP_EXERCISES_PATH = `${APP_PATH}exercises/`;
-const APP_EXERCISES_EXERCISE_PATH = `${APP_PATH}exercises/exercise/`;
+const APP_EXERCISES_EXERCISE_PATH = `${APP_PATH}/exercise/`;
 const APP_CUSTOM_EXERCISES_PATH = `${APP_PATH}exercise-configurator/`;
 const APP_LOGOUT_PATH = `${APP_PATH}logout/`;
 

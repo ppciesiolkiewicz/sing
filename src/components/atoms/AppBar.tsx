@@ -34,11 +34,11 @@ const pages = [
     href: getAppCustomExercisesPath(),
     label: 'Custom Exercises',
   },
-  {
-    // TODO: open in a new tab
-    href: getBlogPath(),
-    label: 'Blog',
-  }
+  // {
+  //   // TODO: open in a new tab
+  //   href: getBlogPath(),
+  //   label: 'Blog',
+  // }
 ];
 const settings = [
   {

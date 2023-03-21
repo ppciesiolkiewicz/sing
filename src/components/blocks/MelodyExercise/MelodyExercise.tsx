@@ -6,6 +6,7 @@ import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 import Modal from '@/components/atoms/Modal';
 import { useFetchUser } from '@/lib/fetch/hooks';
 
+
 function MelodyExercise({
   melody,
   started,
@@ -73,7 +74,8 @@ function MelodyExercise({
 
   return (
     <>
-      <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
+      {/* TODO: AppBar.height again  */}
+      <canvas style={{ height: '100vh - 65.5px', width: '100%' }} id="canvas" ref={canvasRef} />
       <Modal
         open={Boolean(score)}
         onClose={() => setScore(null)}

@@ -1,4 +1,4 @@
-import paper, { view, Path, Point, Size, PointText, Rectangle } from 'paper'
+import paper, { view, Path, Point, Size, PointText, Rectangle, Group } from 'paper'
 import * as Tone from 'tone';
 import { Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
@@ -152,105 +152,114 @@ class NotesLines {
   }
 }
 
-class MelodySingNoteAnimatonElement {
-  path: Path.Rectangle;
-  melodySingElement: Melody['melodySing'][0];
+class MelodySingAnimationElement {
+  group: Group;
+  paths: Path.Rectangle[];
+  melodySingElements: Melody['melodySing'];
   // TODO: separate animation from score
-  melodySingScore: MelodySingNoteScore;
+  melodySingScore: MelodySingNoteScore[];
   config: MelodyAnimationConfig;
   
   constructor({
-    melodySingElement,
+    melodySingElements,
     freqToCanvasYPosition,
     config,
   }: {
-    melodySingElement: Melody['melodySing'][0],
+    melodySingElements: Melody['melodySing'],
     freqToCanvasYPosition: freqToCanvasYPosition,
     config: MelodyAnimationConfig,
   }) {
     this.config = config;
-    this.melodySingElement = melodySingElement;
-    const note = melodySingElement.note;
-    this.melodySingScore = {
-      noteName: melodySingElement.note.name,
+    this.melodySingElements = melodySingElements;
+
+    this.melodySingScore = melodySingElements.map(({ note }) => ({
+      noteName: note.name,
       totalFrames: note.duration * 60, // TODO: not *60?
       framesHit: 0,
       started: false,
       completed: false,
       percentHit: 0,
-    };
-    const startFreq = NoteModule.addCents(
-      this.melodySingElement.note.freq!,
-      this.config.melodyNoteSelectedMaxFreqCentsDiff,
-    );
-    const endFreq = NoteModule.addCents(
-      this.melodySingElement.note.freq!,
-      -this.config.melodyNoteSelectedMaxFreqCentsDiff,
-    );
+    }));
 
-    const startPosX = note.start * this.config.melodySingPixelsPerSecond;
-    const startPosY = freqToCanvasYPosition(startFreq);
-    const endPosX = note.end * this.config.melodySingPixelsPerSecond;
-    const endPosY = freqToCanvasYPosition(endFreq);
+    this.paths = melodySingElements.map(({ note }) => {
+        const startFreq = NoteModule.addCents(
+          note.freq!,
+          this.config.melodyNoteSelectedMaxFreqCentsDiff,
+        );
+        const endFreq = NoteModule.addCents(
+          note.freq!,
+          -this.config.melodyNoteSelectedMaxFreqCentsDiff,
+        );
+        const startPosX = note.start * this.config.melodySingPixelsPerSecond;
+        const startPosY = freqToCanvasYPosition(startFreq);
+        const endPosX = note.end * this.config.melodySingPixelsPerSecond;
+        const endPosY = freqToCanvasYPosition(endFreq);
 
-    const rect = new Rectangle(
-      new Point(view.center.x + startPosX, startPosY),
-      new Size(endPosX - startPosX, endPosY - startPosY),
-    );
-    this.path = new Path.Rectangle(rect);
-    this.path.fillColor = new paper.Color(theme.noteRects.normal);
-    this.path.selected = false;
+        const rect = new Rectangle(
+          new Point(view.center.x + startPosX, startPosY),
+          new Size(endPosX - startPosX, endPosY - startPosY),
+        );
+        const path = new Path.Rectangle(rect);
+        path.fillColor = new paper.Color(theme.noteRects.normal);
+        path.selected = false;
+        return path;
+    });
+
+    this.group = new Group(this.paths);
   }
 
   onAnimationFrame(ev: AnimationFrameEvent, pitch: Hz) {
-    const note = this.melodySingElement.note;
-    const result = this.melodySingScore;
-    const path = this.path;
+    const path = this.paths;
     const dest = new Point(
-      this.path.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
-      this.path.position.y,
-    );
-    this.path.position = dest;
-
-
-    if (!result.completed) {
-      if (path.bounds.left < view.center.x) {
-
-        if (!result.started) {
-          result.started = true;
-        }
-
-        const freqDiffInCents = Math.abs(NoteModule.centsDistance(pitch, note.freq))
-        if (
-          freqDiffInCents < this.config.melodyNoteSelectedMaxFreqCentsDiff
-        ) {
-          path.selected = true;
-          result.framesHit += 1;
-        } else {
-          path.selected = false;
-        }
-      }
-    }
-
-    if (!result.completed && path.bounds.right < view.center.x) {
-      result.completed = true;
-      result.percentHit = (
-        result.framesHit / result.totalFrames
+      this.group.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
+      this.group.position.y,
       );
-      path.selected = false;
-    }
-
-    if (result.completed) {
-      if (result.percentHit > this.config.melodyPercentFrameHitToAccept) {
-        path.fillColor = new paper.Color(theme.noteRects.success);
-      } else {
-        path.fillColor = new paper.Color(theme.noteRects.fail);
+    this.group.position = dest;
+      
+      
+    this.melodySingElements.forEach((e, i) => {
+      const note = e.note;
+      const result = this.melodySingScore[i];
+      const path = this.group.children[i];
+      if (!result.completed) {
+        if (path.bounds.left < view.center.x) {
+  
+          if (!result.started) {
+            result.started = true;
+          }
+  
+          const freqDiffInCents = Math.abs(NoteModule.centsDistance(pitch, note.freq))
+          if (
+            freqDiffInCents < this.config.melodyNoteSelectedMaxFreqCentsDiff
+          ) {
+            path.selected = true;
+            result.framesHit += 1;
+          } else {
+            path.selected = false;
+          }
+        }
       }
-    }
+
+      if (!result.completed && path.bounds.right < view.center.x) {
+        result.completed = true;
+        result.percentHit = (
+          result.framesHit / result.totalFrames
+        );
+        path.selected = false;
+      }
+  
+      if (result.completed) {
+        if (result.percentHit > this.config.melodyPercentFrameHitToAccept) {
+          path.fillColor = new paper.Color(theme.noteRects.success);
+        } else {
+          path.fillColor = new paper.Color(theme.noteRects.fail);
+        }
+      }
+    });
   }
 
   isCompleted() {
-    return this.melodySingScore.completed;
+    return this.melodySingScore.every(s => s.completed);
   }
 }
 
@@ -259,7 +268,7 @@ class MelodyAnimation {
   melody: Melody;
   canvas: HTMLCanvasElement;
   notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
-  melodySingAnimationElements: MelodySingNoteAnimatonElement[];
+  melodySingAnimationElement: MelodySingAnimationElement;
   pitchDetector: PitchDetector = new PitchDetector();
   soundGenerator: {
     triggerAttackRelease: (notes: string | string[], duration: number) => void;
@@ -323,11 +332,16 @@ class MelodyAnimation {
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
     this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
 
-    this.melodySingAnimationElements = melody.melodySing.map(m => new MelodySingNoteAnimatonElement({
-      melodySingElement: m,
+    this.melodySingAnimationElement = new MelodySingAnimationElement({
+      melodySingElements: melody.melodySing,
       freqToCanvasYPosition: this.freqToCanvasYPosition,
       config: this.config,
-    }));
+    });
+
+    const noteLines = new NotesLines({
+      freqToCanvasYPosition: this.freqToCanvasYPosition,
+      notes: this.notesForNoteLines,
+    });
 
     // this.soundGenerator = new Tone.PolySynth().toDestination();
     // this.soundGenerator.set({
@@ -353,10 +367,7 @@ class MelodyAnimation {
 
   start() {
     const melody = this.melody;
-    const noteLines = new NotesLines({
-      freqToCanvasYPosition: this.freqToCanvasYPosition,
-      notes: this.notesForNoteLines,
-    });
+
     const pitchCircle = new PitchCircle({
       freqToCanvasYPosition: this.freqToCanvasYPosition,
     });
@@ -371,11 +382,12 @@ class MelodyAnimation {
         });
 
       const currentPitch = this.pitchDetector.getPitch();
+      console.log('PITCH: todo', currentPitch);
 
       pitchCircle.onAnimationFrame(ev, currentPitch)
-      this.melodySingAnimationElements.forEach(e => e.onAnimationFrame(ev, currentPitch))
+      this.melodySingAnimationElement.onAnimationFrame(ev, currentPitch);
   
-      if (this.melodySingAnimationElements.every(m => m.isCompleted())) {
+      if (this.melodySingAnimationElement.isCompleted()) {
         // TODO show results - have a function that runs on Stop as well | onFinished?
         this.stop();
       }
@@ -397,7 +409,7 @@ class MelodyAnimation {
       view.remove();
     }
 
-    this.onStopped(this.melodySingAnimationElements.map(m => m.melodySingScore));
+    this.onStopped(this.melodySingAnimationElement.melodySingScore);
   }
 }
 
