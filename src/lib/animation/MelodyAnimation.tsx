@@ -382,7 +382,6 @@ class MelodyAnimation {
         });
 
       const currentPitch = this.pitchDetector.getPitch();
-      console.log('PITCH: todo', currentPitch);
 
       pitchCircle.onAnimationFrame(ev, currentPitch)
       this.melodySingAnimationElement.onAnimationFrame(ev, currentPitch);
