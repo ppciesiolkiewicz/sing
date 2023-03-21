@@ -5,9 +5,11 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client'
 import bcrypt from "bcrypt";
 import curryRight from 'lodash.curryright';
-
-const PRIVATE_KEY = 'TODO';
-const PASSWORD_HASH_SALT_ROUNDS = 10;
+import {
+  JWT_PRIVATE_KEY,
+  PASSWORD_HASH_SALT_ROUNDS,
+  JWT_EXPIRY_SECONDS,
+} from './constants'
 
 
 export const hashPassword = (password: string) => {
@@ -47,13 +49,13 @@ export class Jwt {
   static sign(userId: number) {
     const token = jwt.sign({
       userId: userId,
-      exp: Math.floor(Date.now() / 1000) + (60 * 60),
-    }, PRIVATE_KEY);
-    return token;
+      exp: Math.floor(Date.now() / 1000) + JWT_EXPIRY_SECONDS!,
+    }, JWT_PRIVATE_KEY!);
+    return token
   }
 
   static verify(token: string) {
-    const decoded = jwt.verify(token, PRIVATE_KEY);
+    const decoded = jwt.verify(token, JWT_PRIVATE_KEY!);
     return decoded;
   }
 }
