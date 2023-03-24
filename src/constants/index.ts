@@ -55,3 +55,44 @@ export const DIFFICULTY_LEVEL_OPTIONS = [
     value: DIFFICULTY_LEVEL_HARD,
   },
 ];
+
+export const INSTRUMENT_PIANO1 = 'INSTRUMENT_PIANO1'
+export const INSTRUMENT_PIANO2 = 'INSTRUMENT_PIANO2'
+
+export const INSTRUMENT_OPTIONS = [
+  {
+    label: "Piano 1",
+    value: INSTRUMENT_PIANO1,
+  },
+  {
+    label: "Piano 2",
+    value: INSTRUMENT_PIANO2,
+  }
+]
+
+export const INSTRUMENTS = {
+  [INSTRUMENT_PIANO1]: {
+    urls: {
+      G1: "pianoG1.wav",
+      C2: "pianoC2.wav",
+      C3: "pianoC3.wav",
+      G2: "pianoG2.wav",
+      G3: "pianoG3.wav",
+    },
+    baseUrl: "/instruments/piano/",
+    attack: 0,
+    release: 0.3,
+  },
+  [INSTRUMENT_PIANO2]: {
+    urls: {
+      A1: "A1.mp3",
+      A2: "A2.mp3",
+    },
+    baseUrl: "https://tonejs.github.io/audio/casio/",
+    attack: 0.2,
+    release: 0.1,
+  }
+  
+}
+
+export type InstrumentType = typeof INSTRUMENT_PIANO1 | typeof INSTRUMENT_PIANO2;

@@ -1,17 +1,19 @@
 "use client";
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
-import Box from "@mui/material/Box";
+import { Box, Button } from "@mui/material";
 import { Melody, MelodyConfig } from '@/lib/Melody';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
+import Modal from '@/components/atoms/Modal';
 
 export default function ExercisePage() {
   const params = useSearchParams()
   const id = params?.get('id') as string;
   const exerciseQuery = useFetchExercise({ id });
   const [melody, setMelody] = useState<null | Melody>(null);
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
     if (exerciseQuery.isLoading) {
@@ -41,11 +43,21 @@ export default function ExercisePage() {
   
   return (
     <Box width={'100%'} height={'100%'}>
-      <MelodyExercise
+      {/* TODO: MelodyExercise cannot request microphone permission */}
+      {started && <MelodyExercise
         melody={melody}
-        started={true}
-        setStarted={() => {}}
-      />
+        started={started}
+        setStarted={setStarted}
+      />}
+      <Modal
+        open={!started}
+      >
+        <Box display={'flex'} justifyContent={'center'}>
+          <Button color={'primary'} variant={'contained'} onClick={() => setStarted(true) }>
+            Start
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   )
 }

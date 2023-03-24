@@ -7,7 +7,8 @@ import { IntervalModule } from '@/lib/music'
 import { MultiSelectField } from '@/components/atoms/MultiSelect';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
-
+import ConfigPanelInstrument from './ConfigPanelInstrument';
+import { INSTRUMENT_PIANO1 } from '@/constants';
 
 type FormValues =
   Omit<Parameters<typeof MelodyConfig.fromIntervals>[0], 'intervalNames'> &
@@ -16,6 +17,7 @@ type FormValues =
       label: string;
       value: string;
     }[];
+    instrument: string;
   };
 
 const FormValidationSchema = Yup.object().shape({
@@ -26,6 +28,7 @@ const FormValidationSchema = Yup.object().shape({
   highestNoteName: Yup.string().required(),
   lowestNoteName: Yup.string().required(),
   intervalNames: Yup.array().min(1, 'Select at least 1 interval'),
+  instrument: Yup.string().required(),
 });
 
 
@@ -50,6 +53,7 @@ function ConfigPanelInterval({
     highestNoteName: 'C4',
     lowestNoteName: 'C3',
     intervalNames: [],
+    instrument: INSTRUMENT_PIANO1,
   };
 
   const handleSubmit = useCallback(
@@ -59,13 +63,8 @@ function ConfigPanelInterval({
     ) => {
       console.log('values', values);
       const config = MelodyConfig.fromIntervals({
+        ...values,
         intervalNames: values.intervalNames.map(({ value }) => value),
-        lowestNoteName: values.lowestNoteName,
-        highestNoteName: values.highestNoteName,
-        repeatTimes: values.repeatTimes,
-        timePerNote: values.timePerNote,
-        timeBetweenNotes: values.timeBetweenNotes,
-        timeBetweenRepeats: values.timeBetweenRepeats,
       });
       const melody = new Melody(config);
       onStartClick(melody);
@@ -91,6 +90,7 @@ function ConfigPanelInterval({
           </Grid>
           <ConfigPanelNoteBoundaries />
           <ConfigPanelTimesCommon />
+          <ConfigPanelInstrument />
           {children}
         </Grid>
       </Form>

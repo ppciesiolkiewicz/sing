@@ -4,7 +4,9 @@ import {
   CONFIG_TYPE_SCALE,
   CONFIG_TYPE_CHORDS,
   CONFIG_TYPE_NOTES,
+  INSTRUMENTS,
 } from '@/constants';
+import type { InstrumentType } from '@/constants'
 
 const START_TIME = 5;
 
@@ -66,8 +68,12 @@ class MelodyChord {
 
 class MelodyConfig {
   notes: (MelodyNote | MelodyChord)[];
-  constructor(notes: (MelodyNote | MelodyChord)[]) {
+  instrument: InstrumentType;
+
+
+  constructor(notes: (MelodyNote | MelodyChord)[], config: { instrument: InstrumentType }) {
     this.notes = notes;
+    this.instrument = config.instrument;
   }
 
   static fromObject({
@@ -77,6 +83,7 @@ class MelodyConfig {
     configType: string,
     config: any,
   }) {
+
     if (configType === CONFIG_TYPE_CHORDS) {
       return MelodyConfig.fromChords(config);
     } else if (configType === CONFIG_TYPE_INTERVAL) {
@@ -90,21 +97,23 @@ class MelodyConfig {
     throw new Error('Incorrect configType');
   }
 
-  static fromChords({
-    chordNames,
-    includeAllChordComponents,
-    repeatTimes,
-    timePerNote,
-    timeBetweenNotes,
-    timeBetweenRepeats,
-  }: {
+  static fromChords(config: {
     chordNames: string[],
     includeAllChordComponents: boolean,
     repeatTimes: number,
     timePerNote: number,
     timeBetweenNotes: number,
     timeBetweenRepeats: number,
+    instrument: InstrumentType;
   }) {
+    const {
+      chordNames,
+      includeAllChordComponents,
+      repeatTimes,
+      timePerNote,
+      timeBetweenNotes,
+      timeBetweenRepeats,
+    } = config;
     const notes = chordNames
       .reduce((acc: any, chordName, idx) => {
         const previousElement = acc[idx - 1];
@@ -123,19 +132,10 @@ class MelodyConfig {
         ]
       }, []).flat()
   
-      return new MelodyConfig(notes);
+      return new MelodyConfig(notes, config);
   }
 
-  static fromScale({
-    keyTonic,
-    keyType,
-    lowestNoteName,
-    highestNoteName,
-    repeatTimes,
-    timePerNote,
-    timeBetweenNotes,
-    timeBetweenRepeats,
-  }: {
+  static fromScale(config: {
     // TODO: take keyTonic and keyType as params
     keyTonic: string,
     keyType: string,
@@ -145,7 +145,18 @@ class MelodyConfig {
     timePerNote: number,
     timeBetweenNotes: number,
     timeBetweenRepeats: number,
+    instrument: InstrumentType;
   }) {
+    const {
+      keyTonic,
+      keyType,
+      lowestNoteName,
+      highestNoteName,
+      repeatTimes,
+      timePerNote,
+      timeBetweenNotes,
+      timeBetweenRepeats,
+    } = config;
     const scaleNotesBase = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName)
     let scaleNotesNamesBase = scaleNotesBase.map(n => n.name);
     const splitIndices = [
@@ -190,19 +201,11 @@ class MelodyConfig {
     const notes = scaleNotesElements
       .map(e => new MelodyNote(e.name, e.start, e.end));
 
-    return new MelodyConfig(notes);
+    return new MelodyConfig(notes, config);
   }
 
   // ['1P', '2M', '3M', '4P', '5P', '6m', '7m']
-  static fromIntervals({
-    intervalNames,
-    lowestNoteName,
-    highestNoteName,
-    repeatTimes,
-    timePerNote,
-    timeBetweenNotes,
-    timeBetweenRepeats,
-  }: {
+  static fromIntervals(config: {
     intervalNames: string[],
     lowestNoteName: string,
     highestNoteName: string,
@@ -210,7 +213,17 @@ class MelodyConfig {
     timePerNote: number,
     timeBetweenNotes: number,
     timeBetweenRepeats: number,
+    instrument: InstrumentType;
   }) {
+    const {
+      intervalNames,
+      lowestNoteName,
+      highestNoteName,
+      repeatTimes,
+      timePerNote,
+      timeBetweenNotes,
+      timeBetweenRepeats,
+    } = config;
     const intervals = intervalNames.map(name => IntervalModule.get(name));
     const intervalsCount = intervals.length;
     const highestInterval = IntervalModule.getHighestInterval(intervals);
@@ -248,7 +261,7 @@ class MelodyConfig {
         return new MelodyNote(n, start, end)
       })
 
-      return new MelodyConfig(notes);
+      return new MelodyConfig(notes, config);
     }
 }
 
@@ -305,14 +318,26 @@ class MelodyPlayElement {
 class Melody {
   melodySing: MelodySingElement[];
   melodyPlay: MelodyPlayElement[];
+  instrumentConfig: {
+    baseUrl: string;
+    urls?: { [key: string]: string };
+    attack?: number;
+    release?: number;
+  };
 
   constructor(config: MelodyConfig) {
+    this.instrumentConfig = INSTRUMENTS[config.instrument];
+
+    const MELODY_PLAY_SHIFT = 3
     const melodyPlay: MelodyPlayElement[] = config.notes.map((e) => {
+      // TODO:...
+      e.start = e.start - MELODY_PLAY_SHIFT;
+      e.end = e.end - MELODY_PLAY_SHIFT;
       if (e instanceof MelodyNote) {
         return new MelodyPlayElement(e.name, e.start, e.end);
       } else if (e instanceof MelodyChord) {
-        const start = e.start - 0.1; // TODO:
-        const end = e.end - 0.1;
+        const start = e.start;
+        const end = e.end;
 
         return new MelodyPlayElement(e.notes.map(n => n.name), start, end);
       }

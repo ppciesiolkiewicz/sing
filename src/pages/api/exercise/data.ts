@@ -5,7 +5,7 @@ import {
   CONFIG_TYPE_NOTES,
 } from '@/constants';
 import { NoteModule, ScaleModule, IntervalModule } from '@/lib/music';
-
+import { INSTRUMENT_PIANO1 } from '@/constants';
 
 const SCALE_EXERCISES = NoteModule.names().map((noteName, i) =>
   ScaleModule.relevantNames().map((scaleName, j) => ({
@@ -23,6 +23,7 @@ const SCALE_EXERCISES = NoteModule.names().map((noteName, i) =>
         timePerNote: 1,
         timeBetweenNotes: 0.1,
         timeBetweenRepeats: 3,
+        instrument: INSTRUMENT_PIANO1,
       },
   }))
 ).flat()
@@ -49,6 +50,7 @@ const INTERVAL_ERXERCISES = [
     highestNoteName: 'C4',
     lowestNoteName: 'C3',
     intervalNames: e.intervalNames,
+    instrument: INSTRUMENT_PIANO1,
   },
 }))
 

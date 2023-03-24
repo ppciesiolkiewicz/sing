@@ -7,9 +7,12 @@ import { MelodyConfig, Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule } from '@/lib/music';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
+import ConfigPanelInstrument from './ConfigPanelInstrument';
+import { INSTRUMENT_PIANO1 } from '@/constants';
 
-
-type FormValues = Parameters<typeof MelodyConfig.fromScale>[0];
+type FormValues = Parameters<typeof MelodyConfig.fromScale>[0] & {
+  instrument: string;
+};
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),
@@ -20,6 +23,7 @@ const FormValidationSchema = Yup.object().shape({
   lowestNoteName: Yup.string().required(),
   keyTonic: Yup.string().required(),
   keyType: Yup.string().required(),
+  instrument: Yup.string().required(),
 });
 
 function ConfigPanelScale({
@@ -38,6 +42,7 @@ function ConfigPanelScale({
     lowestNoteName: 'C3',
     keyTonic: 'C',
     keyType: 'major',
+    instrument: INSTRUMENT_PIANO1,
   };
 
   const handleSubmit = useCallback(
@@ -86,6 +91,7 @@ function ConfigPanelScale({
           </Grid>
           <ConfigPanelNoteBoundaries />
           <ConfigPanelTimesCommon />
+          <ConfigPanelInstrument />
           {children}
         </Grid>
       </Form>

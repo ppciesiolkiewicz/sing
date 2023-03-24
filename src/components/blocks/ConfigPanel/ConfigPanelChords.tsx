@@ -9,6 +9,8 @@ import { MelodyConfig, Melody } from '@/lib/Melody'
 import { ChordModule } from '@/lib/music';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
+import ConfigPanelInstrument from './ConfigPanelInstrument';
+import { INSTRUMENT_PIANO1 } from '@/constants';
 
 
 type FormValues =
@@ -17,7 +19,9 @@ type FormValues =
     chordNames: {
       label: string;
       value: string;
+      key: string;
     }[];
+    instrument: string;
   };
 
 const FormValidationSchema = Yup.object().shape({
@@ -26,7 +30,8 @@ const FormValidationSchema = Yup.object().shape({
   timeBetweenNotes: Yup.number().required(),
   timeBetweenRepeats: Yup.number().required(),
   chordNames: Yup.array().min(1, 'Select at least 1 chord'),
-  includeAllChordComponents: Yup.boolean(),
+  includeAllChordComponents: Yup.boolean().required(),
+  instrument: Yup.string().required(),
 });
 
 function ConfigPanelChords({
@@ -43,12 +48,16 @@ function ConfigPanelChords({
   }))
 
   const initialValues: FormValues = {
+    chordNames: [
+      {value: 'C3maj', label: 'C3maj', key: 'C3maj-0'},
+      {value: 'G3maj', label: 'G3maj', key: 'G3maj-0'},
+    ],
     repeatTimes: 3,
     timePerNote: 3,
     timeBetweenNotes: 0.2,
     timeBetweenRepeats: 2,
-    chordNames: [],
     includeAllChordComponents: true,
+    instrument: INSTRUMENT_PIANO1
   };
 
   const handleSubmit = useCallback(
@@ -106,6 +115,7 @@ function ConfigPanelChords({
               )}
             </Field>
           </Grid>
+          <ConfigPanelInstrument />
           {children}
         </Grid>
       </Form>
