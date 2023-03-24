@@ -182,7 +182,7 @@ export const ScaleModule = {
 };
 
 export const IntervalModule = {
-  get(name: string[]) {
+  get(name: string) {
     return TonalInterval.get(name);
   },
   names() {
