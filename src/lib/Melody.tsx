@@ -328,17 +328,14 @@ class Melody {
   constructor(config: MelodyConfig) {
     this.instrumentConfig = INSTRUMENTS[config.instrument];
 
-    const MELODY_PLAY_SHIFT = 3
+    // TODO:...
+    const MELODY_PLAY_SHIFT = 0.2
     const melodyPlay: MelodyPlayElement[] = config.notes.map((e) => {
-      // TODO:...
-      e.start = e.start - MELODY_PLAY_SHIFT;
-      e.end = e.end - MELODY_PLAY_SHIFT;
+      const start = e.start - MELODY_PLAY_SHIFT;
+      const end = e.end - MELODY_PLAY_SHIFT;
       if (e instanceof MelodyNote) {
-        return new MelodyPlayElement(e.name, e.start, e.end);
+        return new MelodyPlayElement(e.name, start, end);
       } else if (e instanceof MelodyChord) {
-        const start = e.start;
-        const end = e.end;
-
         return new MelodyPlayElement(e.notes.map(n => n.name), start, end);
       }
       
