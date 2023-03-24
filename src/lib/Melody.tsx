@@ -311,8 +311,8 @@ class Melody {
       if (e instanceof MelodyNote) {
         return new MelodyPlayElement(e.name, e.start, e.end);
       } else if (e instanceof MelodyChord) {
-        const start = e.start - 0.1;
-        const end = e.end;
+        const start = e.start - 0.1; // TODO:
+        const end = e.end - 0.1;
 
         return new MelodyPlayElement(e.notes.map(n => n.name), start, end);
       }

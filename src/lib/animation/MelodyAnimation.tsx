@@ -364,9 +364,17 @@ class MelodyAnimation {
     //   }
     // });
     this.soundGenerator = new Tone.Sampler({
-      baseUrl: "https://tonejs.github.io/audio/casio/",
-      attack: 0.2,
-      release: 0,
+      urls: {
+        G1: "pianoG1.wav",
+        C2: "pianoC2.wav",
+        C3: "pianoC3.wav",
+        G2: "pianoG2.wav",
+        G3: "pianoG3.wav",
+      },
+      // baseUrl: "https://tonejs.github.io/audio/casio/",
+      baseUrl: "/instruments/piano/",
+      attack: 0.4,
+      release: 0.4,
     }).toDestination();
   }
 
