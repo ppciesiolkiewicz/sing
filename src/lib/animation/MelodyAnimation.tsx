@@ -364,10 +364,6 @@ class MelodyAnimation {
     //   }
     // });
     this.soundGenerator = new Tone.Sampler({
-      urls: {
-        A1: "A1.mp3",
-        A2: "A2.mp3",
-      },
       baseUrl: "https://tonejs.github.io/audio/casio/",
       attack: 0.2,
       release: 0,
