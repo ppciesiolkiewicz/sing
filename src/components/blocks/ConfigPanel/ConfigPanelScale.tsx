@@ -1,4 +1,4 @@
-import type { ScaleMelodyConfigType } from '@/lib/Melody/MelodyBuilder';
+import type { ScaleMelodyConfig } from '@/lib/Melody/MelodyBuilder';
 import { useCallback } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
@@ -11,7 +11,7 @@ import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
 import { INSTRUMENT_PIANO1, CONFIG_TYPE_SCALE } from '@/constants';
 
-type FormValues = ScaleMelodyConfigType;
+type FormValues = ScaleMelodyConfig;
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),

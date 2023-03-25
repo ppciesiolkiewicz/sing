@@ -11,6 +11,7 @@ import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
 import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';
 import PitchDetector from '@/lib/PitchDetector';
 import { MelodySingAnimationGroup, MelodyListenAnimationGroup } from './MelodyAnimationGroup';
+import MelodyLyricsAnimation from './MelodyLyricsAnimation';
 import PitchCircle from './PitchCircle';
 import NotesLines from './NotesLines';
 import BackingTrack from './BackingTrack';
@@ -37,6 +38,9 @@ const theme = {
     success: '#00aa00',
     fail: '#aa0000',
   },
+  lyrics: {
+
+  }
 };
 
 const getFreqToCanvasYPositionFn = (
@@ -52,6 +56,7 @@ class MelodyAnimation {
   canvas: HTMLCanvasElement;
   melodySingAnimationGroup: MelodySingAnimationGroup;
   melodyListenAnimationGroup: MelodyListenAnimationGroup;
+  melodyLyricsAnimation: MelodyLyricsAnimation;
   pitchCircle: PitchCircle;
   backingTrack: BackingTrack;
   pitchDetector: PitchDetector = new PitchDetector();
@@ -75,14 +80,15 @@ class MelodyAnimation {
       Math.max(...this.melody.singTrack.map(e => e.freq)),
     );
 
-    const padding: Pixel = 20 * window.devicePixelRatio;
-    const heightWithoutPadding: Pixel = view.size.height - padding*2;
+    const paddingTop: Pixel = this.config.paddingTop;
+    const paddingBottom: Pixel = this.config.paddingBottom;
+    const heightWithoutPadding: Pixel = view.size.height - paddingTop - paddingBottom;
     const minNoteLogFreq: LogHz = Math.log2(notesForNoteLines[0].freq!);
     const maxNoteLogFreq: LogHz = Math.log2(notesForNoteLines[notesForNoteLines.length - 1].freq!);
     const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
     const pixelsPerLogHertz: PixelPerHz = heightWithoutPadding / diffLogFreq;
     const freqToCanvasYPosition = getFreqToCanvasYPositionFn(
-      minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height
+      minNoteLogFreq, pixelsPerLogHertz, paddingBottom, view.size.height
     );
 
     return {
@@ -114,9 +120,11 @@ class MelodyAnimation {
     onStopped: (score: MelodySingNoteScore[]) => void,
     difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
   ) {
-    console.log({ melody })
+    console.log('MelodyAnimation.constructor', { melody })
     this.config = {
       melodySingPixelsPerSecond: 100,
+      paddingTop: 20 * window.devicePixelRatio,
+      paddingBottom: 60 * window.devicePixelRatio,
       ...DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP[difficultyLevel],
     }
     this.canvas = canvas; 
@@ -147,6 +155,12 @@ class MelodyAnimation {
       config: this.config,
       theme: theme.listenTrack,
     });
+
+    this.melodyLyricsAnimation = new MelodyLyricsAnimation({
+      lyricsTrack: melody.lyricsTrack,
+      config: this.config,
+      theme: theme.lyrics,
+    })
 
 
     this.pitchCircle = new PitchCircle({
@@ -187,6 +201,7 @@ class MelodyAnimation {
       this.pitchCircle.onAnimationFrame(ev, currentPitch)
       this.melodySingAnimationGroup.onAnimationFrame(ev, currentPitch);
       this.melodyListenAnimationGroup.onAnimationFrame(ev, currentPitch);
+      this.melodyLyricsAnimation.onAnimationFrame(ev);
 
       if (this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted()) {
         // TODO show results - have a function that runs on Stop as well | onFinished?

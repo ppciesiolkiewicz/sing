@@ -16,5 +16,7 @@ export interface MelodyAnimationConfig {
   melodySingPixelsPerSecond: number;
   melodyNoteSelectedMaxFreqCentsDiff: number;
   melodyPercentFrameHitToAccept: number;
+  paddingTop: Pixel;
+  paddingBottom: Pixel;
 }
 export type freqToCanvasYPosition = (freq: Hz) => Pixel;

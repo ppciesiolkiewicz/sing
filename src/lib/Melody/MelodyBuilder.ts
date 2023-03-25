@@ -15,6 +15,7 @@
     melodyTrack: TrackNote[](type=NOTE_TYPE_SING | NOTE_TYPE_LISTEN)
 */
 import type { ConfigType } from '@/constants';
+import type { InstrumentConfig } from './types';
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
 import {
   CONFIG_TYPE_INTERVAL,
@@ -25,6 +26,7 @@ import {
 } from '@/constants';
 import type { InstrumentType } from '@/constants'
 import { TrackNote } from './TrackNote';
+import TrackLyrics from './TrackLyrics';
 import Melody from './Melody';
 
 const START_TIME = 5;
@@ -41,11 +43,11 @@ interface MelodyConfigType {
   configType: ConfigType;
 }
 
-interface InstrumentMelodyConfigType {
+interface InstrumentMelodyConfig {
   instrument: InstrumentType;
 }
 
-interface CommonMelodyConfigType {
+interface CommonMelodyConfig {
   repeatTimes: number,
   timePerNote: number,
   timeBetweenNotes: number,
@@ -53,75 +55,39 @@ interface CommonMelodyConfigType {
 }
 
 
-export interface ChordsMelodyConfigType extends InstrumentMelodyConfigType, CommonMelodyConfigType {
+export interface ChordsMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
   chordNames: string[],
   includeAllChordComponents: boolean,
 }
 
-export interface IntervalsMelodyConfigType extends InstrumentMelodyConfigType, CommonMelodyConfigType {
+export interface IntervalsMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
   intervalNames: string[],
   lowestNoteName: string,
   highestNoteName: string,
   // mode: IntervalMelodyMode, TODO:
 }
 
-export interface ScaleMelodyConfigType extends InstrumentMelodyConfigType, CommonMelodyConfigType {
+export interface ScaleMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
   keyTonic: string,
   keyType: string,
   lowestNoteName: string,
   highestNoteName: string,
 }
 
-
-class SpecificBuilderBase {
-  // TOOD: can this be abstracted?
-  // TODO: better MelodyOperationUtils?
-  getNotes() {
-    // TODO: use 
-    // lowestNoteName,
-    // highestNoteName,
-  }
-
-  buildNotes() {
-    // TODO: use
-    // repeatTimes,
-    // timePerNote,
-    // timeBetweenNotes,
-    // timeBetweenRepeats,
-  }
+export interface NotesMelodyConfig {
+  singTrack: TrackNote[];
+  backingTrack: TrackNote[];
+  listenTrack: TrackNote[];
+  lyricsTrack: TrackLyrics[];
+  instrument: InstrumentType;
 }
 
-class NotesUtils {
-  static buildNotes(
-    notes: string[],
-    {
-      shift,
+type MelodyConfig = NotesMelodyConfig | ScaleMelodyConfig | IntervalsMelodyConfig | ChordsMelodyConfig;
 
-    }: {
-      shift: number,
-
-    },
-    {
-      repeatTimes,
-      timePerNote,
-      timeBetweenNotes,
-      timeBetweenRepeats,
-    }: CommonMelodyConfigType
-  ): TrackNote[] {
-    let notes_ = notes
-
-    // flag for reverse
-    // notes_ = [...notes, ...notes.reverse()];
-    return [];
-  }
-}
-
-
-// TODO: IntervalsMelodyBuilder/... can have internal MelodyBuilders
 class IntervalsMelodyBuilder {
-  config: IntervalsMelodyConfigType;
+  config: IntervalsMelodyConfig;
 
-  constructor(config: IntervalsMelodyConfigType) {
+  constructor(config: IntervalsMelodyConfig) {
     this.config = config;
   }
 
@@ -188,9 +154,9 @@ class IntervalsMelodyBuilder {
 
 
 class ChordsMelodyBuilder {
-  config: ChordsMelodyConfigType;
+  config: ChordsMelodyConfig;
 
-  constructor(config: ChordsMelodyConfigType) {
+  constructor(config: ChordsMelodyConfig) {
     this.config = config;
   }
 
@@ -287,9 +253,9 @@ class ChordsMelodyBuilder {
 
 
 class ScaleMelodyBuilder {
-  config: ScaleMelodyConfigType;
+  config: ScaleMelodyConfig;
 
-  constructor(config: ScaleMelodyConfigType) {
+  constructor(config: ScaleMelodyConfig) {
     this.config = config;
   }
 
@@ -371,15 +337,15 @@ class ScaleMelodyBuilder {
 
 
 export default class MelodyBuilder {
-  // TODO: configType part of a config
-  config: ChordsMelodyConfigType | IntervalsMelodyConfigType | ScaleMelodyConfigType;
+  // TODO: configType part of a config for TS
+  config: MelodyConfig;
   configType: ConfigType;
 
   constructor({
     config,
     configType,
   }: {
-    config: any,
+    config: MelodyConfig,
     configType: ConfigType,
   }) {
     this.config = config;
@@ -394,14 +360,19 @@ export default class MelodyBuilder {
     } else if (this.configType === CONFIG_TYPE_SCALE) {
       return this.fromScale();
     } else if (this.configType === CONFIG_TYPE_NOTES) {
-      throw new Error('Not implemented');
+      const instrumentConfig = this.buildInstrument()
+
+      return new Melody({
+        ...this.config as NotesMelodyConfig,
+        instrumentConfig
+      });
     }
 
     throw new Error('Incorrect configType');
   }
   
   private fromChords() {
-    const builder = new ChordsMelodyBuilder(this.config as ChordsMelodyConfigType);
+    const builder = new ChordsMelodyBuilder(this.config as ChordsMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
@@ -409,12 +380,13 @@ export default class MelodyBuilder {
       singTrack,
       listenTrack: [],
       backingTrack,
+      lyricsTrack: [],
       instrumentConfig
     });
   }
 
   private fromScale() {
-    const builder = new ScaleMelodyBuilder(this.config as ScaleMelodyConfigType);
+    const builder = new ScaleMelodyBuilder(this.config as ScaleMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
@@ -422,12 +394,18 @@ export default class MelodyBuilder {
       singTrack,
       listenTrack: [],
       backingTrack,
+      lyricsTrack: [
+        // new TrackLyrics('test', 0, 7),
+        // new TrackLyrics('test', 5, 7),
+        // new TrackLyrics('test2', 6, 10),
+        // new TrackLyrics('tes3t', 11, 20),
+      ],
       instrumentConfig
     });
   }
 
   private fromIntervals() {
-    const builder = new IntervalsMelodyBuilder(this.config as IntervalsMelodyConfigType);
+    const builder = new IntervalsMelodyBuilder(this.config as IntervalsMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
@@ -435,6 +413,7 @@ export default class MelodyBuilder {
       singTrack,
       listenTrack: [],
       backingTrack,
+      lyricsTrack: [],
       instrumentConfig
     });
   }
