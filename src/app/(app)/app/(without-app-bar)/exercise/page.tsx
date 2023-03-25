@@ -2,7 +2,7 @@
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react';
 import { Box, Button } from "@mui/material";
-import { Melody, MelodyConfig } from '@/lib/Melody';
+import { Melody, MelodyBuilder } from '@/lib/Melody';
 import MelodyExercise from '@/components/blocks/MelodyExercise';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
@@ -20,8 +20,8 @@ export default function ExercisePage() {
       return;
     }
 
-    const melodyConfig = MelodyConfig.fromObject(exerciseQuery.data)
-    const melody = new Melody(melodyConfig)
+    const builder = new MelodyBuilder(exerciseQuery.data);
+    const melody = builder.build();
     setMelody(melody);
   }, [exerciseQuery.isLoading]);
 

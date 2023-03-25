@@ -155,24 +155,24 @@ class NotesLines {
 class MelodySingAnimationElement {
   group: Group;
   paths: Path.Rectangle[];
-  melodySingElements: Melody['melodySing'];
+  melodySingElements: Melody['singTrack'];
   // TODO: separate animation from score
   melodySingScore: MelodySingNoteScore[];
   config: MelodyAnimationConfig;
   
   constructor({
-    melodySingElements,
+    singTrack,
     freqToCanvasYPosition,
     config,
   }: {
-    melodySingElements: Melody['melodySing'],
+    singTrack: Melody['singTrack'],
     freqToCanvasYPosition: freqToCanvasYPosition,
     config: MelodyAnimationConfig,
   }) {
     this.config = config;
-    this.melodySingElements = melodySingElements;
+    this.melodySingElements = singTrack;
 
-    this.melodySingScore = melodySingElements.map(({ note }) => ({
+    this.melodySingScore = singTrack.map((note) => ({
       noteName: note.name,
       totalFrames: note.duration * 60, // TODO: not *60?
       framesHit: 0,
@@ -181,7 +181,7 @@ class MelodySingAnimationElement {
       percentHit: 0,
     }));
 
-    this.paths = melodySingElements.map(({ note }) => {
+    this.paths = singTrack.map((note) => {
         const startFreq = NoteModule.addCents(
           note.freq!,
           this.config.melodyNoteSelectedMaxFreqCentsDiff,
@@ -217,8 +217,7 @@ class MelodySingAnimationElement {
     this.group.position = dest;
       
       
-    this.melodySingElements.forEach((e, i) => {
-      const note = e.note;
+    this.melodySingElements.forEach((note, i) => {
       const result = this.melodySingScore[i];
       const path = this.group.children[i];
       if (!result.completed) {
@@ -293,6 +292,7 @@ class MelodyAnimation {
     onStopped: (score: MelodySingNoteScore[]) => void,
     difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
   ) {
+    console.log({ melody })
     this.config = {
       melodySingPixelsPerSecond: 100,
       ...DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP[difficultyLevel],
@@ -320,9 +320,11 @@ class MelodyAnimation {
 
     // TODO: add padding if of few notes on each side there's only 1 note, e.g min 5 notes displayed
     this.notesForNoteLines = NoteModule.getAllNotes(
-      Math.min(...melody.melodySing.map(e => e.note.freq!)),
-      Math.max(...melody.melodySing.map(e => e.note.freq!)),
+      Math.min(...melody.singTrack.map(e => e.freq)),
+      Math.max(...melody.singTrack.map(e => e.freq)),
     );
+
+    console.log(this.notesForNoteLines)
 
     const padding: Pixel = 20 * window.devicePixelRatio;
     const heightWithoutPadding: Pixel = view.size.height - padding*2;
@@ -333,7 +335,7 @@ class MelodyAnimation {
     this.freqToCanvasYPosition = getFreqToCanvasYPositionFn(minNoteLogFreq, pixelsPerLogHertz, padding, view.size.height);
 
     this.melodySingAnimationElement = new MelodySingAnimationElement({
-      melodySingElements: melody.melodySing,
+      singTrack: melody.singTrack,
       freqToCanvasYPosition: this.freqToCanvasYPosition,
       config: this.config,
     });
@@ -352,18 +354,6 @@ class MelodyAnimation {
     middleLine.strokeCap = 'round';
     middleLine.dashArray = [10, 12];
 
-    // this.soundGenerator = new Tone.PolySynth().toDestination();
-    // this.soundGenerator.set({
-    //   oscillator: {
-    //     // partialCount: 10,
-    //     // type: 'sine',
-    //   },
-    //   portamento: 10,
-    //   envelope: {
-    //     attack: 0.2,
-    //   }
-    // });
-    console.log(melody.instrumentConfig)
     this.soundGenerator = new Tone.Sampler(melody.instrumentConfig).toDestination();
   }
 
@@ -375,10 +365,10 @@ class MelodyAnimation {
     });
 
     const onFrame = async (ev: AnimationFrameEvent) => {
-      melody.melodyPlay
+      melody.backingTrack
         .forEach((m) => {
           if (!m.played && ev.time >= m.start) {
-            this.soundGenerator.triggerAttackRelease(m.notes.map(n => n.name), m.duration)
+            this.soundGenerator.triggerAttackRelease(m.name, m.duration);
             m.played = true;
           }
         });

@@ -1,23 +1,23 @@
+import type { IntervalsMelodyConfigType } from '@/lib/Melody'
 import { useCallback } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import Grid from '@mui/material/Grid';
-import { MelodyConfig, Melody } from '@/lib/Melody'
+import { MelodyBuilder, Melody } from '@/lib/Melody'
 import { IntervalModule } from '@/lib/music'
 import { MultiSelectField } from '@/components/atoms/MultiSelect';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
-import { INSTRUMENT_PIANO1 } from '@/constants';
+import { INSTRUMENT_PIANO1, CONFIG_TYPE_INTERVAL } from '@/constants';
 
 type FormValues =
-  Omit<Parameters<typeof MelodyConfig.fromIntervals>[0], 'intervalNames'> &
+  Omit<IntervalsMelodyConfigType, 'intervalNames'> &
   {
     intervalNames: {
       label: string;
       value: string;
     }[];
-    instrument: string;
   };
 
 const FormValidationSchema = Yup.object().shape({
@@ -62,11 +62,12 @@ function ConfigPanelInterval({
       { setSubmitting }: FormikHelpers<FormValues>
     ) => {
       console.log('values', values);
-      const config = MelodyConfig.fromIntervals({
+      const config = {
         ...values,
         intervalNames: values.intervalNames.map(({ value }) => value),
-      });
-      const melody = new Melody(config);
+      };
+      const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_INTERVAL });
+      const melody = builder.build();
       onStartClick(melody);
     },
     [onStartClick]

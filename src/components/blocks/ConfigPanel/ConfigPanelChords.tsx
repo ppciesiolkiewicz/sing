@@ -1,3 +1,4 @@
+import type { ChordsMelodyConfigType } from '@/lib/Melody'
 import { useCallback } from 'react';
 import { Formik, Field, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
@@ -5,16 +6,16 @@ import Grid from '@mui/material/Grid';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { MultiSelectField } from '@/components/atoms/MultiSelect';
-import { MelodyConfig, Melody } from '@/lib/Melody'
+import { MelodyBuilder, Melody } from '@/lib/Melody'
 import { ChordModule } from '@/lib/music';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
-import { INSTRUMENT_PIANO1 } from '@/constants';
+import { INSTRUMENT_PIANO1, CONFIG_TYPE_CHORDS } from '@/constants';
 
 
 type FormValues =
-  Omit<Parameters<typeof MelodyConfig.fromChords>[0], 'chordNames'> &
+  Omit<ChordsMelodyConfigType, 'chordNames'> &
   {
     chordNames: {
       label: string;
@@ -66,11 +67,12 @@ function ConfigPanelChords({
       { setSubmitting }: FormikHelpers<FormValues>,
     ) => {
       console.log('values', values);
-      const config = MelodyConfig.fromChords({
+      const config = {
         ...values,
         chordNames: values.chordNames.map(({ value }) => value),
-      });
-      const melody = new Melody(config);
+      };
+      const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_CHORDS });
+      const melody = builder.build();
       onStartClick(melody);
     },
     [onStartClick]

@@ -12,22 +12,21 @@ export default function ExerciseConfigurator() {
 
   return (
     <>
-      <>
-        <Box width={'100%'} height={'100%'}>
-          <MelodyExercise
-            started={started}
-            setStarted={setStarted}
-            melody={melody}
-          />
-        </Box>
-        <ConfigPanelDrawer
+      <Box width={'100%'} height={'100%'}>
+        <MelodyExercise
           started={started}
-          onStartClick={(melody: Melody) => {
-            setMelody(melody)
-            setStarted(!started)
-          }}
+          setStarted={setStarted}
+          melody={melody}
         />
-      </>
+      </Box>
+      <ConfigPanelDrawer
+        started={started}
+        onStartClick={(melody: Melody) => {
+          console.log(melody)
+          setMelody(melody)
+          setStarted(!started)
+        }}
+      />
     </>
   )
 }

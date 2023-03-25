@@ -2,6 +2,10 @@ export const CONFIG_TYPE_INTERVAL = 'Interval';
 export const CONFIG_TYPE_SCALE = 'Scale';
 export const CONFIG_TYPE_CHORDS = 'Chords';
 export const CONFIG_TYPE_NOTES = 'Notes';
+export type ConfigType = typeof CONFIG_TYPE_CHORDS |
+  typeof CONFIG_TYPE_INTERVAL |
+  typeof CONFIG_TYPE_SCALE |
+  typeof CONFIG_TYPE_NOTES;
 
 // TODO: modifiers https://en.wikipedia.org/wiki/Note_value ?
 // Or maybe WHOLE: 4 since it's 4 beats?

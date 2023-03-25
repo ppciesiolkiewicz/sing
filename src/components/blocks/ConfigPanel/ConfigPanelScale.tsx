@@ -1,18 +1,17 @@
+import type { ScaleMelodyConfigType } from '@/lib/Melody/MelodyBuilder';
 import { useCallback } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import Grid from '@mui/material/Grid';
 import { SelectField } from '@/components/atoms/Select';
-import { MelodyConfig, Melody } from '@/lib/Melody'
+import { MelodyBuilder, Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule } from '@/lib/music';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
-import { INSTRUMENT_PIANO1 } from '@/constants';
+import { INSTRUMENT_PIANO1, CONFIG_TYPE_SCALE } from '@/constants';
 
-type FormValues = Parameters<typeof MelodyConfig.fromScale>[0] & {
-  instrument: string;
-};
+type FormValues = ScaleMelodyConfigType;
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),
@@ -51,8 +50,8 @@ function ConfigPanelScale({
       { setSubmitting }: FormikHelpers<FormValues>
     ) => {
       console.log('values', values);
-      const config = MelodyConfig.fromScale(values);
-      const melody = new Melody(config);
+      const builder = new MelodyBuilder({ config: values, configType: CONFIG_TYPE_SCALE });
+      const melody = builder.build();
       onStartClick(melody);
     },
     [onStartClick]

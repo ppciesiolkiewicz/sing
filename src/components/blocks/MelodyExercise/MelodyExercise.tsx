@@ -30,7 +30,6 @@ function MelodyExercise({
       return;
     }
 
- 
     animationRef.current = new MelodyAnimation(
       melody!,
       canvasRef.current,
@@ -45,8 +44,6 @@ function MelodyExercise({
           }
           return acc;
         }, {});
-
-        console.log({ notesCount })
 
         let processedScore = score.reduce((acc, s) => {
           // TODO: not correct should be totalFramesHit / totalFrames

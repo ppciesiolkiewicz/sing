@@ -1,6 +1,6 @@
 import paper, { view, Path, Point, Size, PointText, Rectangle, Group } from 'paper'
 import * as Tone from 'tone';
-import { Melody } from '@/lib/Melody/index'
+import { Melody } from '@/lib/TempoBasedMelodyMelody/index'
 import { NoteModule } from '@/lib/music';
 import PitchDetector from '@/lib/PitchDetector';
 import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';

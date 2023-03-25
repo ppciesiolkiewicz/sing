@@ -1,6 +1,6 @@
 "use client";
 import Box from '@mui/material/Box';
-import { Melody, MelodyConfig } from '@/lib/Melody/index';
+import { Melody, MelodyConfig } from '@/lib/TempoBasedMelodyMelody/index';
 import { useRef, useLayoutEffect, useState } from 'react';
 import MelodyAnimation from '@/lib/animation/MelodyAnimationTempoBased/MelodyAnimationTempoBased';
 import Modal from '@/components/atoms/Modal';
