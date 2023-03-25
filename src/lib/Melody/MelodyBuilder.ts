@@ -92,14 +92,14 @@ class IntervalsMelodyBuilder {
   }
 
   buildBackingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(TrackNote.NOTE_TYPE_PLAY, BACKING_TRACK_SHIFT);
+    return this.buildTrackForNotes(BACKING_TRACK_SHIFT);
   }
 
   buildSingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(TrackNote.NOTE_TYPE_SING, 0);
+    return this.buildTrackForNotes(0);
   }
 
-  private buildTrackForNotes(noteType: string, shift: number) {
+  private buildTrackForNotes(shift: number) {
     const {
       intervalNames,
       lowestNoteName,
@@ -145,7 +145,7 @@ class IntervalsMelodyBuilder {
           timeBetweenRootNoteChange * Math.floor(i/intervalsCount) +
           timeBetweenRepeats * Math.floor(i/intervalNotesBase.length) -
           shift;
-        return new TrackNote(n, start, end, noteType);
+        return new TrackNote(n, start, end);
       })
 
       return notes;
@@ -181,12 +181,7 @@ class ChordsMelodyBuilder {
         const chord = ChordModule.get(chordName);
 
         const chordNotes = chord.notes.map((n: string, i) => {
-          return new TrackNote(
-            n,
-            start,
-            end,
-            TrackNote.NOTE_TYPE_PLAY,
-          )
+          return new TrackNote(n, start, end)
         });
   
         return [
@@ -226,7 +221,6 @@ class ChordsMelodyBuilder {
               n,
               start + duration/chord.notes.length * i,
               start + duration/chord.notes.length * (i+1),
-              TrackNote.NOTE_TYPE_SING,
             )
           });
         } else {
@@ -235,7 +229,6 @@ class ChordsMelodyBuilder {
               chord.notes[0],
               start,
               end,
-              TrackNote.NOTE_TYPE_SING,
             )
           ];
         }
@@ -260,14 +253,14 @@ class ScaleMelodyBuilder {
   }
 
   buildBackingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(TrackNote.NOTE_TYPE_PLAY, BACKING_TRACK_SHIFT);
+    return this.buildTrackForNotes(BACKING_TRACK_SHIFT);
   }
 
   buildSingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(TrackNote.NOTE_TYPE_SING, 0);
+    return this.buildTrackForNotes(0);
   }
 
-  private buildTrackForNotes(noteType: string, shift: number) {
+  private buildTrackForNotes(shift: number) {
     const {
       keyTonic,
       keyType,
@@ -329,7 +322,7 @@ class ScaleMelodyBuilder {
       });
 
     const notes = scaleNotesElements
-      .map(e => new TrackNote(e.name, e.start, e.end, noteType));
+      .map(e => new TrackNote(e.name, e.start, e.end));
 
     return notes;
   }
