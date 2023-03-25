@@ -75,11 +75,13 @@ function MelodyExercise({
       {/* TODO: AppBar.height again  */}
       <canvas style={{ height: '100vh - 65.5px', width: '100%' }} id="canvas" ref={canvasRef} />
       <Modal
+        title={'Congratulations! Here is your score'}
         open={Boolean(score)}
         onClose={() => setScore(null)}
+        fullWidth
+        maxWidth={'sm'}
       >
         <Box>
-          Congratulations! Here is your score:
           {score && Object.keys(score)?.map(noteName => (
             <Box key={noteName} display={'flex'} width={'100%'}>
               <Typography variant={'overline'} mr={1}>

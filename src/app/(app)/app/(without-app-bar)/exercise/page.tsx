@@ -49,7 +49,10 @@ export default function ExercisePage() {
         setStarted={setStarted}
       />
       <Modal
+        title={"Let's start"}
         open={!started}
+        fullWidth
+        maxWidth={'sm'}
       >
         <Box display={'flex'} justifyContent={'center'}>
           <Button color={'primary'} variant={'contained'} onClick={() => setStarted(true) }>

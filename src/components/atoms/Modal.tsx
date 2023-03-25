@@ -1,39 +1,90 @@
 import * as React from 'react';
-import MuiModal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
-const style = {
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
 
-type Props =
-  Pick<Parameters<typeof MuiModal>[0], 'onClose' | 'open'> &
-  Pick<Parameters<typeof Box>[0], 'children'>;
+export interface DialogTitleProps {
+  id: string;
+  children?: React.ReactNode;
+  onClose?: () => void;
+}
 
-function Modal({
-  open,
-  onClose,
-  children
-}: Props) {
+function BootstrapDialogTitle(props: DialogTitleProps) {
+  const { children, onClose, ...other } = props;
 
   return (
-    <MuiModal
-      open={open}
-      onClose={onClose}
-    >
-      <Box sx={style}>
-        {children}
-      </Box>
-    </MuiModal>
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
   );
 }
 
-export default Modal;
+
+type Props =
+  Pick<Parameters<typeof BootstrapDialogTitle>[0], 'onClose'> &
+  Pick<Parameters<typeof Dialog>[0], 'open' | 'maxWidth' | 'fullWidth'> & {
+    children: JSX.Element;
+    title: string;
+    slots?: {
+      actions: JSX.Element;
+    };
+  };
+
+export default function CustomizedDialogs({
+  onClose,
+  open,
+  title,
+  slots,
+  children,
+  fullWidth,
+  maxWidth,
+}: Props) {
+return (
+    <BootstrapDialog
+      onClose={onClose}
+      aria-labelledby="dialog-title"
+      open={open}
+      fullWidth={fullWidth}
+      maxWidth={maxWidth}
+    >
+      <BootstrapDialogTitle id="dialog-title" onClose={onClose}>
+        {title}
+      </BootstrapDialogTitle>
+      <DialogContent dividers>
+        {children}
+      </DialogContent>
+      {slots?.actions && (
+        <DialogActions>
+          {slots.actions}
+        </DialogActions>
+      )}
+    </BootstrapDialog>
+  );
+}
