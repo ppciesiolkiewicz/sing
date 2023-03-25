@@ -12,16 +12,20 @@ type Props = {
   track: Melody['singTrack'] | Melody['listenTrack'],
   freqToCanvasYPosition: freqToCanvasYPosition,
   config: MelodyAnimationConfig,
-  theme: any,
+  theme: {
+    default: string;
+    success?: string;
+    fail?: string;
+  },
 };
 
 class MelodyAnimationGroup {
   group: Group;
   paths: Path.Rectangle[];
-  track: Melody['singTrack'] | Melody['listenTrack'];
   trackCompleted: boolean[];
-  config: MelodyAnimationConfig;
-  theme: any;
+  track: Props['track'];
+  config: Props['config'];
+  theme: Props['theme'];
 
   constructor({
     track,
@@ -53,7 +57,7 @@ class MelodyAnimationGroup {
           new Size(endPosX - startPosX, endPosY - startPosY),
         );
         const path = new Path.Rectangle(rect);
-        path.fillColor = new paper.Color(this.theme.noteRects.normal);
+        path.fillColor = new paper.Color(this.theme.default);
         path.selected = false;
         return path;
     });
@@ -85,12 +89,7 @@ class MelodyAnimationGroup {
 export class MelodySingAnimationGroup extends MelodyAnimationGroup {
   melodySingScore: MelodySingNoteScore[];
   
-  constructor(props: {
-    track: Melody['singTrack'] | Melody['listenTrack'],
-    freqToCanvasYPosition: freqToCanvasYPosition,
-    config: MelodyAnimationConfig,
-    theme: any,
-  }) {
+  constructor(props: Props) {
     super(props);
     const { track } = props;
 
@@ -137,9 +136,10 @@ export class MelodySingAnimationGroup extends MelodyAnimationGroup {
   
       if (trackNoteCompleted) {
         if (result.percentHit > this.config.melodyPercentFrameHitToAccept) {
-          path.fillColor = new paper.Color(this.theme.noteRects.success);
+          path.fillColor = new paper.Color(this.theme.success!);
         } else {
-          path.fillColor = new paper.Color(this.theme.noteRects.fail);
+          console.log(this.theme.fail)
+          path.fillColor = new paper.Color(this.theme.fail!);
         }
       }
     });

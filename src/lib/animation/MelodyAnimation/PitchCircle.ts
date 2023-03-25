@@ -4,25 +4,31 @@ import type {
 } from './types';
 import paper, { view, Path, Point } from 'paper'
 
+type Props = {
+  freqToCanvasYPosition: freqToCanvasYPosition;
+  theme: {
+    default: string;
+    success: string;
+    fail: string;
+  };
+}
+
 export default class PitchCircle {
   path: Path.Circle;
   pitchHistory: Hz[] = [];
   pitchHistoryPaths: Path.Circle[];
-  freqToCanvasYPosition: freqToCanvasYPosition;
-  theme: any;
+  freqToCanvasYPosition: Props['freqToCanvasYPosition'];
+  theme: Props['theme'];
 
   constructor({
     freqToCanvasYPosition,
     theme,
-  }: {
-    freqToCanvasYPosition: freqToCanvasYPosition,
-    theme: any,
-  }) {
+  }: Props) {
     this.theme = theme;
     this.path = new Path.Circle({
       center: view.center,
       radius: 5,
-      fillColor: new paper.Color(theme.pitchCircle.normal)
+      fillColor: new paper.Color(theme.default)
     });
     this.freqToCanvasYPosition = freqToCanvasYPosition;
 
@@ -61,13 +67,13 @@ export default class PitchCircle {
 
     const y = this.freqToCanvasYPosition(pitch);
     if (y == -Infinity || y == Infinity || y < 0 || !y) {
-      this.path.fillColor = new paper.Color(this.theme.pitchCircle.fail);
+      this.path.fillColor = new paper.Color(this.theme.fail);
 
       return;
     }
 
     this.path.visible = true;
-    this.path.fillColor = new paper.Color(this.theme.pitchCircle.success)
+    this.path.fillColor = new paper.Color(this.theme.success)
     const dest = new Point(view.size.width/2, y);
     this.path.position = dest
   }

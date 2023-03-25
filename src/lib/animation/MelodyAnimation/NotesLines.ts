@@ -12,7 +12,10 @@ export default class NotesLines {
   }: {
     notes: ReturnType<typeof NoteModule.getAllNotes>,
     freqToCanvasYPosition: freqToCanvasYPosition
-    theme: any,
+    theme: {
+      line: string;
+      text: string;
+    },
   }) {
     notes.forEach((note) => {
       const noteYPosition = freqToCanvasYPosition(note.freq!);
@@ -21,7 +24,7 @@ export default class NotesLines {
         new Point(view.size.width, noteYPosition),
       );
       line.strokeWidth = 1 * window.devicePixelRatio; // TODO:
-      line.strokeColor = new paper.Color(theme.noteLines.line);
+      line.strokeColor = new paper.Color(theme.line);
       line.strokeCap = 'round';
 
       const text = new PointText(new Point(15 * window.devicePixelRatio, noteYPosition));
@@ -31,7 +34,7 @@ export default class NotesLines {
           fontFamily: 'Courier New',
           fontWeight: 'bold',
           fontSize: 12 * window.devicePixelRatio,
-          fillColor: new paper.Color(theme.noteLines.text),
+          fillColor: new paper.Color(theme.text),
           justification: 'center'
       };
     });

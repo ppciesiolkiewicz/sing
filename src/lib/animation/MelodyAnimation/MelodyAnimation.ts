@@ -23,14 +23,17 @@ const theme = {
     line: '#454545',
     text: '#454545',
   },
-  noteRects: {
-    normal: '#454545',
+  singTrack: {
+    default: '#454545',
     active: '#f0f0f0',
     success: '#00aa00',
     fail: '#aa0000',
   },
+  listenTrack: {
+    default: '#454545',
+  },
   pitchCircle: {
-    normal: '#454545',
+    default: '#454545',
     success: '#00aa00',
     fail: '#aa0000',
   },
@@ -128,27 +131,27 @@ class MelodyAnimation {
     const noteLines = new NotesLines({
       freqToCanvasYPosition,
       notes: notesForNoteLines,
-      theme,
+      theme: theme.noteLines,
     });
 
     this.melodySingAnimationGroup = new MelodySingAnimationGroup({
       track: melody.singTrack,
       freqToCanvasYPosition,
       config: this.config,
-      theme,
+      theme: theme.singTrack,
     });
 
     this.melodyListenAnimationGroup = new MelodyListenAnimationGroup({
-      track: melody.singTrack,
+      track: melody.listenTrack,
       freqToCanvasYPosition,
       config: this.config,
-      theme,
+      theme: theme.listenTrack,
     });
 
 
     this.pitchCircle = new PitchCircle({
       freqToCanvasYPosition,
-      theme,
+      theme: theme.pitchCircle,
     });
 
     this.backingTrack = new BackingTrack({
