@@ -364,10 +364,19 @@ class MelodyAnimation {
       freqToCanvasYPosition: this.freqToCanvasYPosition,
     });
 
+    // TODO: When pausing time keeps elapsing so we need to use our own time
+    // this doesn't work because delta keeps accuumulating when pausing
+    // let time = 0;
+    // time += ev.delta;
+    // ev.time = time;
+    // this example uses gsap for timelines - https://jsfiddle.net/xidi2xidi/owxgb2kL/
     const onFrame = async (ev: AnimationFrameEvent) => {
       melody.backingTrack
         .forEach((m) => {
-          if (!m.played && ev.time >= m.start) {
+          // TODO: don't modify the object
+          // ev.time <= m.start + 0.1 when animation is out of focus to not play all the past notes at the same time
+          // @see time comment above
+          if (!m.played && ev.time >= m.start && ev.time <= m.start + 0.1) {
             this.soundGenerator.triggerAttackRelease(m.name, m.duration);
             m.played = true;
           }
@@ -377,20 +386,26 @@ class MelodyAnimation {
 
       pitchCircle.onAnimationFrame(ev, currentPitch)
       this.melodySingAnimationElement.onAnimationFrame(ev, currentPitch);
-  
+
       if (this.melodySingAnimationElement.isCompleted()) {
         // TODO show results - have a function that runs on Stop as well | onFinished?
         this.stop();
       }
     }
 
+    window.onfocus = () => view.play();
+    window.onblur = () => view.pause();
+
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
-        setTimeout(startAnimation, 100);
+        setTimeout(() => {
+          startAnimation()
+        }, 100);
       } else {
         view.onFrame = onFrame
       }
     }
+    
 
     startAnimation();
   }
