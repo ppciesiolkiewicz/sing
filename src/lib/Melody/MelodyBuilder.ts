@@ -91,6 +91,31 @@ class SpecificBuilderBase {
   }
 }
 
+class NotesUtils {
+  static buildNotes(
+    notes: string[],
+    {
+      shift,
+
+    }: {
+      shift: number,
+
+    },
+    {
+      repeatTimes,
+      timePerNote,
+      timeBetweenNotes,
+      timeBetweenRepeats,
+    }: CommonMelodyConfigType
+  ): TrackNote[] {
+    let notes_ = notes
+
+    // flag for reverse
+    // notes_ = [...notes, ...notes.reverse()];
+    return [];
+  }
+}
+
 
 // TODO: IntervalsMelodyBuilder/... can have internal MelodyBuilders
 class IntervalsMelodyBuilder {
@@ -380,7 +405,12 @@ export default class MelodyBuilder {
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
-    return new Melody(singTrack, backingTrack, instrumentConfig);
+    return new Melody({
+      singTrack,
+      listenTrack: [],
+      backingTrack,
+      instrumentConfig
+    });
   }
 
   private fromScale() {
@@ -388,7 +418,12 @@ export default class MelodyBuilder {
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
-    return new Melody(singTrack, backingTrack, instrumentConfig);
+    return new Melody({
+      singTrack,
+      listenTrack: [],
+      backingTrack,
+      instrumentConfig
+    });
   }
 
   private fromIntervals() {
@@ -396,7 +431,12 @@ export default class MelodyBuilder {
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
     const instrumentConfig = this.buildInstrument()
-    return new Melody(singTrack, backingTrack, instrumentConfig);
+    return new Melody({
+      singTrack,
+      listenTrack: [],
+      backingTrack,
+      instrumentConfig
+    });
   }
 
   private buildInstrument() {
