@@ -138,7 +138,6 @@ export class MelodySingAnimationGroup extends MelodyAnimationGroup {
         if (result.percentHit > this.config.melodyPercentFrameHitToAccept) {
           path.fillColor = new paper.Color(this.theme.success!);
         } else {
-          console.log(this.theme.fail)
           path.fillColor = new paper.Color(this.theme.fail!);
         }
       }

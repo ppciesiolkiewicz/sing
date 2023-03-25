@@ -43,12 +43,11 @@ export default function ExercisePage() {
   
   return (
     <Box width={'100%'} height={'100%'}>
-      {/* TODO: MelodyExercise cannot request microphone permission */}
-      {started && <MelodyExercise
+      <MelodyExercise
         melody={melody}
         started={started}
         setStarted={setStarted}
-      />}
+      />
       <Modal
         open={!started}
       >
