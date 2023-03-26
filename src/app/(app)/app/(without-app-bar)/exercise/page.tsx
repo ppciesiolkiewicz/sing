@@ -14,6 +14,7 @@ export default function ExercisePage() {
   const exerciseQuery = useFetchExercise({ id });
   const [melody, setMelody] = useState<null | Melody>(null);
   const [started, setStarted] = useState(false);
+  const [firstStarted, setFirstStarted] = useState(false);
 
   useEffect(() => {
     if (exerciseQuery.isLoading) {
@@ -50,12 +51,15 @@ export default function ExercisePage() {
       />
       <Modal
         title={"Let's start"}
-        open={!started}
+        open={!firstStarted}
         fullWidth
         maxWidth={'sm'}
       >
         <Box display={'flex'} justifyContent={'center'}>
-          <Button color={'primary'} variant={'contained'} onClick={() => setStarted(true) }>
+          <Button color={'primary'} variant={'contained'} onClick={() => {
+            setStarted(true);
+            setFirstStarted(true);
+          }}>
             Start
           </Button>
         </Box>

@@ -388,10 +388,10 @@ export default class MelodyBuilder {
       listenTrack: [],
       backingTrack,
       lyricsTrack: [
-        new TrackLyrics('test0', 0, 5),
-        new TrackLyrics('test1', 5, 7),
-        new TrackLyrics('test2', 6, 10),
-        new TrackLyrics('test3', 11, 20),
+        // new TrackLyrics('test0', 0, 5),
+        // new TrackLyrics('test1', 5, 7),
+        // new TrackLyrics('test2', 6, 10),
+        // new TrackLyrics('test3', 11, 20),
       ],
       instrumentConfig
     });

@@ -1,6 +1,6 @@
 
 import { useRef, useLayoutEffect, useState } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 import { Melody } from '@/lib/Melody'
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 import Modal from '@/components/atoms/Modal';
@@ -80,6 +80,13 @@ function MelodyExercise({
         onClose={() => setScore(null)}
         fullWidth
         maxWidth={'sm'}
+        slots={{
+          actions: (
+            <Button variant={'contained'} color={'primary'}>
+              Restart
+            </Button>
+          )
+        }}
       >
         <Box>
           {score && Object.keys(score)?.map(noteName => (
