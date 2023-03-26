@@ -184,8 +184,8 @@ class MelodyAnimation {
   }
 
   start() {
-    window.onfocus = () => view.play();
-    window.onblur = () => view.pause();
+    window.onfocus = () => view?.play && view.play();
+    window.onblur = () => view?.pause && view.pause();
 
     // TODO: When pausing time keeps elapsing so we need to use our own time
     // this doesn't work because delta keeps accuumulating when pausing

@@ -1,10 +1,10 @@
-import paper, { view, Point, PointText } from 'paper'
+import paper, { view, Shape, Point, PointText, Size, Rectangle } from 'paper'
 import { Melody } from '@/lib/Melody'
 import type { AnimationFrameEvent, MelodyAnimationConfig } from './types';
 
 export default class MelodyLyricsAnimatonElement {
   path: PointText;
-  highlight: Path.Rectangle;
+  highlight: Shape.Rectangle;
   lyricsTrack: Melody['lyricsTrack'];
   currentLyricsLine?: Melody['lyricsTrack'][number];
   config: MelodyAnimationConfig;
@@ -23,16 +23,27 @@ export default class MelodyLyricsAnimatonElement {
     this.config = config;
     this.lyricsTrack = lyricsTrack;
 
-    // this.highlight = new Path.Rectangle(view.bounds);
-    // this.highlight.fillColor = 'white';
-    // this.highlight.blendMode = 'multiply';
+
+    const rect = new Rectangle(
+      new Point(0, 0),
+      new Size(0, 0),
+    );
+    this.highlight = new Shape.Rectangle(rect);
+    this.highlight.fillColor = new paper.Color('#226688');
+    this.highlight.strokeColor = "blue"
+    this.highlight.strokeWidth = 3
+    // this.highlight.blendMode = 'soft-light';
   }
 
   onAnimationFrame(ev: AnimationFrameEvent) {
     const l = this.lyricsTrack.find(l => l.start < ev.time && l.end > ev.time);
 
+    if (!l && this.currentLyricsLine) {
+      this.path.remove();
+      this.highlight.visible = false;
+    }
+
     if (l && this.currentLyricsLine !== l) {
-      console.log('lyrics', l)
       if (this.path) {
         this.path.remove()
       }
@@ -54,6 +65,30 @@ export default class MelodyLyricsAnimatonElement {
           fillColor: new paper.Color('#ee6688'),
           justification: 'center'
       };
+
+      const size = new Size(
+        this.path.bounds.right - this.path.bounds.left,
+        1,
+      );
+      this.highlight.size = size;
+      this.highlight.position = new Point(
+        this.path.position.x,
+        this.path.bounds.bottom,
+      );
+      this.highlight.visible = true;
+    }
+
+    if (this.currentLyricsLine) {
+      const duration = this.currentLyricsLine.duration;
+
+      this.highlight.size = new Size(
+        this.highlight.size.width - ev.delta / duration * this.path.bounds.size.width,
+        this.highlight.size.height,
+      );
+      this.highlight.position = new Point(
+        this.highlight.position.x + ev.delta / duration / 2 * this.path.bounds.size.width,
+        this.highlight.position.y,
+      );
     }
   }
 }
