@@ -69,7 +69,7 @@ export default function VoiceTunerPage() {
         >
           <canvas id="canvas" ref={canvasRef} />
         </Box>
-        <Box height={'200px'} width={'100%'}>
+        <Box height={['70px', '100px', '200px']} width={'100%'}>
           <Piano
             lowestNoteName={lowestNoteName}
             highestNoteName={highestNoteName}
