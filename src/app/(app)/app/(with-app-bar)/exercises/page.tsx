@@ -17,7 +17,7 @@ export default function Exercises() {
   }
 
   return (
-    <Box mt={6}>
+    <Box mt={4}>
       <Typography variant={'h5'}>Vocal exercises</Typography>
       <Typography variant={'subtitle1'}>
         Vocal exercises based on your selected difficulty level and voice range

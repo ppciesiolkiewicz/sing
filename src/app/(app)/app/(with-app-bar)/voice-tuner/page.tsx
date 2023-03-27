@@ -66,7 +66,15 @@ export default function VoiceTunerPage() {
 
   return (
     <>
-      <Box height={'calc(100vh - 65.5px)'} width={'100%'} display={'flex'} flexDirection={'column'}>
+      <Box 
+        sx={theme => ({
+          height: `calc(100vh - 65.5px - ${theme.spacing(4)})`,
+           mt: 4,
+           width: '100%',
+           display: 'flex',
+           flexDirection: 'column',
+        })}
+      >
         <Box
           ref={canvasParentRef}
           sx={{
