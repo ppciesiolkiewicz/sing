@@ -88,11 +88,11 @@ export const INSTRUMENT_OPTIONS = [
     value: INSTRUMENT_ACCORDION,
   },
   {
-    label: "Piano 2",
+    label: "Bassoon",
     value: INSTRUMENT_BASSOON,
   },
   {
-    label: "Piano 2",
+    label: "Cello",
     value: INSTRUMENT_CELLO,
   },
   {

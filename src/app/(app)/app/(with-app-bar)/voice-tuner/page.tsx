@@ -1,24 +1,31 @@
 "use client"
-import { useRef, useLayoutEffect, useState } from 'react';
+import { useRef, useLayoutEffect, useState, useMemo } from 'react';
 import * as Tone from 'tone';
-import { Box, Button } from "@mui/material";
+import { Box, Button, Fab } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import Modal from '@/components/atoms/Modal';
 import Piano from '@/components/atoms/Piano';
 import PitchDetectionAnimation from '@/lib/animation/PitchDetectionAnimation';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
-import { enqueueSnackbar } from '@/components/atoms/Snackbar';
+import Select from '@/components/atoms/Select';
 import { useFetchUser } from '@/lib/fetch/hooks';
-import { INSTRUMENT_PIANO1, INSTRUMENTS } from '@/constants';
+import { INSTRUMENT_OPTIONS, INSTRUMENT_PIANO1, INSTRUMENTS } from '@/constants';
 
 
 export default function VoiceTunerPage() {
+  const [selectedInstrument, setSelectedInstrument] = useState(INSTRUMENT_PIANO1);
   const [started, setStarted] = useState(false);
+  const [isSettingsModalOpened, setIsSettingsModalOpened] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasParentRef = useRef<any>(null);
   const animationRef = useRef<PitchDetectionAnimation | null>(null);
   const userQuery = useFetchUser();
-  const soundGenerator = new Tone.Sampler(INSTRUMENTS[INSTRUMENT_PIANO1]).toDestination();
+  const soundGenerator = useMemo(
+    () => new Tone.Sampler(INSTRUMENTS[selectedInstrument]).toDestination(),
+    [selectedInstrument]
+  );
 
+  const toggleSettingsModal = () => setIsSettingsModalOpened(!isSettingsModalOpened);
   
   useLayoutEffect(function render() {
     if (!canvasRef.current || !userQuery.data) {
@@ -96,6 +103,39 @@ export default function VoiceTunerPage() {
           </Button>
         </Box>
       </Modal>
+      <Modal
+        title={"Piano settings"}
+        open={isSettingsModalOpened}
+        fullWidth
+        maxWidth={'md'}
+        onClose={() => setIsSettingsModalOpened(false)}
+        slots={{
+          actions: (
+            <Button variant={'contained'} color={'primary'} onClick={() => setIsSettingsModalOpened(false)}>
+              Ok
+            </Button>
+          )
+        }}
+      >
+        <Box display={'flex'} justifyContent={'center'}>
+          <Select
+            id="instrument"
+            name="instrument"
+            label="Instrument"
+            options={INSTRUMENT_OPTIONS}
+            value={selectedInstrument}
+            onChange={(ev) => setSelectedInstrument(ev.target.value)}
+          />
+        </Box>
+      </Modal>
+      <Fab
+        color="secondary"
+        aria-label="settings"
+        onClick={toggleSettingsModal}
+        sx={{ position: 'absolute', right: '10px', bottom: '10px' }}
+      >
+        <EditIcon />
+      </Fab>
     </>
   )
 }
