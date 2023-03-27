@@ -1,11 +1,11 @@
 "use client"
 import './globals.css'
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/styles';
 import { SnackbarProvider, enqueueSnackbar } from 'notistack'
 import ErrorBoundary from '@/components/atoms/ErrorBoundary'
 
 
-const theme = createTheme({
+let theme = createTheme({
   palette: {
     primary: {
       main: '#F4D35E'
@@ -26,6 +26,7 @@ const theme = createTheme({
     fontFamily: ['Montserrat', 'sans-serif'].join(','),
   }
 });
+theme = responsiveFontSizes(theme);
 
 export default function RootLayout({
   children,
