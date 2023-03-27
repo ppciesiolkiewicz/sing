@@ -273,29 +273,7 @@ class ScaleMelodyBuilder {
     } = this.config;
     const scaleNotesBase = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName)
     let scaleNotesNamesBase = scaleNotesBase.map(n => n.name);
-    const splitIndices = [
-      0,
-      ...scaleNotesNamesBase
-        .reduce(function(a, e, i) {
-            // TODO: e[0]
-            if (e[0] === keyTonic)
-                a.push(i);
-            return a;
-        }, [] as number[]),
-        scaleNotesNamesBase.length - 1,
-      ];
-    
-    scaleNotesNamesBase = splitIndices
-      .map((splitIdx, i) => {
-        if (i === splitIndices.length - 1) {
-          return [];
-        }
-
-        const part = scaleNotesNamesBase.slice(splitIdx, splitIndices[i+1]+1)
-        return [...part, ...[...part].reverse()]
-        
-      })
-      .flat()
+    scaleNotesNamesBase = [...scaleNotesNamesBase, ...[...scaleNotesNamesBase].reverse()];
 
     const scaleNotesNamesBaseRepeated = Array(repeatTimes)
       .fill(scaleNotesNamesBase)
