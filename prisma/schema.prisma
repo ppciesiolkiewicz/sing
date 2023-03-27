@@ -10,6 +10,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  USER
+  ADMIN
+}
 
 model User {
   id                String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -19,5 +23,6 @@ model User {
   lowNote           String
   highNote          String
   difficultyLevel   String
+  role              Role     @default(USER)
   createdAt DateTime @default(now())
 }
