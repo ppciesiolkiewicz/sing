@@ -53,7 +53,7 @@ function PianoKey({ noteName, isPressed, onKeyPressed, onKeyReleased, totalPiano
           onMouseDown={() => onKeyPressed(noteName)}
           onMouseUp={() => onKeyReleased(noteName)}
         >
-        <Typography variant={'overline'} color={'white'} gutterBottom>
+        <Typography variant={'overline'} color={'white'} mb={1}>
           ({NOTE_TO_KEY_MAP[noteName]})
         </Typography>
           <Typography variant={'overline'} color={'white'}>
@@ -71,7 +71,7 @@ function PianoKey({ noteName, isPressed, onKeyPressed, onKeyReleased, totalPiano
       onMouseDown={() => onKeyPressed(noteName)}
       onMouseUp={() => onKeyReleased(noteName)}
     >
-      <Typography variant={'overline'} gutterBottom>
+      <Typography variant={'overline'} mb={1}>
         ({NOTE_TO_KEY_MAP[noteName]})
       </Typography>
       <Typography variant={'overline'}>
