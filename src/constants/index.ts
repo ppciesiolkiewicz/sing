@@ -83,7 +83,7 @@ export const INSTRUMENTS = {
       G2: "pianoG2.wav",
       G3: "pianoG3.wav",
     },
-    baseUrl: "/instruments/piano/",
+    baseUrl: "/instruments/PIANO/",
     attack: 0,
     release: 0.3,
   },
