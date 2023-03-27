@@ -19,7 +19,7 @@ function MelodyExercise({
 }) {
   const userQuery = useFetchUser();
   const [score, setScore] = useState<{ [noteName: string]: number } | null>();
-  const canvasRef = useRef<any>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
 
   useLayoutEffect(function render() {

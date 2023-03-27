@@ -17,10 +17,14 @@ function MelodyExercise({
 }) {
   const userQuery = useFetchUser()
   const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
-  const canvasRef = useRef<any>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
 
   useLayoutEffect(function render() {
+    if (!animationRef.current) {
+      return;
+    }
+
     if (!started) {
       if (animationRef.current) {
         animationRef.current.stop();

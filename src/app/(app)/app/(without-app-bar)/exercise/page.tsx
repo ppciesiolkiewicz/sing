@@ -43,12 +43,14 @@ export default function ExercisePage() {
   }
   
   return (
-    <Box width={'100%'} height={'100%'}>
-      <MelodyExercise
-        melody={melody}
-        started={started}
-        setStarted={setStarted}
-      />
+    <>
+      <Box width={'100%'} height={'100%'}>
+        <MelodyExercise
+          melody={melody}
+          started={started}
+          setStarted={setStarted}
+        />
+      </Box>
       <Modal
         title={"Let's start"}
         open={!firstStarted}
@@ -64,6 +66,6 @@ export default function ExercisePage() {
           </Button>
         </Box>
       </Modal>
-    </Box>
+    </>
   )
 }

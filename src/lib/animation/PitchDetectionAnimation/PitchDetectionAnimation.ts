@@ -1,21 +1,16 @@
+// TODO: MusicAnimationBase class
 import type {
-  MelodyAnimationConfig,
+  PitchDetectionAnimationConfig,
   freqToCanvasYPosition,
   AnimationFrameEvent,
-  MelodySingNoteScore
 } from './types';
-import type { DifficultyLevel } from '@/constants';
-import paper, { view, Path, Point  } from 'paper'
+import paper, { view, Path, Point, Size, Rectangle, Group } from 'paper'
 import { Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
-import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';
 import PitchDetector from '@/lib/PitchDetector';
-import { MelodySingAnimationGroup, MelodyListenAnimationGroup } from './MelodyAnimationGroup';
-import MelodyLyricsAnimation from './MelodyLyricsAnimation';
-import PitchCircle from './PitchCircle';
-import NotesLines from './NotesLines';
-import BackingTrack from './BackingTrack';
-
+import PitchCircle from '@/lib/animation//MelodyAnimation/PitchCircle';
+import NotesLines from '@/lib/animation//MelodyAnimation/NotesLines';
+import PitchDetectionNotesAnimationGroup from './PitchDetectionNotesAnimationGroup';
 
 const theme = {
   background: '#fff',
@@ -23,13 +18,7 @@ const theme = {
     line: '#454545',
     text: '#454545',
   },
-  singTrack: {
-    default: '#454545',
-    active: '#f0f0f0',
-    success: '#00aa00',
-    fail: '#aa0000',
-  },
-  listenTrack: {
+  pitchDetectionTrack: {
     default: '#454545',
   },
   pitchCircle: {
@@ -37,9 +26,6 @@ const theme = {
     success: '#00aa00',
     fail: '#aa0000',
   },
-  lyrics: {
-
-  }
 };
 
 const getFreqToCanvasYPositionFn = (
@@ -50,18 +36,12 @@ const getFreqToCanvasYPositionFn = (
 
 
 
-class MelodyAnimation {
-  melody: Melody;
+class PitchDetectionAnimation {
   canvas: HTMLCanvasElement;
-  melodySingAnimationGroup: MelodySingAnimationGroup;
-  melodyListenAnimationGroup: MelodyListenAnimationGroup;
-  melodyLyricsAnimation: MelodyLyricsAnimation;
   pitchCircle: PitchCircle;
-  backingTrack: BackingTrack;
   pitchDetector: PitchDetector = new PitchDetector();
-  config: MelodyAnimationConfig;
-  // TODO: onFinished?
-  onStopped: (score: MelodySingNoteScore[]) => void;
+  pitchDetectionNotesAnimationGroup: PitchDetectionNotesAnimationGroup;
+  config: PitchDetectionAnimationConfig;
 
   static runChecks(): { error: string } | null {
     // Required for PitchDetector
@@ -73,10 +53,10 @@ class MelodyAnimation {
   }
 
 
-  private getFreqToCanvasPosition() {
+  private getFreqToCanvasPosition(lowestNoteName: string, highestNoteName: string) {
     const notesForNoteLines = NoteModule.getAllNotes(
-      Math.min(...this.melody.singTrack.map(e => e.freq)),
-      Math.max(...this.melody.singTrack.map(e => e.freq)),
+      lowestNoteName,
+      highestNoteName,
     );
 
     const paddingTop: Pixel = this.config.paddingTop;
@@ -114,26 +94,24 @@ class MelodyAnimation {
   }
 
   constructor(
-    melody: Melody,
+    lowestNoteName: string,
+    highestNoteName: string,
     canvas: HTMLCanvasElement,
-    onStopped: (score: MelodySingNoteScore[]) => void,
-    difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
   ) {
-    console.log('MelodyAnimation.constructor', { melody })
     this.config = {
       melodySingPixelsPerSecond: 100,
-      paddingTop: 20 * window.devicePixelRatio,
-      paddingBottom: 60 * window.devicePixelRatio,
-      ...DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP[difficultyLevel],
+      paddingTop: 10 * window.devicePixelRatio,
+      paddingBottom: 10 * window.devicePixelRatio,
     }
     this.canvas = canvas; 
-    this.onStopped = onStopped;
-    this.melody = melody;
     paper.setup(canvas)
 
     this.setupDevicePixelRatio();
 
-    const { freqToCanvasYPosition, notesForNoteLines } = this.getFreqToCanvasPosition();
+    const { freqToCanvasYPosition, notesForNoteLines } = this.getFreqToCanvasPosition(
+      lowestNoteName,
+      highestNoteName,
+    );
 
     const noteLines = new NotesLines({
       freqToCanvasYPosition,
@@ -141,45 +119,17 @@ class MelodyAnimation {
       theme: theme.noteLines,
     });
 
-    this.melodySingAnimationGroup = new MelodySingAnimationGroup({
-      track: melody.singTrack,
-      freqToCanvasYPosition,
-      config: this.config,
-      theme: theme.singTrack,
-    });
-
-    this.melodyListenAnimationGroup = new MelodyListenAnimationGroup({
-      track: melody.listenTrack,
-      freqToCanvasYPosition,
-      config: this.config,
-      theme: theme.listenTrack,
-    });
-
-    this.melodyLyricsAnimation = new MelodyLyricsAnimation({
-      lyricsTrack: melody.lyricsTrack,
-      config: this.config,
-      theme: theme.lyrics,
-    })
-
 
     this.pitchCircle = new PitchCircle({
       freqToCanvasYPosition,
       theme: theme.pitchCircle,
     });
 
-    this.backingTrack = new BackingTrack({
-      track: melody.backingTrack,
-      instrumentConfig: melody.instrumentConfig,
+    this.pitchDetectionNotesAnimationGroup = new PitchDetectionNotesAnimationGroup({
+      freqToCanvasYPosition,
+      config: this.config,
+      theme: theme.pitchDetectionTrack,
     })
-
-    const middleLine = new Path.Line(
-      new Point(view.center.x, 0),
-      new Point(view.center.x, view.bounds.bottom)
-    );
-    middleLine.strokeColor = 'black';
-    middleLine.strokeWidth = 1;
-    middleLine.strokeCap = 'round';
-    middleLine.dashArray = [10, 12];
   }
 
   start() {
@@ -193,19 +143,9 @@ class MelodyAnimation {
     // ev.time = time;
     // this example uses gsap for timelines - https://jsfiddle.net/xidi2xidi/owxgb2kL/
     const onFrame = async (ev: AnimationFrameEvent) => {
-      this.backingTrack.onAnimationFrame(ev)
-
       const currentPitch = this.pitchDetector.getPitch();
-
       this.pitchCircle.onAnimationFrame(ev, currentPitch)
-      this.melodySingAnimationGroup.onAnimationFrame(ev, currentPitch);
-      this.melodyListenAnimationGroup.onAnimationFrame(ev, currentPitch);
-      this.melodyLyricsAnimation.onAnimationFrame(ev);
-
-      if (this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted()) {
-        // TODO show results - have a function that runs on Stop as well | onFinished?
-        this.stop();
-      }
+      this.pitchDetectionNotesAnimationGroup.onAnimationFrame(ev, currentPitch);
     }
 
     const startAnimation = () => {
@@ -225,9 +165,7 @@ class MelodyAnimation {
     if (view) {
       view.remove();
     }
-
-    this.onStopped(this.melodySingAnimationGroup.melodySingScore);
   }
 }
 
-export default MelodyAnimation;
+export default PitchDetectionAnimation;

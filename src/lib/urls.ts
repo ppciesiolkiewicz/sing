@@ -12,7 +12,7 @@ const APP_EXERCISES_PATH = `${APP_PATH}exercises/`;
 const APP_EXERCISES_EXERCISE_PATH = `${APP_PATH}/exercise/`;
 const APP_CUSTOM_EXERCISES_PATH = `${APP_PATH}exercise-configurator/`;
 const APP_LOGOUT_PATH = `${APP_PATH}logout/`;
-
+const APP_VOICE_TUNER_PATH =  `${APP_PATH}voice-tuner/`;
 
 const getAppPath = () => APP_PATH;
 const getAppDashboardPath = () => APP_DASHBOARD_PATH;
@@ -22,7 +22,7 @@ const getAppExercisesExercisePath = ({ exerciseId }: { exerciseId: string }) =>
 const getAppCustomExercisesPath = () => APP_CUSTOM_EXERCISES_PATH;
 const getAppLogoutPath = () => APP_LOGOUT_PATH;
 const getAppProfilePath = () => APP_PROFILE_PATH;
-
+const getAppVoiceTunerPath = () => APP_VOICE_TUNER_PATH
 
 export {
   getLandingPagePath,
@@ -34,4 +34,5 @@ export {
   getAppCustomExercisesPath,
   getAppLogoutPath,
   getAppProfilePath,
+  getAppVoiceTunerPath,
 };

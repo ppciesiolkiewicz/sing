@@ -19,6 +19,7 @@ import {
   getAppCustomExercisesPath,
   getAppLogoutPath,
   getAppProfilePath,
+  getAppVoiceTunerPath,
 } from '@/lib/urls';
 
 const pages = [
@@ -33,6 +34,10 @@ const pages = [
   {
     href: getAppCustomExercisesPath(),
     label: 'Custom Exercises',
+  },
+  {
+    href: getAppVoiceTunerPath(),
+    label: 'Voice tuner',
   },
   // {
   //   // TODO: open in a new tab
