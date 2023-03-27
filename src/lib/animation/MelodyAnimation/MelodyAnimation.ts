@@ -123,7 +123,7 @@ class MelodyAnimation {
     this.config = {
       melodySingPixelsPerSecond: 100,
       paddingTop: 20 * window.devicePixelRatio,
-      paddingBottom: 60 * window.devicePixelRatio,
+      paddingBottom: melody.lyricsTrack.length > 0 ? 60 * window.devicePixelRatio : 20 * window.devicePixelRatio,
       ...DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP[difficultyLevel],
     }
     this.canvas = canvas; 
