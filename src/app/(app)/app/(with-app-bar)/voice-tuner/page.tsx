@@ -37,7 +37,6 @@ export default function VoiceTunerPage() {
     canvasRef.current.style.width = canvasParentRef.current.clientWidth;
     canvasRef.current.style.height =  canvasParentRef.current.clientHeight;
     
-
     const lowestNoteName = userQuery.data.lowNote;
     const highestNoteName = userQuery.data.highNote;
     animationRef.current = new PitchDetectionAnimation(
@@ -68,12 +67,7 @@ export default function VoiceTunerPage() {
             position: 'relative',
           }}
         >
-          <canvas
-            width="100%"
-            height="100%"
-            id="canvas"
-            ref={canvasRef}
-          />
+          <canvas id="canvas" ref={canvasRef} />
         </Box>
         <Box height={'200px'} width={'100%'}>
           <Piano

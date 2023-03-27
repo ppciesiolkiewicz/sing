@@ -18,6 +18,7 @@ function MelodyExercise({
   const userQuery = useFetchUser()
   const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasParentRef = useRef<any>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
 
   useLayoutEffect(function render() {
@@ -32,6 +33,10 @@ function MelodyExercise({
       return;
     }
 
+    canvasRef.current.width = canvasParentRef.current.clientWidth;
+    canvasRef.current.height =  canvasParentRef.current.clientHeight;
+    canvasRef.current.style.width = canvasParentRef.current.clientWidth;
+    canvasRef.current.style.height =  canvasParentRef.current.clientHeight;
  
     animationRef.current = new MelodyAnimation(
       melody!,
@@ -77,7 +82,17 @@ function MelodyExercise({
 
   return (
     <>
-      <canvas style={{ width: '100%', height: '100%' }} id="canvas" ref={canvasRef} />
+      <Box height={'100vh'} width={'100%'} display={'flex'} flexDirection={'column'}>
+        <Box
+          ref={canvasParentRef}
+          sx={{
+            flex: 1,
+            position: 'relative',
+          }}
+        >
+          <canvas id="canvas" ref={canvasRef} />
+        </Box>
+      </Box>
       <Modal
         title={'Congratulations! Here is your score'}
         open={Boolean(score)}
