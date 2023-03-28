@@ -1,6 +1,6 @@
 
 import Grid from '@mui/material/Grid';
-import { NoteSelectField } from '@/components/blocks/NoteSelect';
+import { NoteSelectField } from '@/components/blocks/MusicFields';
 
 function ConfigPanelNoteBoundaries() {
   return (

@@ -19,7 +19,11 @@ export interface ChordType extends ReturnType<typeof TonalChord.get> {
 
 export interface ScaleType extends ReturnType<typeof TonalScale.get> {
   readonly chordTypes: ReturnType<typeof TonalScale.scaleChords>;
-  readonly allChords: ChordType[];
+  readonly keyChords: ReturnType<typeof TonalKey.majorKey>,
+  // readonly keyChords: {
+  //   triads: ChordType[];
+  //   chords: ChordType[];
+  // }
 }
 
 export type ChordProgressionType = {
@@ -89,19 +93,19 @@ export const NoteModule = {
 
 export const ChordModule = {
     get: (chordName: string): ChordType => {
-        try {
-            const chord = TonalChord.get(chordName);
-            const { type, tonic, symbol } = chord;
-            const suffix = ['major', 'minor'].indexOf(type) !== -1 ? type : symbol.slice(tonic!.length);
+      try {
+          const chord = TonalChord.get(chordName);
+          const { type, tonic, symbol } = chord;
+          const suffix = ['major', 'minor'].indexOf(type) !== -1 ? type : symbol.slice(tonic!.length);
 
-            return {
-                ...chord,
-                suffix,
-            };
-        } catch (e) {
-            console.log(`[error] ChordModule.get(${chordName})`, e);
-            throw e;
-        }
+          return {
+              ...chord,
+              suffix,
+          };
+      } catch (e) {
+          console.log(`[error] ChordModule.get(${chordName})`, e);
+          throw e;
+      }
     },
     getAllChords: (lowestNoteName: string, hightestNoteName: string): string[] => {
       const chordSymbols = TonalChordType.symbols()
@@ -141,11 +145,14 @@ export const ScaleModule = {
         const scale = TonalScale.get(`${keyTonic} ${keyType}`);
         const scaleChordTypes = TonalScale.scaleChords(`${keyTonic} ${keyType}`);
 
-        let keyChords;
+        let keyChords = {
+          triads: [],
+          chords: [],
+        } as unknown as ReturnType<typeof TonalKey.majorKey>;
         if (keyType === 'major') {
             keyChords = TonalKey.majorKey(keyTonic);
         } else if (keyType === 'melodic minor') {
-            keyChords = TonalKey.majorKey(TonalKey.minorKey(keyTonic).relativeMajor);
+            keyChords = TonalKey.majorKey(TonalKey.minorKey(keyTonic).relativeMajor); // TODO:
         }
 
         // const allChords = keyChords
@@ -160,11 +167,10 @@ export const ScaleModule = {
         //           .map(ChordModule.get)
         //           .filter(Boolean)
         //     : [];
-
         return {
             ...scale,
             chordTypes: scaleChordTypes,
-            allChords: [], // TODO?
+            keyChords,
         };
     },
     names: TonalScale.names,
@@ -206,6 +212,11 @@ export const IntervalModule = {
     return sorted[0];
   }
 }
+
+// TODO: TMP
+window.NoteModule = NoteModule;
+window.ChordModule = ChordModule;
+window.IntervalModule = IntervalModule;
 
 
 // https://kathleenkarlsen.com/chakra-sounds

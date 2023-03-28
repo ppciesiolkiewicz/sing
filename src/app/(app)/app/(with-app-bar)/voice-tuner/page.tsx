@@ -1,31 +1,115 @@
 "use client"
 import { useRef, useLayoutEffect, useState, useMemo } from 'react';
+import { Formik, Form, FormikHelpers, useFormik, useFormikContext } from 'formik';
 import * as Tone from 'tone';
-import { Box, Button, Fab } from "@mui/material";
+import { Box, Button, Grid, Fab } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import Modal from '@/components/atoms/Modal';
 import Piano from '@/components/atoms/Piano';
+import ChordsPiano from '@/components/atoms/ChordsPiano';
 import PitchDetectionAnimation from '@/lib/animation/PitchDetectionAnimation';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
-import Select from '@/components/atoms/Select';
+import { SelectField } from '@/components/atoms/Select';
 import { useFetchUser } from '@/lib/fetch/hooks';
-import { INSTRUMENT_OPTIONS, INSTRUMENT_PIANO1, INSTRUMENTS } from '@/constants';
+import { INSTRUMENTS } from '@/constants';
+import {
+  InstrumentTypeSelectField,
+  ScaleKeyTonicSelectField,
+  ScaleKeyTypeSelectField,
+} from '@/components/blocks/MusicFields';
+
+const PIANO_TYPE_NORMAL_PIANO = 'PIANO_TYPE_NORMAL_PIANO';
+const PIANO_TYPE_CHORDS_PIANO = 'PIANO_TYPE_CHORDS_PIANO';
+const PIANO_TYPE_OPTIONS = [
+  {
+    label: 'Normal Piano',
+    value: PIANO_TYPE_NORMAL_PIANO,
+  },
+  {
+    label: 'Chords Piano',
+    value: PIANO_TYPE_CHORDS_PIANO,
+  }
+]
+
+function PianoSettingsModal({ onSubmit }: { onSubmit: (settings: any) => void }) {
+  const [isSettingsModalOpened, setIsSettingsModalOpened] = useState(false);
+  const toggleSettingsModal = () => setIsSettingsModalOpened(!isSettingsModalOpened);
+
+  return (
+    <>
+      <Modal
+        title={"Piano settings"}
+        open={isSettingsModalOpened}
+        fullWidth
+        maxWidth={'md'}
+        onClose={() => setIsSettingsModalOpened(false)}
+      >
+        <Formik
+          initialValues={PianoSettingsModal.initialValues}
+          onSubmit={onSubmit}
+        >
+          <Form>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <InstrumentTypeSelectField />
+              </Grid>
+              <Grid item xs={12}>
+                <SelectField
+                  id="pianoType"
+                  name="pianoType"
+                  label="pianoType"
+                  options={PIANO_TYPE_OPTIONS}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <ScaleKeyTonicSelectField />
+              </Grid>
+              <Grid item xs={12}>
+                <ScaleKeyTypeSelectField />
+              </Grid>
+            </Grid>
+            <Button
+                variant={'contained'}
+                color={'primary'}
+                onClick={() => setIsSettingsModalOpened(false)}
+                type={'submit'}
+              >
+                Ok
+            </Button>
+          </Form>
+        </Formik>
+      </Modal>
+      <Fab
+        color="secondary"
+        aria-label="settings"
+        onClick={toggleSettingsModal}
+        sx={{ position: 'absolute', right: '10px', bottom: '10px' }}
+      >
+        <EditIcon />
+      </Fab>
+    </>
+  )
+}
+PianoSettingsModal.initialValues = {
+  instrument: InstrumentTypeSelectField.initialValue,
+  keyTonic: ScaleKeyTonicSelectField.initialValue,
+  keyType: ScaleKeyTypeSelectField.initialValue,
+  pianoType: PIANO_TYPE_CHORDS_PIANO,
+};
 
 
 export default function VoiceTunerPage() {
-  const [selectedInstrument, setSelectedInstrument] = useState(INSTRUMENT_PIANO1);
+  const [pianoSettings, setPianoSettings] = useState(PianoSettingsModal.initialValues);
   const [started, setStarted] = useState(false);
-  const [isSettingsModalOpened, setIsSettingsModalOpened] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasParentRef = useRef<any>(null);
   const animationRef = useRef<PitchDetectionAnimation | null>(null);
   const userQuery = useFetchUser();
   const soundGenerator = useMemo(
-    () => new Tone.Sampler(INSTRUMENTS[selectedInstrument]).toDestination(),
-    [selectedInstrument]
+    () => new Tone.Sampler(INSTRUMENTS[pianoSettings.instrument]).toDestination(),
+    [pianoSettings.instrument]
   );
 
-  const toggleSettingsModal = () => setIsSettingsModalOpened(!isSettingsModalOpened);
   
   useLayoutEffect(function render() {
     if (!canvasRef.current || !userQuery.data) {
@@ -82,19 +166,35 @@ export default function VoiceTunerPage() {
             position: 'relative',
           }}
         >
-          <canvas id="canvas" ref={canvasRef} />
+          {/* <canvas id="canvas" ref={canvasRef} /> */}
         </Box>
         <Box height={['70px', '100px', '200px']} width={'100%'}>
-          <Piano
-            lowestNoteName={lowestNoteName}
-            highestNoteName={highestNoteName}
-            onKeyPressed={(noteName) => {
-              soundGenerator.triggerAttack(noteName)
-            }}
-            onKeyReleased={(noteName) => {
-              soundGenerator.triggerRelease(noteName)
-            }}
-          />
+          {pianoSettings.pianoType === PIANO_TYPE_NORMAL_PIANO && (
+            <Piano
+              lowestNoteName={lowestNoteName}
+              highestNoteName={highestNoteName}
+              onKeyPressed={(noteName) => {
+                soundGenerator.triggerAttack(noteName)
+              }}
+              onKeyReleased={(noteName) => {
+                soundGenerator.triggerRelease(noteName)
+              }}
+            />
+          )}
+          {pianoSettings.pianoType === PIANO_TYPE_CHORDS_PIANO && (
+            <ChordsPiano
+              keyTonic={'C'}
+              keyType={'major'}
+              lowestNoteName={lowestNoteName}
+              highestNoteName={highestNoteName}
+              onKeyPressed={(noteNames: string[]) => {
+                soundGenerator.triggerAttack(noteNames)
+              }}
+              onKeyReleased={(noteNames: string[]) => {
+                soundGenerator.triggerRelease(noteNames)
+              }}
+            />
+          )}
         </Box>
       </Box>
       <Modal
@@ -111,39 +211,7 @@ export default function VoiceTunerPage() {
           </Button>
         </Box>
       </Modal>
-      <Modal
-        title={"Piano settings"}
-        open={isSettingsModalOpened}
-        fullWidth
-        maxWidth={'md'}
-        onClose={() => setIsSettingsModalOpened(false)}
-        slots={{
-          actions: (
-            <Button variant={'contained'} color={'primary'} onClick={() => setIsSettingsModalOpened(false)}>
-              Ok
-            </Button>
-          )
-        }}
-      >
-        <Box display={'flex'} justifyContent={'center'}>
-          <Select
-            id="instrument"
-            name="instrument"
-            label="Instrument"
-            options={INSTRUMENT_OPTIONS}
-            value={selectedInstrument}
-            onChange={(ev) => setSelectedInstrument(ev.target.value)}
-          />
-        </Box>
-      </Modal>
-      <Fab
-        color="secondary"
-        aria-label="settings"
-        onClick={toggleSettingsModal}
-        sx={{ position: 'absolute', right: '10px', bottom: '10px' }}
-      >
-        <EditIcon />
-      </Fab>
+      <PianoSettingsModal onSubmit={values => setPianoSettings(values)}/>
     </>
   )
 }

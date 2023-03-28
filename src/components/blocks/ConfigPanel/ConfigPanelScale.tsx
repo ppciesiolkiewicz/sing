@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import Grid from '@mui/material/Grid';
-import { SelectField } from '@/components/atoms/Select';
+import { NoteSelectField } from '@/components/blocks/MusicFields';
+import { ScaleKeyTypeSelectField } from '@/components/blocks/MusicFields';
 import { MelodyBuilder, Melody } from '@/lib/Melody'
-import { NoteModule, ScaleModule } from '@/lib/music';
+import { INSTRUMENT_PIANO1, CONFIG_TYPE_SCALE } from '@/constants';
 import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
-import { INSTRUMENT_PIANO1, CONFIG_TYPE_SCALE } from '@/constants';
 
 type FormValues = ScaleMelodyConfig;
 
@@ -66,26 +66,17 @@ function ConfigPanelScale({
       <Form>
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <SelectField
+            <NoteSelectField
               id={'keyTonic'}
               name={'keyTonic'}
               label={'Key Tonic'}
-              // TODO: hack to get keyTonics...
-              options={NoteModule.getAllNotes('C1', 'C2').map(n => ({
-                label: n.pc,
-                value: n.pc,
-              }))}
             />
           </Grid>
           <Grid item xs={12}>
-            <SelectField
+            <ScaleKeyTypeSelectField
               id={'keyType'}
               name={'keyType'}
               label={'Key Type'}
-              options={ScaleModule.names().map(n => ({
-                label: n,
-                value: n,
-              }))}
             />
           </Grid>
           <ConfigPanelNoteBoundaries />

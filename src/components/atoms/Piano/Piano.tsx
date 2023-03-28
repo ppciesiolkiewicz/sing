@@ -46,7 +46,7 @@ export default function Piano(props: Props) {
   const onPianoKeyReleasedRef = useRef(onPianoKeyReleased_);
 
   useEffect(() => {
-    // TODO: do it without refs
+    // TODO: do it without refs or extract to component (ChordsPiano, Piano)
     onPianoKeyPressedRef.current = onPianoKeyPressed_;
     onPianoKeyReleasedRef.current = onPianoKeyReleased_;
   }, [pressedKeys])
@@ -69,7 +69,12 @@ export default function Piano(props: Props) {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-  }, [])
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    }
+  }, []);
   
   return (
     <Box
