@@ -49,7 +49,7 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 
 type Props =
   Pick<Parameters<typeof BootstrapDialogTitle>[0], 'onClose'> &
-  Pick<Parameters<typeof Dialog>[0], 'open' | 'maxWidth' | 'fullWidth'> & {
+  Pick<Parameters<typeof Dialog>[0], 'open' | 'maxWidth' | 'fullWidth' | 'keepMounted'> & {
     children: JSX.Element;
     title: string;
     slots?: {
@@ -65,6 +65,7 @@ export default function CustomizedDialogs({
   children,
   fullWidth,
   maxWidth,
+  keepMounted,
 }: Props) {
 return (
     <BootstrapDialog
@@ -73,6 +74,7 @@ return (
       open={open}
       fullWidth={fullWidth}
       maxWidth={maxWidth}
+      keepMounted={keepMounted}
     >
       <BootstrapDialogTitle id="dialog-title" onClose={onClose}>
         {title}

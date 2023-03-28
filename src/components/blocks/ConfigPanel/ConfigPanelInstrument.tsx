@@ -1,20 +1,15 @@
 import Grid from '@mui/material/Grid';
-import { SelectField } from '@/components/atoms/Select';
+import { InstrumentTypeSelectField } from '@/components/blocks/MusicFields';
 import { INSTRUMENT_OPTIONS } from '@/constants';
 
-function ConfigPanelTimesCommon() {
+function ConfigPanelInstrument() {
   return (
     <>
       <Grid item xs={12}>
-        <SelectField
-          id="instrument"
-          name="instrument"
-          label="Instrument"
-          options={INSTRUMENT_OPTIONS}
-        />
+        <InstrumentTypeSelectField />
       </Grid>
     </>
   );
 }
 
-export default ConfigPanelTimesCommon;
+export default ConfigPanelInstrument;

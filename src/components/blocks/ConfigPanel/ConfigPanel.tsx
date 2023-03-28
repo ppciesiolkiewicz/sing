@@ -32,11 +32,6 @@ const CONFIG_TYPE_OPTIONS = [
   // },
 ];
 
-// TODO:
-function IntervalMultiSelectField() {}
-function KeyTonicAndKeyTypeSelectField() {}
-
-
 function ConfigPanelNotes() {
   // fromNotes
   return (

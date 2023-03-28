@@ -3,12 +3,20 @@ import { INSTRUMENT_OPTIONS } from '@/constants';
 import { NoteModule, ScaleModule } from '@/lib/music';
 
 
-type NoteSelectFieldProps = Pick<Parameters<typeof SelectField>[0], "id" | "name" | "label">;
+type NoteSelectFieldProps = Pick<Parameters<typeof SelectField>[0], "id" | "name" | "label"> & {
+  withOctaves?: boolean;
+}
 
-const noteOptions = NoteModule.getAllNotes('C1', 'C5').map(n => ({
+const noteWithOctaveOptions = NoteModule.getAllNotes('C1', 'C5').map(n => ({
   label: n.name,
   value: n.name,
 }));
+
+const noteOptions = NoteModule.names().map(n => ({
+  label: n,
+  value: n,
+}));
+
 function NoteSelectField({
   id,
   name,
@@ -24,6 +32,22 @@ function NoteSelectField({
   )
 }
 NoteSelectField.initialValue = noteOptions[0].value;
+
+function NoteWithOctaveSelectField({
+  id,
+  name,
+  label,
+}: NoteSelectFieldProps) {
+  return (
+    <SelectField
+      id={id}
+      name={name}
+      label={label}
+      options={noteWithOctaveOptions}
+    />
+  )
+}
+NoteWithOctaveSelectField.initialValue = noteWithOctaveOptions[0].value;
 
 const scaleKeyTypeOptions = ScaleModule.relevantNames().map(n => ({
   label: n,
@@ -68,6 +92,7 @@ InstrumentTypeSelectField.initialValue = INSTRUMENT_OPTIONS[0].value;
 
 export {
   NoteSelectField,
+  NoteWithOctaveSelectField,
   ScaleKeyTypeSelectField,
   ScaleKeyTonicSelectField,
   InstrumentTypeSelectField,

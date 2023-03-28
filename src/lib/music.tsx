@@ -152,9 +152,8 @@ export const ScaleModule = {
         if (keyType === 'major') {
             keyChords = TonalKey.majorKey(keyTonic);
         } else if (keyType === 'melodic minor') {
-            keyChords = TonalKey.majorKey(TonalKey.minorKey(keyTonic).relativeMajor); // TODO:
+            keyChords = TonalKey.majorKey(TonalKey.minorKey(keyTonic).relativeMajor);
         }
-
         // const allChords = keyChords
         //     ? [
         //           ...keyChords.chords,
@@ -175,7 +174,7 @@ export const ScaleModule = {
     },
     names: TonalScale.names,
     relevantNames: () => {
-      return ['major', 'minor']
+      return ['major', 'melodic minor']
     },
     getScaleNotes(keyTonic: string, keyType: string, lowestNoteName: string, highestNoteName: string) {
       const chromaticNotes = NoteModule.getAllNotes(lowestNoteName, highestNoteName)
