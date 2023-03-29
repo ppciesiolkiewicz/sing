@@ -38,7 +38,10 @@ export default function SignUp() {
       const respSignUp = await signUp(values);
       const respLogIn = await logIn({ email: values.email, password: values.password });
       setSubmitting(false);
-      router.push(getAppDashboardPath())
+      // TODO: remove timeout that gives time to browser to set the cookie...
+      setTimeout(() => {
+        router.push(getAppDashboardPath())
+      }, 10)
     } catch(e: any) {
       setSubmitting(false);
       enqueueSnackbar({

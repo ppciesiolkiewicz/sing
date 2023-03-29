@@ -34,7 +34,10 @@ export default function Login() {
       setSubmitting(true);
       const resp = await logIn(values);
       setSubmitting(false);
-      router.push(getAppDashboardPath())
+      // TODO: remove timeout that gives time to browser to set the cookie...
+      setTimeout(() => {
+        router.push(getAppDashboardPath())
+      }, 10)
     } catch(e: any) {
       setSubmitting(false);
       enqueueSnackbar({
