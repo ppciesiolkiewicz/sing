@@ -3,7 +3,7 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 import { enqueueSnackbar } from '@/components/atoms/Snackbar';
 import { Grid, Box, Button, Typography, Paper } from '@mui/material';
-import { OptionsSliderField } from '@/components/atoms/Slider';
+import { OptionsSliderField } from '@/components/atoms/OptionsSlider';
 import { TextFieldField } from '@/components/atoms/TextField';
 import { SelectField } from '@/components/atoms/Select';
 import { NoteModule } from '@/lib/music';

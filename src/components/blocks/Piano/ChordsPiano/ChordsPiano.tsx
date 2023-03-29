@@ -1,8 +1,12 @@
 import type { ChordType } from '@/lib/music';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Box, Grid, Paper, Typography } from '@mui/material';
-import { ChordModule, ScaleModule } from '@/lib/music';
+import { ChordModule, ScaleModule, NoteModule } from '@/lib/music';
 import { KEYBOARD_KEYS } from './constants';
+
+
+export const CHORDS_PIANO_MODE_ALL_NOTES = 'ALL_NOTES';
+export const CHORDS_PIANO_MODE_ARPEGGIO = 'ARPEGGIO';
 
 interface ChordPianoKeyProps {
   chord: ChordType;
@@ -50,7 +54,52 @@ interface ChordsPianoProps {
   keyType: string;
   onKeyPressed: (noteNames: string[]) => void;
   onKeyReleased: (noteNames: string[]) => void;
-  mode: string; // TODO: typeof
+  modeConfig: {
+    mode: typeof CHORDS_PIANO_MODE_ARPEGGIO;
+    tempo: number;
+  } | {
+    mode: typeof CHORDS_PIANO_MODE_ALL_NOTES;
+  }
+}
+
+function arpeggioAnimation({
+  chord,
+  tempo,
+  onKeyPressed,
+  pressedChordSymbolKeysRef
+}) {
+  const notes = chord.notes.length == 3
+    ? [...chord.notes, chord.notes[chord.notes.length - 2]]
+    : chord.notes;
+  let start: Second, previousTimeStamp: number;
+  let isNotePlayedInBarArray = new Array(notes.length).fill(false);
+  const timeToBeat = (time: Second, tempo: number) => {
+    const secondsPerBeat = tempo / 60;
+    const beatNo = time * secondsPerBeat;
+    return Math.floor(beatNo % 4);
+  }
+  const arpeggio = (chord: ChordType) => (timestamp: number) => {
+    if (start === undefined) {
+      start = timestamp / 1000;
+    }
+    timestamp = timestamp / 1000;
+
+    const time: Second = timestamp - start;
+    const beatNo = timeToBeat(time, tempo);
+    const noteIdx = beatNo % notes.length;
+
+
+    if (!isNotePlayedInBarArray[noteIdx]) {
+      isNotePlayedInBarArray[noteIdx] = true;
+      isNotePlayedInBarArray[(noteIdx + 1) % isNotePlayedInBarArray.length] = false;
+      onKeyPressed([notes[noteIdx]])
+    }
+
+    if (pressedChordSymbolKeysRef.current.indexOf(chord.symbol) > -1) {
+      window.requestAnimationFrame(arpeggio(chord))
+    }
+  }
+  window.requestAnimationFrame(arpeggio(chord));
 }
 
 export default function ChordsPiano({
@@ -58,16 +107,19 @@ export default function ChordsPiano({
   keyType,
   onKeyPressed,
   onKeyReleased,
-  mode,
+  modeConfig,
 }: ChordsPianoProps) {
+    // TODO: notes are higher than chord.symbol from octave??
   const octaves = [2, 3];
   const [pressedChordSymbolKeys, setPressedChordSymbolKeys] = useState<string[]>([]);
   const pressedChordSymbolKeysRef = useRef(pressedChordSymbolKeys);
   const scale = useMemo(() => ScaleModule.get(keyTonic, keyType), [keyTonic, keyType]);
   const keyboardKeyToChordMap = useMemo(
     // TODO: extract to music.tsx
-    () => octaves.map(octave =>
-          [...scale.keyChords.triads, ...scale.keyChords.chords].map(chordName => ({ chordName, octave }))
+    () => {
+      const map = octaves.map(octave =>
+          [...scale.keyChords.triads, ...scale.keyChords.chords]
+            .map(chordName => ({ chordName, octave }))
         )
         .flat()
         .filter(Boolean)
@@ -81,10 +133,13 @@ export default function ChordsPiano({
             [KEYBOARD_KEYS[i]]: {
               ...chord,
               symbol: `${chord.symbol}${octave}`,
-              notes: chord.notes.map(n =>`${n}${octave}`),
+              notes: chord.notes.map(n =>`${n}${octave}`).map(NoteModule.simplify),
             }
           }
-        }, {}),
+        }, {});
+      console.log(map)
+      return map;
+    },
     [scale], 
   );
 
@@ -96,42 +151,14 @@ export default function ChordsPiano({
   const onPianoKeyPressed_ = (chord: ChordType) => {
     setPressedChordSymbolKeys([...pressedChordSymbolKeys, chord.symbol]);
     
-    // TODO: arpeggio extract
-    if (mode === 'ARPEGGIO') {
-      const notes = chord.notes.length == 3
-        ? [...chord.notes, chord.notes[chord.notes.length - 2]]
-        : chord.notes;
-      const tempo = 100;
-      let start: Second, previousTimeStamp: number;
-      let isNotePlayedInBarArray = new Array(notes.length).fill(false);
-      const timeToBeat = (time: Second, tempo: number) => {
-        // * 4 for bars ; * 60 for seconds
-        const beatNo = time * 60 * 4 / tempo;
-        return Math.floor(beatNo % 4);
-      }
-      const arpeggio = (chord: ChordType) => (timestamp: number) => {
-        if (start === undefined) {
-          start = timestamp / 1000;
-        }
-        timestamp = timestamp / 1000;
-  
-        const time: Second = timestamp - start;
-        const beatNo = timeToBeat(time, tempo);
-        const noteIdx = beatNo % notes.length;
-  
-  
-        if (!isNotePlayedInBarArray[noteIdx]) {
-          isNotePlayedInBarArray[noteIdx] = true;
-          isNotePlayedInBarArray[(noteIdx + 1) % isNotePlayedInBarArray.length] = false;
-          onKeyPressed([notes[noteIdx]])
-        }
-  
-        if (pressedChordSymbolKeysRef.current.indexOf(chord.symbol) > -1) {
-          window.requestAnimationFrame(arpeggio(chord))
-        }
-      }
-      window.requestAnimationFrame(arpeggio(chord));
-    } else if (mode === 'ALL_NOTES') {
+    if (modeConfig.mode === CHORDS_PIANO_MODE_ARPEGGIO) {
+      arpeggioAnimation({
+        chord,
+        tempo: modeConfig.tempo,
+        onKeyPressed,
+        pressedChordSymbolKeysRef,
+      });
+    } else if (modeConfig.mode  === CHORDS_PIANO_MODE_ALL_NOTES) {
       onKeyPressed(chord.notes);
     }
   };
@@ -142,31 +169,30 @@ export default function ChordsPiano({
     onKeyReleased(chord.notes);
   }
 
+  const onPianoKeyPressedRef = useRef(onPianoKeyPressed_);
+  const onPianoKeyReleasedRef = useRef(onPianoKeyReleased_);
   useEffect(() => {
     // TODO: do it without refs or extract to component (ChordsPiano, Piano)
     onPianoKeyPressedRef.current = onPianoKeyPressed_;
     onPianoKeyReleasedRef.current = onPianoKeyReleased_;
-  }, [pressedChordSymbolKeys, mode])
+  }, [pressedChordSymbolKeys, modeConfig, scale])
 
-  const onPianoKeyPressedRef = useRef(onPianoKeyPressed_);
-  const onPianoKeyReleasedRef = useRef(onPianoKeyReleased_);
-
-  const handleKeyDown = (ev) => {
-    if (ev.repeat) {
-      return;
-    }
-    const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
-    if(!chord) return;
-    onPianoKeyPressedRef.current(chord);
-  }
-
-  const handleKeyUp = (ev) => {
-    const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
-    if(!chord) return;
-    onPianoKeyReleasedRef.current(chord);
-  }
-
+  
   useEffect(() => {
+    const handleKeyDown = (ev) => {
+      if (ev.repeat) {
+        return;
+      }
+      const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
+      if(!chord) return;
+      onPianoKeyPressedRef.current(chord);
+    }
+  
+    const handleKeyUp = (ev) => {
+      const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
+      if(!chord) return;
+      onPianoKeyReleasedRef.current(chord);
+    }
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
@@ -174,19 +200,19 @@ export default function ChordsPiano({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     }
-  }, []);
+  }, [keyboardKeyToChordMap]);
 
   return (
     <Grid container spacing={2}>
       {/* iterating over KEYBOARD_KEYS to preserve the order */}
-      {KEYBOARD_KEYS.map(key => {
+      {KEYBOARD_KEYS.map((key, idx) => {
         if (Object.keys(keyboardKeyToChordMap).indexOf(key) < 0) {
           return null;
         }
         const chord = keyboardKeyToChordMap[key];
         return (
           <ChordPianoKey
-            key={key}
+            key={`${keyTonic}${keyType}${idx}`}
             isPressed={pressedChordSymbolKeys.indexOf(chord.symbol) > -1}
             chord={chord}
             keyboardKey={key}

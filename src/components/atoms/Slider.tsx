@@ -5,40 +5,23 @@ import MuiSlider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 import { Field } from 'formik';
 
+
 type Props =
-  Pick<Parameters<typeof MuiSlider>[0], | 'value' | 'name' | 'id'> &
+  Pick<Parameters<typeof MuiSlider>[0], | 'value' | 'name' | 'id' | 'onChange' | 'step' | 'min' | 'max'> &
   {
     label: string;
-    options: {
-      label: string;
-      value: any;
-    }[];
-    onChange: (ev: any, value: any | any[]) => void;
   };
 
-function OptionsSlider({
+function Slider({
   id,
   name,
   label,
   onChange,
   value,
-  options,
+  step,
+  min,
+  max,
 }: Props) {
-  const min = 0;
-  const max = options.length - 1;
-  const valueIndex = options
-   .map((o, i) => {
-    if (Array.isArray(value)) {
-      return value.indexOf(o.value) > -1 ? i : null;
-    } 
-    return o.value === value ? i : null;
-   })
-  .filter(Boolean);
-
-  function valueLabelFormat(valueIndex: number) {
-    return options[valueIndex].label
-  }
-
   return (
     <FormControl fullWidth>
       <InputLabel id={`${id}-label`} sx={{ ml: -2 }}>{label}</InputLabel>
@@ -47,19 +30,11 @@ function OptionsSlider({
           color={'secondary'}
           id={id}
           name={name}
-          valueLabelFormat={valueLabelFormat}
-          value={valueIndex}
-          onChange={(ev, valueIndex: number | number[], activeThumb) => {
-            const value = Array.isArray(valueIndex)
-              ? valueIndex.map(idx => options[idx].value)
-              : options[valueIndex].value;
-
-            ev.target.value = value;
-            onChange!(ev, value);
-          }}
-          valueLabelDisplay="on"
+          value={value}
+          onChange={onChange}
+          valueLabelDisplay={'auto'}
           min={min}
-          step={1}
+          step={step}
           max={max}
         />
       </Box>
@@ -67,12 +42,19 @@ function OptionsSlider({
   );
 }
 
-function OptionsSliderField({
+type SliderFieldProps = Pick<
+  Parameters<typeof Slider>[0],
+  "id" | "name" | "label" | "min" | "max" | "step"
+>;
+
+function SliderField({
   id,
   name,
   label,
-  options,
-}: Pick<Parameters<typeof OptionsSlider>[0], "id" | "name" | "label" | "options">) {
+  min,
+  max,
+  step
+}: SliderFieldProps) {
   return (
     <Field
       id={id}
@@ -80,13 +62,15 @@ function OptionsSliderField({
     >
       {(props) => {
         return (
-          <OptionsSlider
+          <Slider
             id={props.field.id}
             name={props.field.name}
             label={label}
             onChange={props.form.handleChange}
             value={props.field.value}
-            options={options}
+            min={min}
+            step={step}
+            max={max}
           />
         )
       }}
@@ -95,5 +79,5 @@ function OptionsSliderField({
 }
 
 
-export default OptionsSlider;
-export { OptionsSliderField }
+export default Slider;
+export { SliderField }

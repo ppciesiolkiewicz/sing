@@ -7,12 +7,14 @@ import {
   InstrumentTypeSelectField,
   ScaleKeyTonicSelectField,
   ScaleKeyTypeSelectField,
+  TempoSliderField,
 } from '@/components/blocks/MusicFields';
 import { RadioGroupField } from '@/components/atoms/RadioGroup';
+import {
+  CHORDS_PIANO_MODE_ALL_NOTES,
+  CHORDS_PIANO_MODE_ARPEGGIO,
+} from './ChordsPiano';
 
-
-const CHORDS_PIANO_MODE_ALL_NOTES = 'ALL_NOTES';
-const CHORDS_PIANO_MODE_ARPEGGIO = 'ARPEGGIO';
 
 function ChordsPianoModeSelectField() {
   return (
@@ -33,7 +35,8 @@ function ChordsPianoModeSelectField() {
     />
   );
 }
-ChordsPianoModeSelectField.initialValue = CHORDS_PIANO_MODE_ARPEGGIO;
+ChordsPianoModeSelectField.initialValue = CHORDS_PIANO_MODE_ARPEGGIO as
+  typeof CHORDS_PIANO_MODE_ALL_NOTES | typeof CHORDS_PIANO_MODE_ARPEGGIO;
 
 interface CommonPianoSettingsProps {
   onSubmit: (settings: any) => void;
@@ -63,8 +66,11 @@ export default function CommonPianoSettings({ onSubmit }: CommonPianoSettingsPro
           <Grid item xs={6}>
             <ScaleKeyTypeSelectField />
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <ChordsPianoModeSelectField />
+          </Grid>
+          <Grid item xs={12}>
+            <TempoSliderField />
           </Grid>
         </Grid>
         <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
@@ -86,6 +92,7 @@ CommonPianoSettings.initialValues = {
   keyTonic: ScaleKeyTonicSelectField.initialValue,
   keyType: ScaleKeyTypeSelectField.initialValue,
   chordsPianoMode: ChordsPianoModeSelectField.initialValue,
+  tempo: TempoSliderField.initialValue,
 };
 
 

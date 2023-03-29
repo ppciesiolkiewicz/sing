@@ -39,6 +39,7 @@ export const NoteModule = {
       return ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
     },
     get: TonalNote.get,
+    simplify: TonalNote.simplify,
     fromFreq: (freq: number): NoteType => {
         const noteName = TonalNote.fromFreq(freq);
         return TonalNote.get(noteName);
@@ -211,11 +212,6 @@ export const IntervalModule = {
     return sorted[0];
   }
 }
-
-// TODO: TMP
-window.NoteModule = NoteModule;
-window.ChordModule = ChordModule;
-window.IntervalModule = IntervalModule;
 
 
 // https://kathleenkarlsen.com/chakra-sounds

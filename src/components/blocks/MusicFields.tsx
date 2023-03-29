@@ -1,4 +1,5 @@
 import { SelectField } from '@/components/atoms/Select';
+import { SliderField } from '@/components/atoms/Slider';
 import { INSTRUMENT_OPTIONS } from '@/constants';
 import { NoteModule, ScaleModule } from '@/lib/music';
 
@@ -59,7 +60,7 @@ function ScaleKeyTypeSelectField() {
     <SelectField
       id={'keyType'}
       name={'keyType'}
-      label={'keyType'}
+      label={'Scale Type'}
       options={scaleKeyTypeOptions}
     />
   );
@@ -71,7 +72,7 @@ function ScaleKeyTonicSelectField() {
     <NoteSelectField
       id={'keyTonic'}
       name={'keyTonic'}
-      label={'keyTonic'}
+      label={'Key Tonic'}
     />
   );
 }
@@ -90,10 +91,25 @@ function InstrumentTypeSelectField() {
 }
 InstrumentTypeSelectField.initialValue = INSTRUMENT_OPTIONS[0].value;
 
+function TempoSliderField() {
+  return (
+    <SliderField
+      name={'tempo'}
+      id={'tempo'}
+      label={'Tempo'}
+      step={1}
+      min={20}
+      max={220}
+    />
+  );
+}
+TempoSliderField.initialValue = 100;
+
 export {
   NoteSelectField,
   NoteWithOctaveSelectField,
   ScaleKeyTypeSelectField,
   ScaleKeyTonicSelectField,
   InstrumentTypeSelectField,
+  TempoSliderField,
 }

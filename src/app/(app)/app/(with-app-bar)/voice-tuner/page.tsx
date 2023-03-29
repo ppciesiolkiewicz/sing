@@ -112,7 +112,10 @@ export default function VoiceTunerPage() {
                       keyType={pianoSettings.keyType}
                       lowestNoteName={lowestNoteName}
                       highestNoteName={highestNoteName}
-                      mode={pianoSettings.chordsPianoMode}
+                      modeConfig={{
+                        mode: pianoSettings.chordsPianoMode,
+                        tempo: pianoSettings.tempo,
+                      }}
                       onKeyPressed={(noteNames: string[]) => {
                         soundGenerator.triggerAttack(noteNames)
                       }}
