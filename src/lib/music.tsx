@@ -46,6 +46,7 @@ export const NoteModule = {
     },
     transpose: TonalNote.transpose,
     areNotesEqual: (n1: NoteType, n2: NoteType): boolean => n1.chroma === n2.chroma && (!n1.oct || n1.oct === n2.oct),
+    areNotesSameNote: (n1: NoteType, n2: NoteType): boolean => n1.chroma === n2.chroma,
     getGuitarNotes: (tuning: string[], fretCount: number): NoteType[][] => {
         return tuning.map(rootNote => {
             return times(fretCount - 1, fretNo => {

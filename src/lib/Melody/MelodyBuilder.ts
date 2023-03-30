@@ -38,11 +38,6 @@ type IntervalMelodyMode = typeof INTERVAL_MELODY_MODE_LISTEN_AND_REPEAT |
   typeof INTERVAL_MELODY_MODE_NO_LISTEN_AND_REPEAT1;
 
 
-// TODO: configType part of a config
-interface MelodyConfigType {
-  configType: ConfigType;
-}
-
 interface InstrumentMelodyConfig {
   instrument: InstrumentType;
 }

@@ -61,20 +61,36 @@ export default class NotesLines {
   }
 
 
-  public setHighlightedNoteLines(notes: string[], themeKey: string = 'highlight1') {
+  public setHighlightedNoteLines({
+    notes,
+    themeKey = 'highlight1',
+    exact = false
+  }: {
+    notes: string[];
+    themeKey?: string;
+    exact?: boolean;
+  }) {
     const notes_ = notes.map(NoteModule.get);
+    const comparator = exact ? NoteModule.areNotesEqual : NoteModule.areNotesSameNote;
     this.noteLines
-      .filter(({ note }) => notes_.some(note_ => NoteModule.areNotesEqual(note_, note)))
+      .filter(({ note }) => notes_.some(note_ => comparator(note_, note)))
       .forEach(({ text, line }) => {
         text.style.fillColor = new paper.Color(this.theme[themeKey]);
         line.strokeColor = new paper.Color(this.theme[themeKey]);
       });
   }
 
-  public unsetHighlightedNoteLines(notes: string[]) {
+  public unsetHighlightedNoteLines({
+    notes,
+    exact,
+  }: {
+    notes: string[];
+    exact?: boolean;
+  }) {
     const notes_ = notes.map(NoteModule.get);
+    const comparator = exact ? NoteModule.areNotesEqual : NoteModule.areNotesSameNote;
     this.noteLines
-      .filter(({ note }) => notes_.some(note_ => NoteModule.areNotesEqual(note_, note)))
+      .filter(({ note }) => notes_.some(note_ => comparator(note_, note)))
       .forEach(({ note, line, text }) => {
         line.strokeColor = new paper.Color(this.theme.line);
         text.style.fillColor = new paper.Color(this.theme.text);

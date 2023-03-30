@@ -18,7 +18,7 @@ const theme = {
   noteLines: {
     line: '#454545',
     text: '#454545',
-    highlight1: '#66bb22',
+    highlight1: '#339900',
     highlight2: '#66ee22',
   },
   pitchDetectionTrack: {
@@ -157,12 +157,12 @@ class PitchDetectionAnimation {
     this.timeline.stop()
   }
 
-  public setHighlightedNoteLines(notes: string[]) {
-    this.noteLines.setHighlightedNoteLines(notes);
+  public setHighlightedNoteLines(args: Parameters<NotesLines['setHighlightedNoteLines']>[0]) {
+    this.noteLines.setHighlightedNoteLines(args);
   }
 
-  public unsetHighlightedNoteLines(notes: string[]) {
-    this.noteLines.unsetHighlightedNoteLines(notes);
+  public unsetHighlightedNoteLines(args: Parameters<NotesLines['unsetHighlightedNoteLines']>[0]) {
+    this.noteLines.unsetHighlightedNoteLines(args);
   }
 }
 

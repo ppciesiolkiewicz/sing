@@ -95,11 +95,15 @@ export default function VoiceTunerPage() {
                       highestNoteName={highestNoteName}
                       onKeyPressed={(noteName) => {
                         soundGenerator.triggerAttack(noteName)
-                        animationRef.current?.setHighlightedNoteLines([noteName]);
+                        animationRef.current?.setHighlightedNoteLines({
+                          notes: [noteName]
+                        });
                       }}
                       onKeyReleased={(noteName) => {
                         soundGenerator.triggerRelease(noteName)
-                        animationRef.current?.unsetHighlightedNoteLines([noteName]);
+                        animationRef.current?.unsetHighlightedNoteLines({
+                          notes: [noteName]
+                        });
                       }}
                     />
                   </>
@@ -120,11 +124,22 @@ export default function VoiceTunerPage() {
                       }}
                       onKeyPressed={(noteNames: string[]) => {
                         soundGenerator.triggerAttack(noteNames)
-                        animationRef.current?.setHighlightedNoteLines(noteNames);
+                        animationRef.current?.setHighlightedNoteLines({
+                          notes: noteNames, 
+                          exact: false,
+                        });
+                        animationRef.current?.setHighlightedNoteLines({
+                          notes: noteNames,
+                          themeKey: 'highlight2',
+                          exact: true,
+                        });
                       }}
                       onKeyReleased={(noteNames: string[]) => {
                         soundGenerator.triggerRelease(noteNames)
-                        animationRef.current?.unsetHighlightedNoteLines(noteNames);
+                        animationRef.current?.unsetHighlightedNoteLines({
+                          notes: noteNames,
+                          exact: false,
+                        });
                       }}
                     />
                   </>

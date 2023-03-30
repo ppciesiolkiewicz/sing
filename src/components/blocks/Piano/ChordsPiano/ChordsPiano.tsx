@@ -42,6 +42,9 @@ function ChordPianoKey({
           {chord.symbol}
         </Typography>
         <Typography variant={'overline'}>
+          [ {chord.notes.join(' ')} ]
+        </Typography>
+        <Typography variant={'overline'}>
           ({keyboardKey})
         </Typography>
       </Paper>
