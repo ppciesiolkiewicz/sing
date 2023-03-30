@@ -17,18 +17,19 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
     ScaleModule.relevantNames().map(keyType => {
       const scaleNotes = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName);
 
+      // TODO: extract to music.tsx
       const splitIndices = [
         0,
         ...scaleNotes
-          .reduce(function(a, note, i) {
+          .reduce(function(acc, note, i) {
               // TODO: e[0]
               if (keyTonic.length == 2 && `${note.name[0]}${note.name[1]}` === keyTonic) {
-                a.push(i);
+                acc.push(i);
               } else if (note.name[0] == keyTonic) {
-                a.push(i);
+                acc.push(i);
               }
 
-              return a;
+              return acc;
           }, [] as number[]),
           scaleNotes.length - 1,
         ];
@@ -61,7 +62,7 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
                 highestNoteName,
                 repeatTimes: 1,
                 timePerNote: 1,
-                timeBetweenNotes: 0.1,
+                timeBetweenNotes: 0,
                 timeBetweenRepeats: 3,
                 instrument: INSTRUMENT_PIANO1,
               },
@@ -72,6 +73,8 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
 
     return SCALE_EXERCISES;
 }
+
+// TODO: tempo slider instead
 export const getIntervalExercises = (lowestNoteName: string, highestNoteName: string) => {
   const INTERVAL_ERXERCISES = [
     {
@@ -80,24 +83,44 @@ export const getIntervalExercises = (lowestNoteName: string, highestNoteName: st
     },
     ...IntervalModule.names().map(intervalName => ({
       title: `Interval ${intervalName}`,
-      intervalNames: ['1P', intervalName, '1P'],
+      intervalNames: ['1P', '1P', intervalName, '1P'],
     })),
-  ].map((e, i) => ({
-    id: `intervals-${e.intervalNames.join('-')}`,
-    title: e.title,
-    description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
-    configType: CONFIG_TYPE_INTERVAL,
-    config: {
-      repeatTimes: 1,
-      timePerNote: 1,
-      timeBetweenNotes: 0.2,
-      timeBetweenRepeats: 3,
-      highestNoteName,
-      lowestNoteName,
-      intervalNames: e.intervalNames,
-      instrument: INSTRUMENT_PIANO1,
-    },
-  }))
+  ]
+    .map((e, i) => [
+      {
+        id: `intervals-${e.intervalNames.join('-')}`,
+        title: `${e.title} - Fast`,
+        description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
+        configType: CONFIG_TYPE_INTERVAL,
+        config: {
+          repeatTimes: 1,
+          timePerNote: 0.5,
+          timeBetweenNotes: 0,
+          timeBetweenRepeats: 3,
+          highestNoteName,
+          lowestNoteName,
+          intervalNames: e.intervalNames,
+          instrument: INSTRUMENT_PIANO1,
+        },
+      },
+      {
+        id: `intervals-${e.intervalNames.join('-')}`,
+        title: `${e.title} - Slow`,
+        description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
+        configType: CONFIG_TYPE_INTERVAL,
+        config: {
+          repeatTimes: 1,
+          timePerNote: 1,
+          timeBetweenNotes: 0,
+          timeBetweenRepeats: 10,
+          highestNoteName,
+          lowestNoteName,
+          intervalNames: e.intervalNames,
+          instrument: INSTRUMENT_PIANO1,
+        },
+      },
+    ])
+    .flat();
 
   return INTERVAL_ERXERCISES;
 };

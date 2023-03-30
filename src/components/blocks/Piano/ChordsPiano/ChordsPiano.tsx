@@ -38,7 +38,7 @@ function ChordPianoKey({
         onMouseUp={onMouseUp}
         role={'button'}
       >
-        <Typography variant={'overline'}>
+        <Typography variant={'overline'} fontWeight={'bold'}>
           {chord.symbol}
         </Typography>
         <Typography variant={'overline'}>
@@ -109,8 +109,8 @@ export default function ChordsPiano({
   onKeyReleased,
   modeConfig,
 }: ChordsPianoProps) {
-    // TODO: notes are higher than chord.symbol from octave??
-  const octaves = [2, 3];
+  // TODO: octaves based on vocal range?
+  const octaves = [2, 3, 4];
   const [pressedChordSymbolKeys, setPressedChordSymbolKeys] = useState<string[]>([]);
   const pressedChordSymbolKeysRef = useRef(pressedChordSymbolKeys);
   const scale = useMemo(() => ScaleModule.get(keyTonic, keyType), [keyTonic, keyType]);
@@ -118,11 +118,10 @@ export default function ChordsPiano({
     // TODO: extract to music.tsx
     () => {
       const map = octaves.map(octave =>
-          [...scale.keyChords.triads, ...scale.keyChords.chords]
+          [...scale.keyChords.triads]//, ...scale.keyChords.chords]
             .map(chordName => ({ chordName, octave }))
         )
         .flat()
-        .filter(Boolean)
         .reduce((acc, { chordName, octave }, i) => {
           const chord = ChordModule.get(chordName);
           if (!chord) {
@@ -137,7 +136,7 @@ export default function ChordsPiano({
             }
           }
         }, {});
-      console.log(map)
+
       return map;
     },
     [scale], 
@@ -172,7 +171,6 @@ export default function ChordsPiano({
   const onPianoKeyPressedRef = useRef(onPianoKeyPressed_);
   const onPianoKeyReleasedRef = useRef(onPianoKeyReleased_);
   useEffect(() => {
-    // TODO: do it without refs or extract to component (ChordsPiano, Piano)
     onPianoKeyPressedRef.current = onPianoKeyPressed_;
     onPianoKeyReleasedRef.current = onPianoKeyReleased_;
   }, [pressedChordSymbolKeys, modeConfig, scale])
