@@ -95,9 +95,11 @@ export default function VoiceTunerPage() {
                       highestNoteName={highestNoteName}
                       onKeyPressed={(noteName) => {
                         soundGenerator.triggerAttack(noteName)
+                        animationRef.current?.setHighlightedNoteLines([noteName]);
                       }}
                       onKeyReleased={(noteName) => {
                         soundGenerator.triggerRelease(noteName)
+                        animationRef.current?.unsetHighlightedNoteLines([noteName]);
                       }}
                     />
                   </>
@@ -118,9 +120,11 @@ export default function VoiceTunerPage() {
                       }}
                       onKeyPressed={(noteNames: string[]) => {
                         soundGenerator.triggerAttack(noteNames)
+                        animationRef.current?.setHighlightedNoteLines(noteNames);
                       }}
                       onKeyReleased={(noteNames: string[]) => {
                         soundGenerator.triggerRelease(noteNames)
+                        animationRef.current?.unsetHighlightedNoteLines(noteNames);
                       }}
                     />
                   </>

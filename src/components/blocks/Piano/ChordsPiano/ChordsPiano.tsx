@@ -66,13 +66,14 @@ function arpeggioAnimation({
   chord,
   tempo,
   onKeyPressed,
+  onKeyReleased,
   pressedChordSymbolKeysRef
 }) {
   const notes = chord.notes.length == 3
     ? [...chord.notes, chord.notes[chord.notes.length - 2]]
     : chord.notes;
   let start: Second, previousTimeStamp: number;
-  let isNotePlayedInBarArray = new Array(notes.length).fill(false);
+  let wasNotePlayedInBarArray = new Array(notes.length).fill(false);
   const timeToBeat = (time: Second, tempo: number) => {
     const secondsPerBeat = tempo / 60;
     const beatNo = time * secondsPerBeat;
@@ -89,10 +90,11 @@ function arpeggioAnimation({
     const noteIdx = beatNo % notes.length;
 
 
-    if (!isNotePlayedInBarArray[noteIdx]) {
-      isNotePlayedInBarArray[noteIdx] = true;
-      isNotePlayedInBarArray[(noteIdx + 1) % isNotePlayedInBarArray.length] = false;
+    if (!wasNotePlayedInBarArray[noteIdx]) {
+      wasNotePlayedInBarArray[noteIdx] = true;
+      wasNotePlayedInBarArray[(noteIdx + 1) % wasNotePlayedInBarArray.length] = false;
       onKeyPressed([notes[noteIdx]])
+      onKeyReleased(noteIdx === 0 ? [notes[notes.length - 1]] : [notes[noteIdx - 1]])
     }
 
     if (pressedChordSymbolKeysRef.current.indexOf(chord.symbol) > -1) {
@@ -155,6 +157,7 @@ export default function ChordsPiano({
         chord,
         tempo: modeConfig.tempo,
         onKeyPressed,
+        onKeyReleased,
         pressedChordSymbolKeysRef,
       });
     } else if (modeConfig.mode  === CHORDS_PIANO_MODE_ALL_NOTES) {

@@ -101,7 +101,13 @@ function MelodyExercise({
         maxWidth={'sm'}
         slots={{
           actions: (
-            <Button variant={'contained'} color={'primary'}>
+            <Button
+              variant={'contained'}
+              color={'primary'}
+              onClick={() => {
+                setStarted(true);
+                setScore(null);
+              }}>
               Restart
             </Button>
           )

@@ -1,3 +1,5 @@
+import { cloneDeep } from 'lodash';
+import paper, { view, Path, Point  } from 'paper'
 import type {
   MelodyAnimationConfig,
   freqToCanvasYPosition,
@@ -5,7 +7,6 @@ import type {
   MelodySingNoteScore
 } from './types';
 import type { DifficultyLevel } from '@/constants';
-import paper, { view, Path, Point  } from 'paper'
 import { Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
 import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';
@@ -22,6 +23,8 @@ const theme = {
   noteLines: {
     line: '#454545',
     text: '#454545',
+    highlight1: '#66bb22',
+    highlight2: '#66ee22',
   },
   singTrack: {
     default: '#454545',
@@ -128,7 +131,7 @@ class MelodyAnimation {
     }
     this.canvas = canvas; 
     this.onStopped = onStopped;
-    this.melody = melody;
+    this.melody = cloneDeep(melody);
     paper.setup(canvas)
 
     this.setupDevicePixelRatio();
@@ -142,21 +145,21 @@ class MelodyAnimation {
     });
 
     this.melodySingAnimationGroup = new MelodySingAnimationGroup({
-      track: melody.singTrack,
+      track: this.melody.singTrack,
       freqToCanvasYPosition,
       config: this.config,
       theme: theme.singTrack,
     });
 
     this.melodyListenAnimationGroup = new MelodyListenAnimationGroup({
-      track: melody.listenTrack,
+      track: this.melody.listenTrack,
       freqToCanvasYPosition,
       config: this.config,
       theme: theme.listenTrack,
     });
 
     this.melodyLyricsAnimation = new MelodyLyricsAnimation({
-      lyricsTrack: melody.lyricsTrack,
+      lyricsTrack: this.melody.lyricsTrack,
       config: this.config,
       theme: theme.lyrics,
     })
@@ -168,8 +171,8 @@ class MelodyAnimation {
     });
 
     this.backingTrack = new BackingTrack({
-      track: melody.backingTrack,
-      instrumentConfig: melody.instrumentConfig,
+      track: this.melody.backingTrack,
+      instrumentConfig: this.melody.instrumentConfig,
     })
 
     const middleLine = new Path.Line(

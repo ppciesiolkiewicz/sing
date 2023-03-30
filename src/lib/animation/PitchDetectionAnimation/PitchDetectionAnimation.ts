@@ -17,6 +17,8 @@ const theme = {
   noteLines: {
     line: '#454545',
     text: '#454545',
+    highlight1: '#66bb22',
+    highlight2: '#66ee22',
   },
   pitchDetectionTrack: {
     default: '#454545',
@@ -42,6 +44,7 @@ class PitchDetectionAnimation {
   pitchDetector: PitchDetector = new PitchDetector();
   pitchDetectionNotesAnimationGroup: PitchDetectionNotesAnimationGroup;
   config: PitchDetectionAnimationConfig;
+  noteLines: NotesLines;
 
   static runChecks(): { error: string } | null {
     // Required for PitchDetector
@@ -113,7 +116,7 @@ class PitchDetectionAnimation {
       highestNoteName,
     );
 
-    const noteLines = new NotesLines({
+    this.noteLines = new NotesLines({
       freqToCanvasYPosition,
       notes: notesForNoteLines,
       theme: theme.noteLines,
@@ -165,6 +168,14 @@ class PitchDetectionAnimation {
     if (view) {
       view.remove();
     }
+  }
+
+  public setHighlightedNoteLines(notes: string[]) {
+    this.noteLines.setHighlightedNoteLines(notes);
+  }
+
+  public unsetHighlightedNoteLines(notes: string[]) {
+    this.noteLines.unsetHighlightedNoteLines(notes);
   }
 }
 
