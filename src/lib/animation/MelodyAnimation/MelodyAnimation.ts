@@ -47,8 +47,11 @@ const theme = {
 
 const getFreqToCanvasYPositionFn = (
   minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel, height: Pixel
-): freqToCanvasYPosition => (freq: Hz) => {
-  return height - (Math.log2(freq) * pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + padding);
+): freqToCanvasYPosition => {
+  const part = pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + padding;
+  return (freq: Hz) => {
+    return height - Math.log2(freq) * part;
+  }
 };
 
 
