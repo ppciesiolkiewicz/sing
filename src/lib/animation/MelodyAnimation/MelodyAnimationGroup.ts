@@ -127,7 +127,6 @@ export class MelodySingAnimationGroup extends MelodyAnimationGroup {
         }
       }
 
-      // TODO: calculate after animation has finished
       if (trackNoteCompleted && path.bounds.right < view.center.x) {
         result.percentHit = result.framesHit / result.totalFrames;
         path.selected = false;

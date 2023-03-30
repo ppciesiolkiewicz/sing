@@ -10,6 +10,7 @@ import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
 import PitchDetector from '@/lib/PitchDetector';
 import PitchCircle from '@/lib/animation//MelodyAnimation/PitchCircle';
 import NotesLines from '@/lib/animation//MelodyAnimation/NotesLines';
+import Timeline from '@/lib/animation/Timeline';
 import PitchDetectionNotesAnimationGroup from './PitchDetectionNotesAnimationGroup';
 
 const theme = {
@@ -45,16 +46,7 @@ class PitchDetectionAnimation {
   pitchDetectionNotesAnimationGroup: PitchDetectionNotesAnimationGroup;
   config: PitchDetectionAnimationConfig;
   noteLines: NotesLines;
-
-  static runChecks(): { error: string } | null {
-    // Required for PitchDetector
-    if (!navigator.getUserMedia) {
-      return { error: 'Your browser cannot record audio. Please switch to Chrome or Firefox.' }
-    }
-
-    return null;
-  }
-
+  timeline: Timeline;
 
   private getFreqToCanvasPosition(lowestNoteName: string, highestNoteName: string) {
     const notesForNoteLines = NoteModule.getAllNotes(
@@ -133,23 +125,19 @@ class PitchDetectionAnimation {
       config: this.config,
       theme: theme.pitchDetectionTrack,
     })
-  }
 
-  start() {
-    window.onfocus = () => view?.play && view.play();
-    window.onblur = () => view?.pause && view.pause();
-
-    // TODO: When pausing time keeps elapsing so we need to use our own time
-    // this doesn't work because delta keeps accuumulating when pausing
-    // let time = 0;
-    // time += ev.delta;
-    // ev.time = time;
-    // this example uses gsap for timelines - https://jsfiddle.net/xidi2xidi/owxgb2kL/
     const onFrame = async (ev: AnimationFrameEvent) => {
       const currentPitch = this.pitchDetector.getPitch();
       this.pitchCircle.onAnimationFrame(ev, currentPitch)
       this.pitchDetectionNotesAnimationGroup.onAnimationFrame(ev, currentPitch);
     }
+
+    this.timeline = new Timeline(onFrame)
+  }
+
+  start() {
+    window.onfocus = () => this.timeline.start();
+    window.onblur = () =>  this.timeline.pause()
 
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
@@ -157,17 +145,16 @@ class PitchDetectionAnimation {
           startAnimation()
         }, 100);
       } else {
-        view.onFrame = onFrame
+        this.timeline.start()
       }
     }
 
     startAnimation();
   }
 
+
   stop() {
-    if (view) {
-      view.remove();
-    }
+    this.timeline.stop()
   }
 
   public setHighlightedNoteLines(notes: string[]) {

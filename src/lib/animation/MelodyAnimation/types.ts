@@ -1,8 +1,4 @@
-export interface AnimationFrameEvent {
-  delta: number;
-  time: number;
-  count: number;
-}
+export type { AnimationFrameEvent } from '@/lib/animation/Timeline'; 
 
 export interface MelodySingNoteScore {
   noteName: string;

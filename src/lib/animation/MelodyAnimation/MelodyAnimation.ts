@@ -11,12 +11,12 @@ import { Melody } from '@/lib/Melody'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
 import { DIFFICULTY_LEVEL_TO_MELODY_CONFIG_MAP, DIFFICULTY_LEVEL_EASY } from '@/constants';
 import PitchDetector from '@/lib/PitchDetector';
+import Timeline from '@/lib/animation/Timeline';
 import { MelodySingAnimationGroup, MelodyListenAnimationGroup } from './MelodyAnimationGroup';
 import MelodyLyricsAnimation from './MelodyLyricsAnimation';
 import PitchCircle from './PitchCircle';
 import NotesLines from './NotesLines';
 import BackingTrack from './BackingTrack';
-
 
 const theme = {
   background: '#fff',
@@ -63,18 +63,9 @@ class MelodyAnimation {
   backingTrack: BackingTrack;
   pitchDetector: PitchDetector = new PitchDetector();
   config: MelodyAnimationConfig;
+  timeline: Timeline;
   // TODO: onFinished?
   onStopped: (score: MelodySingNoteScore[]) => void;
-
-  static runChecks(): { error: string } | null {
-    // Required for PitchDetector
-    if (!navigator.getUserMedia) {
-      return { error: 'Your browser cannot record audio. Please switch to Chrome or Firefox.' }
-    }
-
-    return null;
-  }
-
 
   private getFreqToCanvasPosition() {
     const notesForNoteLines = NoteModule.getAllNotes(
@@ -183,18 +174,7 @@ class MelodyAnimation {
     middleLine.strokeWidth = 1;
     middleLine.strokeCap = 'round';
     middleLine.dashArray = [10, 12];
-  }
 
-  start() {
-    window.onfocus = () => view?.play && view.play();
-    window.onblur = () => view?.pause && view.pause();
-
-    // TODO: When pausing time keeps elapsing so we need to use our own time
-    // this doesn't work because delta keeps accuumulating when pausing
-    // let time = 0;
-    // time += ev.delta;
-    // ev.time = time;
-    // this example uses gsap for timelines - https://jsfiddle.net/xidi2xidi/owxgb2kL/
     const onFrame = async (ev: AnimationFrameEvent) => {
       this.backingTrack.onAnimationFrame(ev)
 
@@ -206,10 +186,15 @@ class MelodyAnimation {
       this.melodyLyricsAnimation.onAnimationFrame(ev);
 
       if (this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted()) {
-        // TODO show results - have a function that runs on Stop as well | onFinished?
         this.stop();
       }
     }
+    this.timeline = new Timeline(onFrame)
+  }
+
+  start() {
+    window.onfocus = () => this.timeline.start();
+    window.onblur = () =>  this.timeline.pause()
 
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
@@ -217,7 +202,7 @@ class MelodyAnimation {
           startAnimation()
         }, 100);
       } else {
-        view.onFrame = onFrame
+        this.timeline.start()
       }
     }
 
@@ -225,10 +210,7 @@ class MelodyAnimation {
   }
 
   stop() {
-    if (view) {
-      view.remove();
-    }
-
+    this.timeline.stop()
     this.onStopped(this.melodySingAnimationGroup.melodySingScore);
   }
 }

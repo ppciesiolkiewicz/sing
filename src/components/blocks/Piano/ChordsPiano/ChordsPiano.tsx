@@ -72,14 +72,14 @@ function arpeggioAnimation({
   const notes = chord.notes.length == 3
     ? [...chord.notes, chord.notes[chord.notes.length - 2]]
     : chord.notes;
-  let start: Second, previousTimeStamp: number;
+  let start: Second;
   let wasNotePlayedInBarArray = new Array(notes.length).fill(false);
   const timeToBeat = (time: Second, tempo: number) => {
     const secondsPerBeat = tempo / 60;
     const beatNo = time * secondsPerBeat;
     return Math.floor(beatNo % 4);
   }
-  const arpeggio = (chord: ChordType) => (timestamp: number) => {
+  const arpeggio = (chord: ChordType) => (timestamp: MilliSecond) => {
     if (start === undefined) {
       start = timestamp / 1000;
     }
