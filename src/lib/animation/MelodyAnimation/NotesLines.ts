@@ -23,7 +23,7 @@ export default class NotesLines {
     freqToCanvasYPosition,
     theme,
   }: {
-    notes: ReturnType<typeof NoteModule.getAllNotes>,
+    notes: ReturnType<typeof NoteModule.getNoteRange>,
     freqToCanvasYPosition: freqToCanvasYPosition
     theme: {
       line: string;

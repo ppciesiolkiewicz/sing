@@ -132,7 +132,7 @@ class NotesLines {
     notes,
     freqToCanvasYPosition,
   }: {
-    notes: ReturnType<typeof NoteModule.getAllNotes>,
+    notes: ReturnType<typeof NoteModule.getNoteRange>,
     freqToCanvasYPosition: freqToCanvasYPosition
   }) {
     notes.forEach((note) => {
@@ -340,7 +340,7 @@ class MelodyLyricsAnimatonElement {
 class MelodyAnimation {
   melody: Melody;
   canvas: HTMLCanvasElement;
-  notesForNoteLines: ReturnType<typeof NoteModule.getAllNotes>;
+  notesForNoteLines: ReturnType<typeof NoteModule.getNoteRange>;
   melodySingAnimationElement: MelodySingAnimationElement;
   melodyLyricsAnimationElement: MelodyLyricsAnimatonElement;
   pitchDetector: PitchDetector;
@@ -396,7 +396,7 @@ class MelodyAnimation {
     };
 
     // TODO: add padding if of few notes on each side there's only 1 note, e.g min 5 notes displayed
-    this.notesForNoteLines = NoteModule.getAllNotes(
+    this.notesForNoteLines = NoteModule.getNoteRange(
       Math.min(...melody.notesSing.filter(ns => !!ns.freq).map(ns => ns.freq!)),
       Math.max(...melody.notesSing.filter(ns => !!ns.freq).map(ns => ns.freq!)),
     );

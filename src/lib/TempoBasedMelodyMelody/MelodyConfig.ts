@@ -118,7 +118,7 @@ class MelodyConfig implements NoteFactoryReturn {
     noteValue: number,
   }) {
     const intervals = intervalNames.map(name => IntervalModule.get(name));
-    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
+    const CHROMATIC_SCALE_NOTES = NoteModule.getNoteRange(lowestNoteName, highestNoteName);
 
     let intervalNotes = CHROMATIC_SCALE_NOTES
       .map(note => {

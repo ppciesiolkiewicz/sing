@@ -13,7 +13,7 @@ import { DIFFICULTY_LEVEL_OPTIONS } from '@/constants';
 import type { DifficultyLevel } from '@/constants';
 
 
-const options = NoteModule.getAllNotes('C1', 'C6').map(n => ({
+const options = NoteModule.getNoteRange('C1', 'C6').map(n => ({
   label: n.name,
   value: n.name,
 }));

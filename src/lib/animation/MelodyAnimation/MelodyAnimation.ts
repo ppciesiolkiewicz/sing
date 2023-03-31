@@ -45,15 +45,15 @@ const theme = {
   }
 };
 
+
 const getFreqToCanvasYPositionFn = (
   minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel, height: Pixel
 ): freqToCanvasYPosition => {
-  const part = pixelsPerLogHertz - minNoteLogFreq * pixelsPerLogHertz + padding;
+  const part = -minNoteLogFreq * pixelsPerLogHertz + padding;
   return (freq: Hz) => {
-    return height - Math.log2(freq) * part;
+    return height - (Math.log2(freq) * pixelsPerLogHertz + part);
   }
 };
-
 
 
 class MelodyAnimation {
@@ -71,7 +71,7 @@ class MelodyAnimation {
   onStopped: (score: MelodySingNoteScore[]) => void;
 
   private getFreqToCanvasPosition() {
-    const notesForNoteLines = NoteModule.getAllNotes(
+    const notesForNoteLines = NoteModule.getNoteRange(
       Math.min(...this.melody.singTrack.map(e => e.freq)),
       Math.max(...this.melody.singTrack.map(e => e.freq)),
     );

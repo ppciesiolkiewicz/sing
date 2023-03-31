@@ -22,7 +22,7 @@ export default function Piano(props: Props) {
   
   const notes = useMemo(
     () => {
-      const notes = NoteModule.getAllNotes(lowestNoteName, highestNoteName);
+      const notes = NoteModule.getNoteRange(lowestNoteName, highestNoteName);
       return notes;
     },
     [lowestNoteName, highestNoteName]

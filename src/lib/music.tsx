@@ -57,31 +57,18 @@ export const NoteModule = {
             });
         });
     },
-    getAllNotes: (lowestNote: number | string, highestNote: number | string) => {
-      let MIN_NOTE: NoteType, MAX_NOTE: NoteType;
-      // TODO: improve , maybe take Note as param?
+    getNoteRange: (lowestNote: number | string, highestNote: number | string) => {
+      let lowestNote_ = lowestNote;
+      let highestNote_ = highestNote;
       if (typeof lowestNote === 'number') {
-        MIN_NOTE = NoteModule.fromFreq(lowestNote)
-      } else {
-        MIN_NOTE = NoteModule.get(lowestNote)
+        lowestNote_ = NoteModule.fromFreq(lowestNote).name;
       }
-
       if (typeof highestNote === 'number') {
-        MAX_NOTE = NoteModule.fromFreq(highestNote);
-      } else {
-        MAX_NOTE = NoteModule.get(highestNote)
+        highestNote_ = NoteModule.fromFreq(highestNote).name;
       }
 
-      const OCTAVES = [1,2,3,4,5,6];
-      const CHROMATIC_SCALE = ScaleModule.get('C', 'chromatic')
-      const CHROMATIC_SCALE_NOTES = OCTAVES
-        .map(octave =>
-          CHROMATIC_SCALE.notes.map(note => NoteModule.get(`${note}${octave}`))
-        )
-        .flat()
-        .filter(n => n.freq! >= MIN_NOTE.freq! && n.freq! <= MAX_NOTE.freq!)
-
-      return CHROMATIC_SCALE_NOTES;
+      const range = TonalRange.chromatic([lowestNote_, highestNote_]); // TODO: { sharps: true });
+      return range.map(NoteModule.get);
     },
     centsDistance: (freq: Hz, baseFreq: Hz) => {
       /* How many cents freq is above or below baseFreq */
@@ -112,7 +99,7 @@ export const ChordModule = {
     getAllChords: (lowestNoteName: string, hightestNoteName: string): string[] => {
       const chordSymbols = TonalChordType.symbols()
       // const chordSymbols = ['maj', 'min']
-      const notes = NoteModule.getAllNotes(lowestNoteName, hightestNoteName)
+      const notes = NoteModule.getNoteRange(lowestNoteName, hightestNoteName)
 
       return notes.map(n => (
         chordSymbols.map(cs => `${n.name}${cs}`)
@@ -120,7 +107,7 @@ export const ChordModule = {
     },
     getAllRelevantChords: (lowestNoteName: string, hightestNoteName: string): string[] => {
       const chordSymbols = ['maj', 'maj7', 'maj9', 'min', 'min7', 'min9', 'sus2', 'sus4', 'aug']
-      const notes = NoteModule.getAllNotes(lowestNoteName, hightestNoteName)
+      const notes = NoteModule.getNoteRange(lowestNoteName, hightestNoteName)
 
       return notes.map(n => (
         chordSymbols.map(cs => `${n.name}${cs}`)
@@ -179,7 +166,7 @@ export const ScaleModule = {
       return ['major', 'melodic minor']
     },
     getScaleNotes(keyTonic: string, keyType: string, lowestNoteName: string, highestNoteName: string) {
-      const chromaticNotes = NoteModule.getAllNotes(lowestNoteName, highestNoteName)
+      const chromaticNotes = NoteModule.getNoteRange(lowestNoteName, highestNoteName)
       const scale = ScaleModule.get(keyTonic, keyType)
 
       return chromaticNotes.filter(note => {

@@ -107,7 +107,7 @@ class IntervalsMelodyBuilder {
     const intervals = intervalNames.map((name: string) => IntervalModule.get(name));
     const intervalsCount = intervals.length;
     const highestInterval = IntervalModule.getHighestInterval(intervals);
-    const CHROMATIC_SCALE_NOTES = NoteModule.getAllNotes(
+    const CHROMATIC_SCALE_NOTES = NoteModule.getNoteRange(
       lowestNoteName,
       NoteModule.transpose(highestNoteName, `-${highestInterval.name}`),
     );

@@ -8,7 +8,7 @@ type NoteSelectFieldProps = Pick<Parameters<typeof SelectField>[0], "id" | "name
   withOctaves?: boolean;
 }
 
-const noteWithOctaveOptions = NoteModule.getAllNotes('C1', 'C5').map(n => ({
+const noteWithOctaveOptions = NoteModule.getNoteRange('C1', 'C5').map(n => ({
   label: n.name,
   value: n.name,
 }));
