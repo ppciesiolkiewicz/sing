@@ -2293,11 +2293,6 @@ fbjs@^0.8.12:
     setimmediate "^1.0.5"
     ua-parser-js "^0.7.30"
 
-fft.js@^4.0.4:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/fft.js/-/fft.js-4.0.4.tgz#ffed83a397e58039141c804c1dbe1910dced8e6e"
-  integrity sha512-f9c00hphOgeQTlDyavwTtu6RiK8AIFjD6+jvXkNkpeQ7rirK3uFWVpalkoS4LAwbdX7mfZ8aoBfFVQX1Re/8aw==
-
 file-entry-cache@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/file-entry-cache/-/file-entry-cache-6.0.1.tgz#211b2dd9659cb0394b073e7323ac3c933d522027"
@@ -3700,13 +3695,6 @@ pitch-fq@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/pitch-fq/-/pitch-fq-1.0.0.tgz#651b3e8852f65b9555f3a28f7ae96f11e3533416"
   integrity sha512-a2C3vxij0lxkY3yn7w0MmTiPdIgBuwv5kZPngIZJ2lOz7VGgNL/60liG88XHP3oX906QRGEpGkZCOEfm1OUc+g==
-
-pitchy@^4.0.7:
-  version "4.0.7"
-  resolved "https://registry.yarnpkg.com/pitchy/-/pitchy-4.0.7.tgz#95b41e5911321530a44a0cf67739d397fb302bef"
-  integrity sha512-AEMDKxw+o8eeLK432cJniBJLgQ+KgGb0QFFHMA+3v2wAqeYesVyoPSJqaezNZXdJnN+7nK+i8qVR/aQp/NLxiA==
-  dependencies:
-    fft.js "^4.0.4"
 
 postcss@8.4.14:
   version "8.4.14"
