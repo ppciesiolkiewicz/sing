@@ -122,7 +122,7 @@ class IntervalsMelodyBuilder {
       })
       .flat()
     intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
-    const timeBetweenRootNoteChange = 0.5; // TODO:
+    const timeBetweenRootNoteChange = 2; // TODO:
 
     const notes = new Array(1)
       .fill(intervalNotesBase)
