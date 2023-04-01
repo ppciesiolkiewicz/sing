@@ -66,7 +66,6 @@ class MelodyAnimationGroup {
   }
 
   onAnimationFrame(ev: AnimationFrameEvent, pitch: Hz) {
-    const path = this.paths;
     const dest = new Point(
       this.group.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
       this.group.position.y,

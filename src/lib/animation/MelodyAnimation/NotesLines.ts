@@ -1,11 +1,13 @@
 import type {
   freqToCanvasYPosition,
+  AnimationFrameEvent,
 } from './types';
 import paper, { view, Path, Point, PointText, Group } from 'paper'
 import { NoteModule } from '@/lib/music';
 import type { NoteType } from '@/lib/music';
 
 export default class NotesLines {
+  group: Group;
   noteLines: {
     line: Path.Line;
     text: PointText;
@@ -19,11 +21,9 @@ export default class NotesLines {
   };
 
   constructor({
-    notes,
     freqToCanvasYPosition,
     theme,
   }: {
-    notes: ReturnType<typeof NoteModule.getNoteRange>,
     freqToCanvasYPosition: freqToCanvasYPosition
     theme: {
       line: string;
@@ -32,8 +32,12 @@ export default class NotesLines {
   }) {
     this.theme = theme;
     const fontSize = 12 * window.devicePixelRatio;
-    this.noteLines = notes.map((note) => {
+    this.noteLines = NoteModule.getNoteRange(
+      'C1',
+      'C6',
+    ).map((note) => {
       const noteYPosition = freqToCanvasYPosition(note.freq!);
+
       const line = new Path.Line(
         new Point(fontSize * 3, noteYPosition),
         new Point(view.size.width, noteYPosition),
@@ -58,8 +62,15 @@ export default class NotesLines {
         note,
       }
     });
+
+    this.group = new Group(this.noteLines.map(({ line, text }) => [line, text]).flat());
   }
 
+  public setVisibleNotes(notes: NoteType[]) {
+    // this.group.tween({
+    //   'position.y': ['+=', 10],
+    // }, 300);
+  }
 
   public setHighlightedNoteLines({
     notes,

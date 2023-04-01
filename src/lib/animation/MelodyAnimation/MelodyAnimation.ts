@@ -87,10 +87,7 @@ class MelodyAnimation {
       minNoteLogFreq, pixelsPerLogHertz, paddingBottom, view.size.height
     );
 
-    return {
-      freqToCanvasYPosition,
-      notesForNoteLines,
-    }
+    return freqToCanvasYPosition;
   }
 
   private setupDevicePixelRatio() {
@@ -130,11 +127,10 @@ class MelodyAnimation {
 
     this.setupDevicePixelRatio();
 
-    const { freqToCanvasYPosition, notesForNoteLines } = this.getFreqToCanvasPosition();
+    const freqToCanvasYPosition = this.getFreqToCanvasPosition();
 
     const noteLines = new NotesLines({
       freqToCanvasYPosition,
-      notes: notesForNoteLines,
       theme: theme.noteLines,
     });
 

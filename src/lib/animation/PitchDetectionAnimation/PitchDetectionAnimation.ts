@@ -4,8 +4,7 @@ import type {
   freqToCanvasYPosition,
   AnimationFrameEvent,
 } from './types';
-import paper, { view, Path, Point, Size, Rectangle, Group } from 'paper'
-import { Melody } from '@/lib/Melody'
+import paper, { view } from 'paper'
 import { NoteModule, ScaleModule, ChordModule } from '@/lib/music';
 import PitchDetector from '@/lib/PitchDetector';
 import PitchCircle from '@/lib/animation//MelodyAnimation/PitchCircle';
@@ -52,6 +51,16 @@ class PitchDetectionAnimation {
   timeline: Timeline;
 
   private getFreqToCanvasPosition(lowestNoteName: string, highestNoteName: string) {
+    const getFreqToCanvasYPositionFn = (
+      minNoteLogFreq: LogHz, pixelsPerLogHertz: PixelPerHz, padding: Pixel, height: Pixel
+    ): freqToCanvasYPosition => {
+      const part = -minNoteLogFreq * pixelsPerLogHertz + padding;
+      return (freq: Hz) => {
+        return height - (Math.log2(freq) * pixelsPerLogHertz + part);
+      }
+    };
+
+
     const notesForNoteLines = NoteModule.getNoteRange(
       lowestNoteName,
       highestNoteName,
@@ -68,9 +77,15 @@ class PitchDetectionAnimation {
       minNoteLogFreq, pixelsPerLogHertz, paddingBottom, view.size.height
     );
 
-    return {
-      freqToCanvasYPosition,
-      notesForNoteLines,
+    console.log({ pixelsPerLogHertz })
+
+
+    const pixelsPerLogHertz_ = 300;
+
+    // const part = -minNoteLogFreq * pixelsPerLogHertz + padding;
+    return (freq: Hz) => {
+      // 32Hz for C1
+      return view.size.height - (Math.log2(freq) * pixelsPerLogHertz_  - Math.log2(32) * pixelsPerLogHertz_ );
     }
   }
 
@@ -106,14 +121,13 @@ class PitchDetectionAnimation {
 
     this.setupDevicePixelRatio();
 
-    const { freqToCanvasYPosition, notesForNoteLines } = this.getFreqToCanvasPosition(
+    const freqToCanvasYPosition = this.getFreqToCanvasPosition(
       lowestNoteName,
       highestNoteName,
     );
 
     this.noteLines = new NotesLines({
       freqToCanvasYPosition,
-      notes: notesForNoteLines,
       theme: theme.noteLines,
     });
 
@@ -133,12 +147,17 @@ class PitchDetectionAnimation {
       const currentPitch = this.pitchDetector.getPitch();
       this.pitchCircle.onAnimationFrame(ev, currentPitch)
       this.pitchDetectionNotesAnimationGroup.onAnimationFrame(ev, currentPitch);
+      // this.noteLines.onAnimationFrame(ev, []);
+      if (ev.count % 100 === 0) {
+        this.noteLines.setVisibleNotes([NoteModule.fromFreq(currentPitch)]);
+      }
     }
 
     this.timeline = new Timeline(onFrame)
   }
 
   start() {
+    return;
     window.onfocus = () => this.timeline.start();
     window.onblur = () =>  this.timeline.pause()
 
