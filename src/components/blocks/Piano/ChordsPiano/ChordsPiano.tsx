@@ -120,27 +120,12 @@ export default function ChordsPiano({
   const pressedChordSymbolKeysRef = useRef(pressedChordSymbolKeys);
   const scale = useMemo(() => ScaleModule.get(keyTonic, keyType), [keyTonic, keyType]);
   const keyboardKeyToChordMap = useMemo(
-    // TODO: extract to music.tsx
     () => {
-      const map = octaves.map(octave =>
-          [...scale.keyChords.triads]//, ...scale.keyChords.chords]
-            .map(chordName => ({ chordName, octave }))
-        )
-        .flat()
-        .reduce((acc, { chordName, octave }, i) => {
-          const chord = ChordModule.get(chordName);
-          if (!chord) {
-            return acc;
-          }
-          return {
-            ...acc,
-            [KEYBOARD_KEYS[i]]: {
-              ...chord,
-              symbol: `${chord.symbol}${octave}`,
-              notes: chord.notes.map(n =>`${n}${octave}`).map(NoteModule.simplify),
-            }
-          }
-        }, {});
+      const chords = ScaleModule.getScaleChords(scale, octaves)
+      const map = chords.reduce((acc, chord, i) => ({
+          ...acc,
+          [KEYBOARD_KEYS[i]]: chord,
+        }), {});
 
       return map;
     },

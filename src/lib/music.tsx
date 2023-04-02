@@ -172,7 +172,29 @@ export const ScaleModule = {
       return chromaticNotes.filter(note => {
         return scale.notes.includes(note.pc)
       })
-    }
+    },
+    getScaleChords(scale: ScaleType, octaves = [2]) {
+      const chords = octaves.map(octave =>
+          [...scale.keyChords.triads]//, ...scale.keyChords.chords]
+            .map(chordName => ({ chordName, octave }))
+        )
+        .flat()
+        .map(({ chordName, octave }) => {
+          const chord = ChordModule.get(chordName);
+          if (!chord) {
+            return null;
+          }
+          return {
+            ...chord,
+            symbol: `${chord.symbol}${octave}`,
+            notes: chord.notes.map(n =>`${n}${octave}`).map(NoteModule.simplify),
+          };
+        })
+        .filter(Boolean);
+
+
+      return chords;
+    },
 };
 
 export const IntervalModule = {
