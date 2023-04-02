@@ -1,10 +1,5 @@
 import { NoteModule } from '@/lib/music';
 
-export type TrackNoteType = typeof TrackNote.NOTE_TYPE_SING |
-  typeof TrackNote.NOTE_TYPE_LISTEN | 
-  typeof TrackNote.NOTE_TYPE_PLAY;
-
-
 class NoteBase {
   name: string;
   freq: number;

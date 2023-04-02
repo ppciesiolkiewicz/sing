@@ -49,7 +49,7 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
     return SCALE_EXERCISES;
 }
 
-// TODO: tempo slider instead
+// TODO: tempo slider instead slow/fast
 export const getIntervalExercises = (lowestNoteName: string, highestNoteName: string) => {
   const INTERVAL_ERXERCISES = [
     {

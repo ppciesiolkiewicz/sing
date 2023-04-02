@@ -12,6 +12,7 @@ import { useFetchUser } from '@/lib/fetch/hooks';
 import { INSTRUMENTS } from '@/constants';
 import { CommonPianoSettingsModal } from '@/components/blocks/Piano/CommonPianoSettings';
 
+
 export default function VoiceTunerPage() {
   const [pianoSettings, setPianoSettings] = useState(CommonPianoSettingsModal.initialValues);
   const [started, setStarted] = useState(false);

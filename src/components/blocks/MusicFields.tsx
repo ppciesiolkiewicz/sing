@@ -1,4 +1,5 @@
 import { SelectField } from '@/components/atoms/Select';
+import { OptionsSliderField } from '@/components/atoms/OptionsSlider';
 import { SliderField } from '@/components/atoms/Slider';
 import { INSTRUMENT_OPTIONS } from '@/constants';
 import { NoteModule, ScaleModule } from '@/lib/music';
@@ -40,7 +41,7 @@ function NoteWithOctaveSelectField({
   label,
 }: NoteSelectFieldProps) {
   return (
-    <SelectField
+    <OptionsSliderField
       id={id}
       name={name}
       label={label}
@@ -49,6 +50,39 @@ function NoteWithOctaveSelectField({
   )
 }
 NoteWithOctaveSelectField.initialValue = noteWithOctaveOptions[0].value;
+
+function NoteSliderField({
+  id,
+  name,
+  label,
+}: NoteSelectFieldProps) {
+  return (
+    <OptionsSliderField
+      id={id}
+      name={name}
+      label={label}
+      options={noteOptions}
+    />
+  )
+}
+NoteSliderField.initialValue = noteOptions[0].value;
+
+function NoteWithOctaveSliderField({
+  id,
+  name,
+  label,
+}: NoteSelectFieldProps) {
+  return (
+    <SelectField
+      id={id}
+      name={name}
+      label={label}
+      options={noteWithOctaveOptions}
+    />
+  )
+}
+NoteWithOctaveSliderField.initialValue = noteWithOctaveOptions[0].value;
+
 
 const scaleKeyTypeOptions = ScaleModule.relevantNames().map(n => ({
   label: n,
@@ -76,7 +110,7 @@ function ScaleKeyTonicSelectField() {
     />
   );
 }
-ScaleKeyTonicSelectField.initialValue  =NoteSelectField.initialValue;
+ScaleKeyTonicSelectField.initialValue = NoteSelectField.initialValue;
 
 
 function InstrumentTypeSelectField() {
@@ -106,7 +140,9 @@ function TempoSliderField() {
 TempoSliderField.initialValue = 100;
 
 export {
+  NoteSliderField,
   NoteSelectField,
+  NoteWithOctaveSliderField,
   NoteWithOctaveSelectField,
   ScaleKeyTypeSelectField,
   ScaleKeyTonicSelectField,
