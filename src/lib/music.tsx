@@ -184,10 +184,13 @@ export const ScaleModule = {
           if (!chord) {
             return null;
           }
+          const notes = chord.intervals.map(interval => {
+            return NoteModule.transpose(`${chord.tonic}${octave}`, interval);
+          }).map(NoteModule.simplify);
           return {
             ...chord,
             symbol: `${chord.symbol}${octave}`,
-            notes: chord.notes.map(n =>`${n}${octave}`).map(NoteModule.simplify),
+            notes,
           };
         })
         .filter(Boolean);
