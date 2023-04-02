@@ -104,43 +104,36 @@ class IntervalsMelodyBuilder {
       timeBetweenNotes,
       timeBetweenRepeats,
     } = this.config;
+    const timeBetweenRootNoteChange = 2; // TODO:
     const intervals = intervalNames.map((name: string) => IntervalModule.get(name));
-    const intervalsCount = intervals.length;
     const highestInterval = IntervalModule.getHighestInterval(intervals);
-
-
-    const CHROMATIC_SCALE_NOTES = NoteModule.getNoteRange(
-      lowestNoteName,
-      NoteModule.transpose(highestNoteName, `-${highestInterval.name}`),
+    const intervalDistanceBetweenLowestAndHighest = IntervalModule.distance(
+      lowestNoteName, NoteModule.transpose(highestNoteName, `-${highestInterval.name}`),
     );
 
-    let intervalNotesBase = CHROMATIC_SCALE_NOTES
-      .map(note => new Array(repeatTimes).fill(note))
-      .flat()
-      .map(note => {
-        return intervals.map(interval => {
-          return NoteModule.transpose(note.name, interval);
-        })
+    const part = intervals
+      .map(interval => {
+        return NoteModule.transpose(lowestNoteName, interval);
       })
-      .flat()
-    // intervalNotesBase = [...intervalNotesBase, ...intervalNotesBase.reverse()]
-    const timeBetweenRootNoteChange = 2; // TODO:
-
-    const notes = new Array(1)
-      .fill(intervalNotesBase)
-      .flat()
       .map((n, i) => {
-        const start = START_TIME +
-          i * timePerNote +
-          timeBetweenNotes * i +
-          timeBetweenRootNoteChange * Math.floor(i/intervalsCount) +
-          timeBetweenRepeats * Math.floor(i/intervalNotesBase.length) -
-          shift;
-
+        const start = START_TIME + i * timePerNote + timeBetweenNotes * i - shift;
         return new TrackNote(n, start, timePerNote);
-      })
+      });
 
-      return notes;
+    const partDuration = part.reduce((sum, p) => sum + p.duration, 0)
+
+    const intervalsToTransposePart = IntervalModule.names('1P', intervalDistanceBetweenLowestAndHighest);
+    const notes = intervalsToTransposePart
+      .map((interval, i) => (
+        part.map(trackNote => new TrackNote(
+          NoteModule.transpose(trackNote.name, interval),
+          trackNote.start + i * (partDuration + timeBetweenRootNoteChange),
+          timePerNote,
+        )))
+      )
+      .flat();
+
+    return notes;
   }
 }
 
@@ -205,12 +198,12 @@ class ChordsMelodyBuilder {
         const chord = ChordModule.get(chordName);
 
         if (includeAllChordComponents) {
+          const duration = timePerNote / chord.notes.length;
           chordNotes = chord.notes.map((n: string, i) => {
-            const duration = end - start;
             return new TrackNote(
               n,
-              start + duration/chord.notes.length * i,
-              duration/chord.notes.length
+              start + duration * i,
+              duration,
             )
           });
         } else {

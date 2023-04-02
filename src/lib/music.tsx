@@ -233,8 +233,15 @@ export const IntervalModule = {
   get(name: string) {
     return TonalInterval.get(name);
   },
-  names() {
-    return ['1P', '2m', '2M', '3m', '3M', '4P', '5P', '6m', '6M', '7m', '7M', '8P'];
+  distance: TonalInterval.distance,
+  names(lower: string = '1P', upper: string = '8P') {
+    const intervals = [
+      '1P', '2m', '2M', '3m', '3M', '4P', '5P', '6m', '6M', '7m', '7M', '8P',
+      '8P','9m', '9M', '10m', '10M', '11P', '12P', '13m', '13M', '14m', '14M', '15P',
+    ];
+    const lowerIdx = intervals.indexOf(lower);
+    const upperIdx = intervals.indexOf(upper);
+    return intervals.filter((interval, i) => i >= lowerIdx && i <= upperIdx)
   },
   getHighestInterval(intervals: any[]) {
     const sorted = [...intervals].sort((i1, i2) => {
@@ -248,8 +255,6 @@ export const IntervalModule = {
 
       return diff;
     });
-
-    console.log(sorted)
 
     return sorted[0];
   }
