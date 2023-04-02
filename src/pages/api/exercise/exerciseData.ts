@@ -16,32 +16,7 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
   const SCALE_EXERCISES = NoteModule.names().map(keyTonic => 
     ScaleModule.relevantNames().map(keyType => {
       const scaleNotes = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName);
-
-      // TODO: extract to music.tsx
-      const splitIndices = [
-        0,
-        ...scaleNotes
-          .reduce(function(acc, note, i) {
-              // TODO: e[0]
-              if (keyTonic.length == 2 && `${note.name[0]}${note.name[1]}` === keyTonic) {
-                acc.push(i);
-              } else if (note.name[0] == keyTonic) {
-                acc.push(i);
-              }
-
-              return acc;
-          }, [] as number[]),
-          scaleNotes.length - 1,
-        ];
-      const scaleNotesParts = splitIndices
-        .map((splitIdx, i) => {
-          if (i === splitIndices.length - 1) {
-            return [];
-          }
-  
-          const part = scaleNotes.slice(splitIdx, splitIndices[i+1]+1)
-          return part.map(n => n.name);
-        })
+      const scaleNotesParts = ScaleModule.splitIntoRangesByTonic(keyTonic, scaleNotes);
       
         return scaleNotesParts.map((part, i) => {
           if (part.length < 3) {

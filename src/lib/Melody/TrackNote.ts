@@ -19,16 +19,15 @@ class NoteBase {
 
 export class TrackNote extends NoteBase {
   start: Second;
-  end: Second;
-  // duration: Second; TODO: duration rather than end
+  duration: Second;
 
-  constructor(noteName: string, start: Second, end: Second) {
+  constructor(noteName: string, start: Second, duration: Second) {
     super(noteName);
     this.start = start;
-    this.end = end;
+    this.duration = duration;
   }
 
-  get duration(): Second {
-    return this.end - this.start;
+  get end(): Second {
+    return this.start + this.duration;
   }
 }

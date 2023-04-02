@@ -197,6 +197,36 @@ export const ScaleModule = {
 
       return chords;
     },
+    splitIntoRangesByTonic(keyTonic: string, notes: NoteType[]) {
+      const splitIndices = [
+        0,
+        ...notes
+          .reduce(function(acc, note, i) {
+              // TODO: e[0]
+              if (keyTonic.length == 2 && `${note.name[0]}${note.name[1]}` === keyTonic) {
+                acc.push(i);
+              } else if (note.name[0] == keyTonic) {
+                acc.push(i);
+              }
+
+              return acc;
+          }, [] as number[]),
+          notes.length - 1,
+        ];
+
+    const splittedNotes = splitIndices
+      .map((splitIdx, i) => {
+        if (i === splitIndices.length - 1) {
+          return [];
+        }
+
+        const part = notes.slice(splitIdx, splitIndices[i+1]+1)
+        return part.map(n => n.name);
+      });
+
+      return splittedNotes;
+  }
+  
 };
 
 export const IntervalModule = {
