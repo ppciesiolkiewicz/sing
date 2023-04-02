@@ -88,7 +88,7 @@ export const getIntervalExercises = (lowestNoteName: string, highestNoteName: st
   ]
     .map((e, i) => [
       {
-        id: `intervals-${e.intervalNames.join('-')}`,
+        id: `intervals-${e.intervalNames.join('-')}-fast`,
         title: `${e.title} - Fast`,
         description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
         configType: CONFIG_TYPE_INTERVAL,
@@ -104,7 +104,7 @@ export const getIntervalExercises = (lowestNoteName: string, highestNoteName: st
         },
       },
       {
-        id: `intervals-${e.intervalNames.join('-')}`,
+        id: `intervals-${e.intervalNames.join('-')}-slow`,
         title: `${e.title} - Slow`,
         description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
         configType: CONFIG_TYPE_INTERVAL,

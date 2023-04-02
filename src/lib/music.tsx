@@ -195,7 +195,6 @@ export const ScaleModule = {
         })
         .filter(Boolean);
 
-
       return chords;
     },
 };
