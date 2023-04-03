@@ -9,7 +9,7 @@ type NoteSelectFieldProps = Pick<Parameters<typeof SelectField>[0], "id" | "name
   withOctaves?: boolean;
 }
 
-const noteWithOctaveOptions = NoteModule.getNoteRange('C1', 'C5').map(n => ({
+const noteWithOctaveOptions = NoteModule.getNoteRange('C1', 'C6').map(n => ({
   label: n.name,
   value: n.name,
 }));
@@ -41,7 +41,7 @@ function NoteWithOctaveSelectField({
   label,
 }: NoteSelectFieldProps) {
   return (
-    <OptionsSliderField
+    <SelectField
       id={id}
       name={name}
       label={label}
@@ -73,7 +73,7 @@ function NoteWithOctaveSliderField({
   label,
 }: NoteSelectFieldProps) {
   return (
-    <SelectField
+    <OptionsSliderField
       id={id}
       name={name}
       label={label}

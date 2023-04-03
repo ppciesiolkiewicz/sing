@@ -5,7 +5,7 @@ import { INSTRUMENT_OPTIONS } from '@/constants';
 function ConfigPanelInstrument() {
   return (
     <>
-      <Grid item xs={12}>
+      <Grid item xs={8}>
         <InstrumentTypeSelectField />
       </Grid>
     </>

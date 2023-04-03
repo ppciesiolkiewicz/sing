@@ -43,7 +43,7 @@ function OptionsSlider({
   return (
     <FormControl fullWidth>
       <InputLabel id={`${id}-label`} sx={{ ml: -2 }}>{label}</InputLabel>
-      <Box mt={12}>
+      <Box mt={10}>
         <MuiSlider
           color={'secondary'}
           id={id}

@@ -25,14 +25,14 @@ function Slider({
   return (
     <FormControl fullWidth>
       <InputLabel id={`${id}-label`} sx={{ ml: -2 }}>{label}</InputLabel>
-      <Box mt={12}>
+      <Box mt={10}>
         <MuiSlider
           color={'secondary'}
           id={id}
           name={name}
           value={value}
           onChange={onChange}
-          valueLabelDisplay={'auto'}
+          valueLabelDisplay={'on'}
           min={min}
           step={step}
           max={max}
@@ -71,7 +71,7 @@ function SliderField({
             min={min}
             step={step}
             max={max}
-          />
+        />
         )
       }}
   </Field>

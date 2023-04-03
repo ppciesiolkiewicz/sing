@@ -11,22 +11,28 @@ import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
 import { INSTRUMENT_PIANO1, CONFIG_TYPE_INTERVAL } from '@/constants';
 
-type FormValues =
-  Omit<IntervalsMelodyConfigType, 'intervalNames'> &
-  {
-    intervalNames: {
-      label: string;
-      value: string;
-    }[];
-  };
+type FormValues = Omit<
+  IntervalsMelodyConfigType,
+  'intervalNames' |
+  'timePerNote' |
+  'timeBetweenNotes' |
+  'timeBetweenRepeats' |
+  'lowestNoteName' |
+  'highestNoteName'
+> & {
+  tempo: number;
+  notesRange: [string, string];
+  intervalNames: {
+    label: string;
+    value: string;
+  }[];
+};
+
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),
-  timePerNote: Yup.number().required(),
-  timeBetweenNotes: Yup.number().required(),
-  timeBetweenRepeats: Yup.number().required(),
-  highestNoteName: Yup.string().required(),
-  lowestNoteName: Yup.string().required(),
+  tempo: Yup.number().required(),
+  notesRange: Yup.array().min(2).max(2).required(),
   intervalNames: Yup.array().min(1, 'Select at least 1 interval'),
   instrument: Yup.string().required(),
 });
@@ -46,12 +52,9 @@ function ConfigPanelInterval({
   }))
 
   const initialValues: FormValues = {
+    tempo: 60,
     repeatTimes: 3,
-    timePerNote: 1,
-    timeBetweenNotes: 0.5,
-    timeBetweenRepeats: 3,
-    highestNoteName: 'C4',
-    lowestNoteName: 'C3',
+    notesRange: ['C3', 'C4'],
     intervalNames: [],
     instrument: INSTRUMENT_PIANO1,
   };
@@ -64,7 +67,12 @@ function ConfigPanelInterval({
       console.log('values', values);
       const config = {
         ...values,
+        timePerNote: 1 * 60 / values.tempo,
+        timeBetweenNotes: 0 * 60 / values.tempo,
+        timeBetweenRepeats: 3 * 60 / values.tempo,
         intervalNames: values.intervalNames.map(({ value }) => value),
+        lowestNoteName: values.notesRange[0],
+        highestNoteName: values.notesRange[1],
       };
       const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_INTERVAL });
       const melody = builder.build();

@@ -161,11 +161,13 @@ class ChordsMelodyBuilder {
           ? START_TIME
           : previousElement[previousElement.length - 1].end;
         const start = endOfPreviousElement + timeBetweenNotes - BACKING_TRACK_SHIFT;
-
         const chord = ChordModule.get(chordName);
+        const duration = includeAllChordComponents
+          ? timePerNote * chord.notes.length
+          : timePerNote
 
         const chordNotes = chord.notes.map((n: string, i) => {
-          return new TrackNote(n, start, timePerNote)
+          return new TrackNote(n, start, duration)
         });
   
         return [
@@ -194,16 +196,14 @@ class ChordsMelodyBuilder {
           ? START_TIME
           : previousElement[previousElement.length - 1].end;
         const start = endOfPreviousElement + timeBetweenNotes;
-
         const chord = ChordModule.get(chordName);
 
         if (includeAllChordComponents) {
-          const duration = timePerNote / chord.notes.length;
           chordNotes = chord.notes.map((n: string, i) => {
             return new TrackNote(
               n,
-              start + duration * i,
-              duration,
+              start + timePerNote * i,
+              timePerNote,
             )
           });
         } else {

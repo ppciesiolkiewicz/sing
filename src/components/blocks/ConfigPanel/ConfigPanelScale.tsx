@@ -13,15 +13,22 @@ import ConfigPanelNoteBoundaries from './ConfigPanelNoteBoundaries';
 import ConfigPanelTimesCommon from './ConfigPanelTimesCommon';
 import ConfigPanelInstrument from './ConfigPanelInstrument';
 
-type FormValues = ScaleMelodyConfig;
+type FormValues = Omit<
+  ScaleMelodyConfig,
+  'timePerNote' |
+  'timeBetweenNotes' |
+  'timeBetweenRepeats' |
+  'lowestNoteName' |
+  'highestNoteName'
+> & {
+  tempo: number;
+  notesRange: [string, string];
+};
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),
-  timePerNote: Yup.number().required(),
-  timeBetweenNotes: Yup.number().required(),
-  timeBetweenRepeats: Yup.number().required(),
-  highestNoteName: Yup.string().required(),
-  lowestNoteName: Yup.string().required(),
+  tempo: Yup.number().required(),
+  notesRange: Yup.array().min(2).max(2).required(),
   keyTonic: Yup.string().required(),
   keyType: Yup.string().required(),
   instrument: Yup.string().required(),
@@ -36,11 +43,8 @@ function ConfigPanelScale({
 }) {
   const initialValues: FormValues = {
     repeatTimes: 3,
-    timePerNote: 1,
-    timeBetweenNotes: 0.1,
-    timeBetweenRepeats: 1,
-    highestNoteName: 'C4',
-    lowestNoteName: 'C3',
+    tempo: 60,
+    notesRange: ['C3', 'C4'],
     keyTonic: 'C',
     keyType: 'major',
     instrument: INSTRUMENT_PIANO1,
@@ -52,7 +56,15 @@ function ConfigPanelScale({
       { setSubmitting }: FormikHelpers<FormValues>
     ) => {
       console.log('values', values);
-      const builder = new MelodyBuilder({ config: values, configType: CONFIG_TYPE_SCALE });
+      const config = {
+        ...values,
+        timePerNote: 1 * 60 / values.tempo,
+        timeBetweenNotes: 0 * 60 / values.tempo,
+        timeBetweenRepeats: 3 * 60 / values.tempo,
+        lowestNoteName: values.notesRange[0],
+        highestNoteName: values.notesRange[1],
+      }
+      const builder = new MelodyBuilder({ config: config, configType: CONFIG_TYPE_SCALE });
       const melody = builder.build();
       onStartClick(melody);
     },

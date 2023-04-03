@@ -14,22 +14,27 @@ import ConfigPanelInstrument from './ConfigPanelInstrument';
 import { INSTRUMENT_PIANO1, CONFIG_TYPE_CHORDS } from '@/constants';
 
 
-type FormValues =
-  Omit<ChordsMelodyConfigType, 'chordNames'> &
-  {
-    chordNames: {
-      label: string;
-      value: string;
-      key: string;
-    }[];
-    instrument: string;
-  };
+type FormValues = Omit<
+  ChordsMelodyConfigType,
+  'chordNames' | 
+  'intervalNames' |
+  'timePerNote' |
+  'timeBetweenNotes' |
+  'timeBetweenRepeats'
+> & {
+  tempo: number;
+  chordNames: {
+    label: string;
+    value: string;
+    key: string;
+  }[];
+};  
+
+
 
 const FormValidationSchema = Yup.object().shape({
   repeatTimes: Yup.number().required(),
-  timePerNote: Yup.number().required(),
-  timeBetweenNotes: Yup.number().required(),
-  timeBetweenRepeats: Yup.number().required(),
+  tempo: Yup.number().required(),
   chordNames: Yup.array().min(1, 'Select at least 1 chord'),
   includeAllChordComponents: Yup.boolean().required(),
   instrument: Yup.string().required(),
@@ -53,10 +58,8 @@ function ConfigPanelChords({
       {value: 'C3maj', label: 'C3maj', key: 'C3maj-0'},
       {value: 'G3maj', label: 'G3maj', key: 'G3maj-0'},
     ],
+    tempo: 60,
     repeatTimes: 3,
-    timePerNote: 3,
-    timeBetweenNotes: 0.2,
-    timeBetweenRepeats: 2,
     includeAllChordComponents: true,
     instrument: INSTRUMENT_PIANO1
   };
@@ -69,6 +72,9 @@ function ConfigPanelChords({
       console.log('values', values);
       const config = {
         ...values,
+        timePerNote: 1 * 60 / values.tempo,
+        timeBetweenNotes: 0 * 60 / values.tempo,
+        timeBetweenRepeats: 3 * 60 / values.tempo,
         chordNames: values.chordNames.map(({ value }) => value),
       };
       const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_CHORDS });
@@ -95,7 +101,6 @@ function ConfigPanelChords({
             />
           </Grid>
           {/* <ConfigPanelNoteBoundaries />  TODO: not included in the FormValues */}
-          <ConfigPanelTimesCommon />
           <Grid item xs={12}>
             <Field
               name={'includeAllChordComponents'}
@@ -103,20 +108,21 @@ function ConfigPanelChords({
             >
               {props => (
                 <FormControlLabel
-                control={(
-                  <Switch
-                    id={props.field.id}
-                    name={props.field.name}
-                    onChange={props.form.handleChange}
-                    value={props.field.value}
-                  />
-                  )}
-                  labelPlacement="start"
-                  label={props.field.value ? "All chord notes" : "Root note only"}
+                  control={(
+                    <Switch
+                      id={props.field.id}
+                      name={props.field.name}
+                      onChange={props.form.handleChange}
+                      value={props.field.value}
+                    />
+                    )}
+                    labelPlacement="top"
+                    label={props.field.value ? "Sing chord notes" : "Sing root note only"}
                 />
               )}
             </Field>
           </Grid>
+          <ConfigPanelTimesCommon />
           <ConfigPanelInstrument />
           {children}
         </Grid>
