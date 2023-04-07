@@ -25,6 +25,7 @@ type FormValues = Omit<
   intervalNames: {
     label: string;
     value: string;
+    key: string;
   }[];
 };
 
@@ -55,7 +56,11 @@ function ConfigPanelInterval({
     tempo: 60,
     repeatTimes: 3,
     notesRange: ['C3', 'C4'],
-    intervalNames: [],
+    intervalNames: [
+      {value: '1P', label: '1P', key: '1P-0'},
+      {value: '5P', label: '5P', key: '5P-1'},
+      {value: '1P', label: '1P', key: '1P-2'},
+    ],
     instrument: INSTRUMENT_PIANO1,
   };
 
