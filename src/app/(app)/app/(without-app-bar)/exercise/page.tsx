@@ -49,6 +49,9 @@ export default function ExercisePage() {
           melody={melody}
           started={started}
           setStarted={setStarted}
+          onStopped={() => {
+            // TODO: show modal
+          }}
         />
       </Box>
       <Modal

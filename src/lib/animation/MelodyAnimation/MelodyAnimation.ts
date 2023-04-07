@@ -67,8 +67,8 @@ class MelodyAnimation {
   pitchDetector: PitchDetector = new PitchDetector();
   config: MelodyAnimationConfig;
   timeline: Timeline;
-  // TODO: onFinished?
-  onStopped: (score: MelodySingNoteScore[]) => void;
+  onStopped: () => void;
+  onFinished: (score: MelodySingNoteScore[]) => void;
 
   private getFreqToCanvasPosition() {
     const notesForNoteLines = NoteModule.getNoteRange(
@@ -113,7 +113,8 @@ class MelodyAnimation {
   constructor(
     melody: Melody,
     canvas: HTMLCanvasElement,
-    onStopped: (score: MelodySingNoteScore[]) => void,
+    onStopped: () => void,
+    onFinished: (score: MelodySingNoteScore[]) => void,
     difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
   ) {
     console.log('MelodyAnimation.constructor', { melody })
@@ -125,6 +126,7 @@ class MelodyAnimation {
     }
     this.canvas = canvas; 
     this.onStopped = onStopped;
+    this.onFinished = onFinished;
     this.melody = cloneDeep(melody);
     paper.setup(canvas)
 
@@ -189,7 +191,8 @@ class MelodyAnimation {
       this.melodyLyricsAnimation.onAnimationFrame(ev);
 
       if (this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted()) {
-        this.stop();
+        this.timeline.stop()
+        this.onFinished(this.melodySingAnimationGroup.melodySingScore);
       }
     }
     this.timeline = new Timeline(onFrame)
@@ -214,7 +217,7 @@ class MelodyAnimation {
 
   stop() {
     this.timeline.stop()
-    this.onStopped(this.melodySingAnimationGroup.melodySingScore);
+    this.onStopped();
   }
 }
 

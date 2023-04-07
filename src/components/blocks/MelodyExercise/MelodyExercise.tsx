@@ -1,27 +1,58 @@
 
 import { useRef, useLayoutEffect, useState } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box } from '@mui/material';
 import { Melody } from '@/lib/Melody'
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
-import Modal from '@/components/atoms/Modal';
-import LinearProgressWithLabel from '@/components/atoms/LinearProgressWithLabel';
 import { useFetchUser } from '@/lib/fetch/hooks';
+import MelodyExerciseScore  from './MelodyExerciseScore';
 
 
 function MelodyExercise({
   melody,
   started,
   setStarted,
+  onStopped = () => {},
 }: {
   started: boolean,
   setStarted: (started: boolean) => void,
   melody: Melody | null,
+  onStopped: () => void,
 }) {
   const userQuery = useFetchUser();
-  const [score, setScore] = useState<{ [noteName: string]: number } | null>();
+  const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasParentRef = useRef<any>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
+
+  const onFinished = (score) => {
+    setStarted(false);
+
+    const notesCount = score.reduce((acc, s) => {
+      if (typeof acc[s.noteName] === 'number') {
+        acc[s.noteName] += 1;
+      } else {
+        acc[s.noteName] = 1;
+      }
+      return acc;
+    }, {});
+
+    let processedScore = score.reduce((acc, s) => {
+      // TODO: not correct should be totalFramesHit / totalFrames
+      if (typeof acc[s.noteName] === 'number') {
+        acc[s.noteName] += s.percentHit;
+      } else {
+        acc[s.noteName] = s.percentHit;
+      }
+      return acc;
+    }, {});
+
+    processedScore = Object.keys(processedScore).reduce((acc, noteName) => {
+      acc[noteName] = processedScore[noteName] / notesCount[noteName] * 100;
+      return acc;
+    }, {})
+
+    setScore(processedScore);
+  };
 
   useLayoutEffect(function render() {
     if (!canvasRef.current) {
@@ -43,38 +74,8 @@ function MelodyExercise({
     animationRef.current = new MelodyAnimation(
       melody!,
       canvasRef.current,
-      (score) => {
-        setStarted(false);
-
-        const notesCount = score.reduce((acc, s) => {
-          if (typeof acc[s.noteName] === 'number') {
-            acc[s.noteName] += 1;
-          } else {
-            acc[s.noteName] = 1;
-          }
-          return acc;
-        }, {});
-
-        let processedScore = score.reduce((acc, s) => {
-          // TODO: not correct should be totalFramesHit / totalFrames
-          if (typeof acc[s.noteName] === 'number') {
-            acc[s.noteName] += s.percentHit;
-          } else {
-            acc[s.noteName] = s.percentHit;
-          }
-          return acc;
-        }, {});
-
-        console.log({ processedScore })
-
-        processedScore = Object.keys(processedScore).reduce((acc, noteName) => {
-          acc[noteName] = processedScore[noteName] / notesCount[noteName] * 100;
-          return acc;
-        }, {})
-        console.log({ processedScore })
-
-        setScore(processedScore);
-      },
+      onStopped,
+      onFinished,
       userQuery.data.difficultyLevel,
     );
     animationRef.current.start();
@@ -93,37 +94,17 @@ function MelodyExercise({
           <canvas id="canvas" ref={canvasRef} />
         </Box>
       </Box>
-      <Modal
-        title={'Congratulations! Here is your score'}
-        open={Boolean(score)}
-        onClose={() => setScore(null)}
-        fullWidth
-        maxWidth={'sm'}
-        slots={{
-          actions: (
-            <Button
-              variant={'contained'}
-              color={'primary'}
-              onClick={() => {
-                setStarted(true);
-                setScore(null);
-              }}>
-              Restart
-            </Button>
-          )
+      <MelodyExerciseScore
+        score={score}
+        isOpened={Boolean(score)}
+        onClose={() => {
+          setScore(null);
         }}
-      >
-        <Box>
-          {score && Object.keys(score)?.map(noteName => (
-            <Box key={noteName} display={'flex'} width={'100%'}>
-              <Typography variant={'overline'} mr={1}>
-                {noteName}
-              </Typography>
-              <LinearProgressWithLabel sx={{ flex: 1 }} color={"success"} value={score[noteName]} />
-            </Box>
-          ))}
-        </Box>
-      </Modal>
+        onRestartClicked={() => {
+          setScore(null);
+          setStarted(true);
+        }}
+      />
     </>
   );
 }

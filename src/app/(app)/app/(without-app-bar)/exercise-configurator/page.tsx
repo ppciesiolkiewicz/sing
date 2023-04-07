@@ -17,6 +17,9 @@ export default function ExerciseConfigurator() {
           started={started}
           setStarted={setStarted}
           melody={melody}
+          onStopped={() => {
+            // TODO: open drawer
+          }}
         />
       </Box>
       <ConfigPanelDrawer

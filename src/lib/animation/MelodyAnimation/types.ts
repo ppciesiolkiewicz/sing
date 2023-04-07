@@ -8,6 +8,9 @@ export interface MelodySingNoteScore {
   percentHit: number;
 };
 
+// TODO: use instead of MelodySingNoteScore[]
+export type MelodyAnimationScore = MelodySingNoteScore[];
+
 export interface MelodyAnimationConfig {
   melodySingPixelsPerSecond: number;
   melodyNoteSelectedMaxFreqCentsDiff: number;
