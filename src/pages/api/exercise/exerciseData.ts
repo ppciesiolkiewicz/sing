@@ -4,8 +4,60 @@ import {
   CONFIG_TYPE_CHORDS,
   CONFIG_TYPE_NOTES,
 } from '@/constants';
-import { NoteModule, ScaleModule, IntervalModule } from '@/lib/music';
+import { NoteModule, ScaleModule, IntervalModule, ChordModule } from '@/lib/music';
 import { INSTRUMENT_PIANO1 } from '@/constants';
+import { TrackNote, TrackLyrics } from '@/lib/Melody'
+
+export const getSongExercises = () => {
+  return [
+    {
+      id: `elvis-presley-cant-help-falling-in-love`,
+      title: `Can't help falling in love`,
+      description: `Try singing Elvis Presley classic tune`,
+      configType: CONFIG_TYPE_NOTES,
+      config: {
+        singTrack: [
+          ['D2', 0, 3],
+          ['A2', 3, 3],
+          ['D2', 6, 5],
+          ['E2', 11, 0.5],
+          ['F#2', 11.5, 0.5],
+          ['G2', 12, 3],
+          ['F#2', 15, 3],
+          ['E2', 18, 3],
+        ],
+        backingTrack: [
+          // ['D2', 0, 3],
+          // ['A2', 3, 3],
+          // ['D2', 6, 5],
+          // ['E2', 11, 1],
+          // ['F#2', 12, 1],
+          // ['G2', 13, 3],
+          // ['F#2', 16, 3],
+          // ['E2', 19, 3],
+          ChordModule.get('D', { octave: 2 }).notes.map(n => [n, 0, 3]),
+          ChordModule.get('F#m', { octave: 2 }).notes.map(n => [n, 3, 3]),
+          ChordModule.get('Bm', { octave: 2 }).notes.map(n => [n, 6, 3]),
+          ChordModule.get('Bm', { octave: 2 }).notes.map(n => [n, 9, 3]),
+          ChordModule.get('G', { octave: 2 }).notes.map(n => [n, 12, 3]),
+          ChordModule.get('D', { octave: 2 }).notes.map(n => [n, 15, 3]),
+          ChordModule.get('A', { octave: 2 }).notes.map(n => [n, 18, 3]),
+        ].flat(),
+        listenTrack: [],
+        lyricsTrack: [
+          ['Wise', 0, 3],
+          ['man', 3, 3],
+          ['say', 6, 5],
+          ['Only', 11, 1],
+          ['fools', 12, 3],
+          ['rush', 15, 3],
+          ['in', 18, 3],
+        ],
+        instrument: INSTRUMENT_PIANO1,
+      }
+    }
+  ];
+}
 
 export const getScaleExercises = (lowestNoteName: string, highestNoteName: string) => {
   const RANGE_IDX_TO_DESCRIPTION = {

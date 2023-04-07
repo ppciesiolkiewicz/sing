@@ -69,11 +69,12 @@ export interface ScaleMelodyConfig extends InstrumentMelodyConfig, CommonMelodyC
   highestNoteName: string,
 }
 
+
 export interface NotesMelodyConfig {
-  singTrack: TrackNote[];
-  backingTrack: TrackNote[];
-  listenTrack: TrackNote[];
-  lyricsTrack: TrackLyrics[];
+  singTrack: [string, number, number][];
+  backingTrack: [string, number, number][];
+  listenTrack: [string, number, number][];
+  lyricsTrack: [string, number, number][];
   instrument: InstrumentType;
 }
 
@@ -305,10 +306,18 @@ export default class MelodyBuilder {
       return this.fromScale();
     } else if (this.configType === CONFIG_TYPE_NOTES) {
       const instrumentConfig = this.buildInstrument()
+      const config = this.config as NotesMelodyConfig;
+      const singTrack = config.singTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
+      const backingTrack = config.backingTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
+      const listenTrack = config.listenTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
+      const lyricsTrack = config.lyricsTrack.map(e => new TrackLyrics(e[0], START_TIME + e[1], e[2]));
 
       return new Melody({
-        ...this.config as NotesMelodyConfig,
-        instrumentConfig
+        singTrack,
+        backingTrack,
+        listenTrack,
+        lyricsTrack,
+        instrumentConfig,
       });
     }
 

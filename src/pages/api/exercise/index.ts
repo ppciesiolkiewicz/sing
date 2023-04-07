@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { MiddlewareBuilder, ServerError } from '@/lib-api/utils';
-import { getScaleExercises, getIntervalExercises } from './exerciseData';
+import { getScaleExercises, getIntervalExercises, getSongExercises } from './exerciseData';
 
 
 type Data = any;
@@ -14,6 +14,7 @@ function handler(
     const exercises = [
       ...getScaleExercises(req.user.lowNote, req.user.highNote),
       ...getIntervalExercises(req.user.lowNote, req.user.highNote),
+      ...getSongExercises(),
     ];
     return res.status(200).json(exercises)
   }

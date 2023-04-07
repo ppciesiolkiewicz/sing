@@ -81,7 +81,9 @@ export const NoteModule = {
 };
 
 export const ChordModule = {
-    get: (chordName: string): ChordType => {
+    get: (chordName: string, options?: { octave: number }): ChordType => {
+      const octave = options?.octave;
+
       try {
           const chord = TonalChord.get(chordName);
           const { type, tonic, symbol } = chord;
@@ -89,6 +91,9 @@ export const ChordModule = {
 
           return {
               ...chord,
+              notes: octave
+                ? chord.intervals.map(interval => NoteModule.transpose(`${chord.notes[0]}${octave}`, interval))
+                : chord.notes,
               suffix,
           };
       } catch (e) {

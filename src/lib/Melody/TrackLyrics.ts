@@ -2,15 +2,15 @@
 export default class TrackLyrics {
   text: string;
   start: Second;
-  end: Second;
+  duration: Second;
 
-  constructor(text: string, noteValue: Second, startBeat: Second) {
+  constructor(text: string, start: Second, duration: Second) {
     this.text = text;
-    this.start = noteValue;
-    this.end = startBeat;
+    this.start = start;
+    this.duration = duration;
   }
 
-  get duration(): Second {
-    return this.end - this.start;
+  get end(): Second {
+    return this.start + this.duration;
   }
 }
