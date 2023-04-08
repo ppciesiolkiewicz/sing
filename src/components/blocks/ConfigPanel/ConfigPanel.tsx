@@ -43,29 +43,29 @@ function ConfigPanelNotes() {
 
 function ConfigPanelForm({
   configType,
-  onStartClick,
+  onStartClicked,
   children,
 }: {
   configType: string,
-  onStartClick: (melody: Melody) => void,
+  onStartClicked: (melody: Melody) => void,
   children: JSX.Element,
 }) {
   switch(configType) {
     case CONFIG_TYPE_INTERVAL:
       return (
-        <ConfigPanelInterval onStartClick={onStartClick}>
+        <ConfigPanelInterval onStartClicked={onStartClicked}>
           {children}
         </ConfigPanelInterval>
       );
     case CONFIG_TYPE_SCALE:
       return (
-        <ConfigPanelScale onStartClick={onStartClick}>
+        <ConfigPanelScale onStartClicked={onStartClicked}>
           {children}
         </ConfigPanelScale>
       );
     case CONFIG_TYPE_CHORDS:
       return (
-        <ConfigPanelChords onStartClick={onStartClick}>
+        <ConfigPanelChords onStartClicked={onStartClicked}>
           {children}
         </ConfigPanelChords>
       );
@@ -81,11 +81,13 @@ function ConfigPanelForm({
 }
 
 function ConfigPanel({
-  onStartClick,
-  started,
+  onStartClicked,
+  onResumeClicked,
+  isAnimationPaused,
 }: {
-  onStartClick: (melody: Melody) => void,
-  started: boolean,
+  onStartClicked: (melody: Melody) => void,
+  onResumeClicked: () => void,
+  isAnimationPaused: boolean,
 }) {
   const [configType, setConfigType] = useState(CONFIG_TYPE_SCALE);
 
@@ -105,38 +107,56 @@ function ConfigPanel({
       </Grid>
       <ConfigPanelForm
         configType={configType}
-        onStartClick={onStartClick}
+        onStartClicked={onStartClicked}
       >
-        <Grid item xs={12}>
-          <Button
-            fullWidth
-            variant={'contained'}
-            color={'primary'}
-            type={'submit'}
-            >
-            {started ? 'Stop' : 'Start'}
-          </Button>
-        </Grid>
+        <>
+          <Grid item xs={12}>
+            <Button
+              fullWidth
+              variant={'contained'}
+              color={'primary'}
+              type={'submit'}
+              >
+              {isAnimationPaused ? 'Restart' : 'Start'}
+            </Button>
+          </Grid>
+          {isAnimationPaused && (
+            <Grid item xs={12}>
+              <Button
+                fullWidth
+                variant={'contained'}
+                color={'secondary'}
+                onClick={onResumeClicked}
+              >
+                Resume
+              </Button>
+          </Grid>
+          )}
+        </>
       </ConfigPanelForm>
     </Box>
   );
 }
 
-// TODO: extract isOpened
-function ConfigPanelDrawer({ started, onStartClick }: Parameters<typeof ConfigPanel>[0]) {
-  const [isOpened, setIsOpened] = useState(true);
-
-  // const toggleDrawer = (event: React.KeyboardEvent | React.MouseEvent) => {
-  const toggleDrawer = () => {
-    setIsOpened(!isOpened);
-  };
-
+function ConfigPanelDrawer({
+  onStartClicked,
+  onResumeClicked,
+  isOpened,
+  onOpen,
+  onClose,
+  isAnimationPaused,
+}: Parameters<typeof ConfigPanel>[0] & {
+  isOpened: boolean,
+  onOpen: () => void,
+  onClose: () => void,
+  isAnimationPaused: boolean,
+}) {
   return (
     <Fragment>
       <Fab
         color="secondary"
         aria-label="settings"
-        onClick={toggleDrawer}
+        onClick={onOpen}
         sx={{ position: 'absolute', right: '10px', bottom: '10px' }}
       >
         <EditIcon />
@@ -144,16 +164,17 @@ function ConfigPanelDrawer({ started, onStartClick }: Parameters<typeof ConfigPa
       <SwipeableDrawer
         anchor={'right'}
         open={isOpened}
-        onClose={toggleDrawer}
-        onOpen={toggleDrawer}
+        onClose={onClose}
+        onOpen={onOpen}
       >
         <Box sx={{ width: '50vw' }}>
           <ConfigPanel
-            started={started}
-            onStartClick={(melody) => {
-              toggleDrawer();
-              onStartClick(melody);
+            onStartClicked={(melody) => {
+              onClose();
+              onStartClicked(melody);
             }}
+            onResumeClicked={onResumeClicked}
+            isAnimationPaused={isAnimationPaused}
           />
         </Box>
       </SwipeableDrawer>

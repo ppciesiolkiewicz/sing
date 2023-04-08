@@ -1,1 +1,1 @@
-export { default } from './MelodyExercise';
+export { default, useMelodyExerciseStateManagement } from './MelodyExercise';

@@ -3,32 +3,52 @@ import { useState } from 'react';
 import { Box } from '@mui/material';
 import { Melody } from '@/lib/Melody';
 import { ConfigPanelDrawer } from '@/components/blocks/ConfigPanel';
-import MelodyExercise from '@/components/blocks/MelodyExercise';
+import MelodyExercise, { useMelodyExerciseStateManagement } from '@/components/blocks/MelodyExercise';
 
 
 export default function ExerciseConfigurator() {
-  const [started, setStarted] = useState(false);
   const [melody, setMelody] = useState<Melody | null>(null);
+  const [isDrawerOpened, setIsDrawerOpened] = useState(true);
+  const stateManagement = useMelodyExerciseStateManagement();
+
+  const openDrawer = () => {
+    setIsDrawerOpened(true);
+    stateManagement.pause();
+  };
+
+  const closeDrawer = () => {
+    setIsDrawerOpened(false);
+    stateManagement.start();
+  };
+
 
   return (
     <>
       <Box width={'100%'} height={'100%'}>
         <MelodyExercise
-          started={started}
-          setStarted={setStarted}
           melody={melody}
           onStopped={() => {
-            // TODO: open drawer
+            openDrawer();
+          }}
+          onPaused={() => {
+            openDrawer();
           }}
           tempoOverwrite={melody?.tempo}
+          stateManagement={stateManagement}
         />
       </Box>
       <ConfigPanelDrawer
-        started={started}
-        onStartClick={(melody: Melody) => {
-          console.log(melody)
+        isAnimationPaused={stateManagement.isPaused()}
+        isOpened={isDrawerOpened}
+        onOpen={openDrawer}
+        onClose={closeDrawer}
+        onStartClicked={(melody: Melody) => {
           setMelody(melody)
-          setStarted(!started)
+          stateManagement.restart();
+        }}
+        onResumeClicked={() => {
+          stateManagement.start()
+          closeDrawer();
         }}
       />
     </>

@@ -35,10 +35,10 @@ const FormValidationSchema = Yup.object().shape({
 });
 
 function ConfigPanelScale({
-  onStartClick,
+  onStartClicked,
   children,
 }: {
-  onStartClick: (melody: Melody) => void,
+  onStartClicked: (melody: Melody) => void,
   children: JSX.Element,
 }) {
   const initialValues: FormValues = {
@@ -66,9 +66,9 @@ function ConfigPanelScale({
       }
       const builder = new MelodyBuilder({ config: config, configType: CONFIG_TYPE_SCALE });
       const melody = builder.build();
-      onStartClick(melody);
+      onStartClicked(melody);
     },
-    [onStartClick]
+    [onStartClicked]
   );
 
   return (

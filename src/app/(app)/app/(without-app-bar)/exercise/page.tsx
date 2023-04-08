@@ -5,30 +5,31 @@ import { Formik, Form, FormikHelpers } from 'formik';
 import { Box, Button, Fab, SwipeableDrawer } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import { Melody, MelodyBuilder } from '@/lib/Melody';
-import MelodyExercise from '@/components/blocks/MelodyExercise';
+import MelodyExercise, { useMelodyExerciseStateManagement } from '@/components/blocks/MelodyExercise';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
 import { useFetchExercise } from '@/lib/fetch/hooks';
 import Modal from '@/components/atoms/Modal';
 import { TempoSliderField } from '@/components/blocks/MusicFields';
+import Loader from '@/components/atoms/Loader';
 
 export default function ExercisePage() {
   const params = useSearchParams()
   const id = params?.get('id') as string;
   const exerciseQuery = useFetchExercise({ id });
   const [melody, setMelody] = useState<null | Melody>(null);
-  const [started, setStarted] = useState(false);
-  const [firstStarted, setFirstStarted] = useState(false);
+  const [isStartModalOpened, setIsStartModalOpened] = useState(false);
   const [isSettingsDrawerOpened, setIsSettingsDrawerOpened] = useState(false);
   const [settings, setSettings] = useState({
     tempo: 60,
   });
+  const stateManagement = useMelodyExerciseStateManagement();
 
   const toggleDrawer = () => {
     const newValue = !isSettingsDrawerOpened;
     if (newValue) {
-      setStarted(false);
+      stateManagement.pause();
     } else {
-      setStarted(true);
+      stateManagement.start();
     }
     setIsSettingsDrawerOpened(newValue);
   }
@@ -59,7 +60,7 @@ export default function ExercisePage() {
   }
 
   if (!melody) {
-    return <Box>Loading...</Box>
+    return <Loader />
   }
   
   return (
@@ -67,12 +68,14 @@ export default function ExercisePage() {
       <Box width={'100%'} height={'100%'}>
         <MelodyExercise
           melody={melody}
-          started={started}
-          setStarted={setStarted}
           onStopped={() => {
-            // toggleDrawer(); TODO:
+            setIsSettingsDrawerOpened(true);
+          }}
+          onPaused={() => {
+            setIsSettingsDrawerOpened(true);
           }}
           tempoOverwrite={settings.tempo}
+          stateManagement={stateManagement}
         />
       </Box>
       <SwipeableDrawer
@@ -122,14 +125,14 @@ export default function ExercisePage() {
       </Fab>
       <Modal
         title={"Let's start"}
-        open={!firstStarted}
+        open={!isStartModalOpened}
         fullWidth
         maxWidth={'sm'}
       >
         <Box display={'flex'} justifyContent={'center'}>
           <Button color={'primary'} variant={'contained'} onClick={() => {
-            setStarted(true);
-            setFirstStarted(true);
+            stateManagement.restart();
+            setIsStartModalOpened(true);
           }}>
             Start
           </Button>

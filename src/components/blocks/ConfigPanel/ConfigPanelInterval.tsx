@@ -40,10 +40,10 @@ const FormValidationSchema = Yup.object().shape({
 
 
 function ConfigPanelInterval({
-  onStartClick,
+  onStartClicked,
   children,
 }: {
-  onStartClick: (melody: Melody) => void,
+  onStartClicked: (melody: Melody) => void,
   children: JSX.Element,
 }) {
   const intervals = IntervalModule.names();
@@ -81,9 +81,9 @@ function ConfigPanelInterval({
       };
       const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_INTERVAL });
       const melody = builder.build();
-      onStartClick(melody);
+      onStartClicked(melody);
     },
-    [onStartClick]
+    [onStartClicked]
   );
 
   return (

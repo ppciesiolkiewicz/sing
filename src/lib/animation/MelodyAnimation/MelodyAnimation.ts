@@ -69,6 +69,7 @@ class MelodyAnimation {
   timeline: Timeline;
   tempo: number;
   onStopped: () => void;
+  onPaused: () => void;
   onFinished: (score: MelodySingNoteScore[]) => void;
 
   private getFreqToCanvasPosition() {
@@ -115,6 +116,7 @@ class MelodyAnimation {
     melody: Melody,
     canvas: HTMLCanvasElement,
     onStopped: () => void,
+    onPaused: () => void,
     onFinished: (score: MelodySingNoteScore[]) => void,
     difficultyLevel: DifficultyLevel = DIFFICULTY_LEVEL_EASY,
   ) {
@@ -128,6 +130,7 @@ class MelodyAnimation {
     this.canvas = canvas; 
     this.onStopped = onStopped;
     this.onFinished = onFinished;
+    this.onPaused = onPaused;
     this.melody = cloneDeep(melody);
     this.tempo = melody.tempo;
     paper.setup(canvas)
@@ -209,8 +212,7 @@ class MelodyAnimation {
       return;
     }
 
-    window.onfocus = () => this.timeline.start();
-    window.onblur = () =>  this.timeline.pause()
+    window.onblur = () =>  this?.pause()
 
     const startAnimation = () => {
       if (!this.pitchDetector.initialized) {
@@ -227,11 +229,17 @@ class MelodyAnimation {
 
   pause() {
     this.timeline.pause()
+    this.onPaused();
   }
 
   stop() {
     this.timeline.stop()
     this.onStopped();
+  }
+
+  restart() {
+    this.timeline.stop()
+    this.start();
   }
 
   setTempo(tempo: number) {

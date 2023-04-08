@@ -41,10 +41,10 @@ const FormValidationSchema = Yup.object().shape({
 });
 
 function ConfigPanelChords({
-  onStartClick,
+  onStartClicked,
   children,
 }: {
-  onStartClick: (melody: Melody) => void,
+  onStartClicked: (melody: Melody) => void,
   children: JSX.Element,
 }) {
   const chords = ChordModule.getAllRelevantChords('C3', 'C5');
@@ -79,9 +79,9 @@ function ConfigPanelChords({
       };
       const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_CHORDS });
       const melody = builder.build();
-      onStartClick(melody);
+      onStartClicked(melody);
     },
-    [onStartClick]
+    [onStartClicked]
   );
 
   return (

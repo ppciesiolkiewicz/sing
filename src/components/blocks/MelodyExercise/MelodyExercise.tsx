@@ -6,19 +6,73 @@ import MelodyAnimation from '@/lib/animation/MelodyAnimation';
 import { useFetchUser } from '@/lib/fetch/hooks';
 import MelodyExerciseScore  from './MelodyExerciseScore';
 
+const animationState = {
+  STARTED: 'STARTED',
+  RESTARTED: 'RESTARTED',
+  STOPPED: 'STOPPED',
+  PAUSED: 'PAUSED',
+};
+
+
+interface useMelodyExerciseStateManagementReturnValue {
+  state: typeof animationState.STARTED |
+    typeof animationState.RESTARTED |
+    typeof animationState.STOPPED |
+    typeof animationState.PAUSED;
+  start: () => void;
+  stop: () => void;
+  pause: () => void;
+  restart: () => void;
+  isStarted: () => boolean;
+  isRestarted: () => boolean;
+  isPaused: () => boolean;
+  isStopped: () => boolean;
+}
+
+function useMelodyExerciseStateManagement() {
+  const [state, setState] = useState(animationState.STOPPED);
+
+  return {
+    state,
+    start() {
+      setState(animationState.STARTED);
+    },
+    stop() {
+      setState(animationState.STOPPED);
+    },
+    pause() {
+      setState( animationState.PAUSED);
+    },
+    restart() {
+      setState(animationState.RESTARTED);
+    },
+    isStarted() {
+      return this.state === animationState.STARTED || this.state === animationState.RESTARTED;
+    },
+    isRestarted() {
+      return this.state === animationState.RESTARTED;
+    },
+    isPaused() {
+      return this.state === animationState.PAUSED;
+    },
+    isStopped() {
+      return this.state === animationState.STOPPED;
+    },
+  };
+}
 
 function MelodyExercise({
   melody,
-  started,
-  setStarted,
+  stateManagement,
   onStopped = () => {},
+  onPaused = () => {},
   tempoOverwrite,
 }: {
-  started: boolean,
-  setStarted: (started: boolean) => void,
   melody: Melody | null,
   onStopped: () => void,
+  onPaused: () => void,
   tempoOverwrite?: number,
+  stateManagement: useMelodyExerciseStateManagementReturnValue,
 }) {
   const userQuery = useFetchUser();
   const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
@@ -34,7 +88,7 @@ function MelodyExercise({
   }, [tempoOverwrite])
 
   const onFinished = (score) => {
-    setStarted(false);
+    stateManagement.start()
 
     const notesCount = score.reduce((acc, s) => {
       if (typeof acc[s.noteName] === 'number') {
@@ -68,14 +122,18 @@ function MelodyExercise({
       return;
     }
 
-    if (!started) {
+    if (stateManagement.isPaused()) {
       animationRef.current?.pause();
       return;
-    } else if (animationRef.current && !animationRef.current?.isCompleted()) {
+    } else if (stateManagement.isStopped()) {
+      animationRef.current?.stop();
+      return;  
+    } else if (stateManagement.isStarted() && !stateManagement.isRestarted()) {
       animationRef.current?.start();
       return;
     }
 
+    // initial start and restart
     canvasRef.current.width = canvasParentRef.current.clientWidth;
     canvasRef.current.height =  canvasParentRef.current.clientHeight;
     canvasRef.current.style.width = canvasParentRef.current.clientWidth;
@@ -85,11 +143,12 @@ function MelodyExercise({
       melody!,
       canvasRef.current,
       onStopped,
+      onPaused,
       onFinished,
       userQuery.data.difficultyLevel,
     );
     animationRef.current.start();
-  }, [started, melody]);
+  }, [stateManagement.state, melody]);
 
   return (
     <>
@@ -112,7 +171,7 @@ function MelodyExercise({
         }}
         onRestartClicked={() => {
           setScore(null);
-          setStarted(true);
+          stateManagement.start();
         }}
       />
     </>
@@ -120,3 +179,4 @@ function MelodyExercise({
 }
 
 export default MelodyExercise;
+export { useMelodyExerciseStateManagement };
