@@ -265,6 +265,19 @@ export const IntervalModule = {
   }
 }
 
+export const MeasureModule = {
+  timeToBeat2(time: Second, tempo: number) {
+    const secondsPerBeat = tempo / 60;
+    const beatNo = time * secondsPerBeat;
+    return Math.floor(beatNo % 4);
+  },
+  timeToBeat(time: Second, tempo: number) {
+    const beatsPerSecond = tempo / 60;
+    const beatNo = time * beatsPerSecond;
+    return beatNo;
+  }
+}
+
 
 // https://kathleenkarlsen.com/chakra-sounds
 // https://handicraftsinnepal.com/singing-bowl-chakras/

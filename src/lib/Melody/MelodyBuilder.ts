@@ -1,21 +1,4 @@
-/*
-  TODO: 
-   - different background melodies
-    - play each note
-    - chords
-    - arpegio chords
-   - listen & repeat
-    - different configurations
-   - lyrics
-   - backing track as mp3
-
-  Output:
-    playTrack: Lyrics[]
-    singTrack: TrackNote[](type=NOTE_TYPE_PLAY)
-    melodyTrack: TrackNote[](type=NOTE_TYPE_SING | NOTE_TYPE_LISTEN)
-*/
 import type { ConfigType } from '@/constants';
-import type { InstrumentConfig } from './types';
 import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
 import {
   CONFIG_TYPE_INTERVAL,
@@ -47,6 +30,7 @@ interface CommonMelodyConfig {
   timePerNote: number,
   timeBetweenNotes: number,
   timeBetweenRepeats: number,
+  tempo: number;
 }
 
 
@@ -75,6 +59,7 @@ export interface NotesMelodyConfig {
   backingTrack: [string, number, number][];
   listenTrack: [string, number, number][];
   lyricsTrack: [string, number, number][];
+  tempo: number;
   instrument: InstrumentType;
 }
 
@@ -317,6 +302,7 @@ export default class MelodyBuilder {
         backingTrack,
         listenTrack,
         lyricsTrack,
+        tempo: config.tempo,
         instrumentConfig,
       });
     }
@@ -334,7 +320,8 @@ export default class MelodyBuilder {
       listenTrack: [],
       backingTrack,
       lyricsTrack: [],
-      instrumentConfig
+      tempo: this.config.tempo,
+      instrumentConfig,
     });
   }
 
@@ -353,7 +340,8 @@ export default class MelodyBuilder {
         // new TrackLyrics('test2', 6, 10),
         // new TrackLyrics('test3', 11, 20),
       ],
-      instrumentConfig
+      tempo: this.config.tempo,
+      instrumentConfig,
     });
   }
 
@@ -367,7 +355,8 @@ export default class MelodyBuilder {
       listenTrack: [],
       backingTrack,
       lyricsTrack: [],
-      instrumentConfig
+      tempo: this.config.tempo,
+      instrumentConfig,
     });
   }
 

@@ -1,7 +1,7 @@
 import type { ChordType } from '@/lib/music';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Box, Grid, Paper, Typography } from '@mui/material';
-import { ChordModule, ScaleModule, NoteModule } from '@/lib/music';
+import { ChordModule, ScaleModule, NoteModule, MeasureModule } from '@/lib/music';
 import { KEYBOARD_KEYS } from './constants';
 
 
@@ -77,11 +77,6 @@ function arpeggioAnimation({
     : chord.notes;
   let start: Second;
   let wasNotePlayedInBarArray = new Array(notes.length).fill(false);
-  const timeToBeat = (time: Second, tempo: number) => {
-    const secondsPerBeat = tempo / 60;
-    const beatNo = time * secondsPerBeat;
-    return Math.floor(beatNo % 4);
-  }
   const arpeggio = (chord: ChordType) => (timestamp: MilliSecond) => {
     if (start === undefined) {
       start = timestamp / 1000;
@@ -89,7 +84,7 @@ function arpeggioAnimation({
     timestamp = timestamp / 1000;
 
     const time: Second = timestamp - start;
-    const beatNo = timeToBeat(time, tempo);
+    const beatNo = MeasureModule.timeToBeat2(time, tempo);
     const noteIdx = beatNo % notes.length;
 
 

@@ -27,7 +27,7 @@ export default class BackingTrack {
       // TODO: don't modify the object - m.played 
       // ev.time <= m.start + 0.1 when animation is out of focus to not play all the past notes at the same time
       // @see time comment above
-      if (!m.played && ev.time >= m.start && ev.time <= m.start + 0.1) {
+      if (!m.played && ev.beat >= m.start && ev.beat <= m.start + 0.1) {
         this.soundGenerator.triggerAttackRelease(m.name, m.duration);
         m.played = true;
       }

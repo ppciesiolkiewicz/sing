@@ -72,9 +72,9 @@ function ConfigPanelChords({
       console.log('values', values);
       const config = {
         ...values,
-        timePerNote: 1 * 60 / values.tempo,
-        timeBetweenNotes: 0 * 60 / values.tempo,
-        timeBetweenRepeats: 3 * 60 / values.tempo,
+        timePerNote: 1,
+        timeBetweenNotes: 0,
+        timeBetweenRepeats: 3,
         chordNames: values.chordNames.map(({ value }) => value),
       };
       const builder = new MelodyBuilder({ config, configType: CONFIG_TYPE_CHORDS });

@@ -20,6 +20,7 @@ export default function ExerciseConfigurator() {
           onStopped={() => {
             // TODO: open drawer
           }}
+          tempoOverwrite={melody?.tempo}
         />
       </Box>
       <ConfigPanelDrawer

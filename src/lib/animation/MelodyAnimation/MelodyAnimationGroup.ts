@@ -21,6 +21,7 @@ type Props = {
 
 class MelodyAnimationGroup {
   group: Group;
+  groupInitialPosition: Point;
   paths: Path.Rectangle[];
   trackCompleted: boolean[];
   track: Props['track'];
@@ -63,18 +64,19 @@ class MelodyAnimationGroup {
     });
 
     this.group = new Group(this.paths);
+    this.groupInitialPosition = this.group.position;
   }
 
   onAnimationFrame(ev: AnimationFrameEvent, pitch: Hz) {
     const path = this.paths;
     const dest = new Point(
-      this.group.position.x - ev.delta * this.config.melodySingPixelsPerSecond,
+      this.groupInitialPosition.x - ev.beat * this.config.melodySingPixelsPerSecond,
       this.group.position.y,
-      );
+    );
     this.group.position = dest;
       
     this.track.forEach((trackNote, i) => {
-      if (!this.trackCompleted[i] && trackNote.end <= ev.time) {
+      if (!this.trackCompleted[i] && trackNote.end <= ev.beat) {
         this.trackCompleted[i] = true;
       }
     });

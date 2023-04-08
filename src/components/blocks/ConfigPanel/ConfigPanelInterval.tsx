@@ -72,9 +72,9 @@ function ConfigPanelInterval({
       console.log('values', values);
       const config = {
         ...values,
-        timePerNote: 1 * 60 / values.tempo,
-        timeBetweenNotes: 0 * 60 / values.tempo,
-        timeBetweenRepeats: 3 * 60 / values.tempo,
+        timePerNote: 1,
+        timeBetweenNotes: 0,
+        timeBetweenRepeats: 3,
         intervalNames: values.intervalNames.map(({ value }) => value),
         lowestNoteName: values.notesRange[0],
         highestNoteName: values.notesRange[1],

@@ -36,7 +36,7 @@ export default class MelodyLyricsAnimatonElement {
   }
 
   onAnimationFrame(ev: AnimationFrameEvent) {
-    const l = this.lyricsTrack.find(l => l.start < ev.time && l.end > ev.time);
+    const l = this.lyricsTrack.find(l => l.start < ev.beat && l.end > ev.beat);
 
     if (!l && this.currentLyricsLine) {
       this.path.remove();
@@ -82,11 +82,11 @@ export default class MelodyLyricsAnimatonElement {
       const duration = this.currentLyricsLine.duration;
 
       this.highlight.size = new Size(
-        this.highlight.size.width - ev.delta / duration * this.path.bounds.size.width,
+        this.highlight.size.width - ev.beatDelta / duration * this.path.bounds.size.width,
         this.highlight.size.height,
       );
       this.highlight.position = new Point(
-        this.highlight.position.x + ev.delta / duration / 2 * this.path.bounds.size.width,
+        this.highlight.position.x + ev.beatDelta / duration / 2 * this.path.bounds.size.width,
         this.highlight.position.y,
       );
     }

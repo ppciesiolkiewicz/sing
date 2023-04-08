@@ -1,5 +1,5 @@
 
-import { useRef, useLayoutEffect, useState } from 'react';
+import React, { useRef, useLayoutEffect, useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { Melody } from '@/lib/Melody'
 import MelodyAnimation from '@/lib/animation/MelodyAnimation';
@@ -12,17 +12,26 @@ function MelodyExercise({
   started,
   setStarted,
   onStopped = () => {},
+  tempoOverwrite,
 }: {
   started: boolean,
   setStarted: (started: boolean) => void,
   melody: Melody | null,
   onStopped: () => void,
+  tempoOverwrite?: number,
 }) {
   const userQuery = useFetchUser();
   const [score, setScore] = useState<{ [noteName: string]: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const canvasParentRef = useRef<any>(null);
   const animationRef = useRef<MelodyAnimation | null>(null);
+
+  useEffect(() => {
+    if (!tempoOverwrite) {
+      return;
+    }
+    animationRef.current?.setTempo(tempoOverwrite);
+  }, [tempoOverwrite])
 
   const onFinished = (score) => {
     setStarted(false);
@@ -54,15 +63,16 @@ function MelodyExercise({
     setScore(processedScore);
   };
 
-  useLayoutEffect(function render() {
+  useLayoutEffect(function startAnimation() {
     if (!canvasRef.current) {
       return;
     }
 
     if (!started) {
-      if (animationRef.current) {
-        animationRef.current.stop();
-      }
+      animationRef.current?.pause();
+      return;
+    } else if (animationRef.current && !animationRef.current?.isCompleted()) {
+      animationRef.current?.start();
       return;
     }
 

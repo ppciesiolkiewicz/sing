@@ -53,6 +53,7 @@ export const getSongExercises = () => {
           ['rush', 15, 3],
           ['in', 18, 3],
         ],
+        tempo: 85,
         instrument: INSTRUMENT_PIANO1,
       }
     }
@@ -91,6 +92,7 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
                 timePerNote: 1,
                 timeBetweenNotes: 0,
                 timeBetweenRepeats: 3,
+                tempo: 60,
                 instrument: INSTRUMENT_PIANO1,
               },
             })
@@ -101,7 +103,6 @@ export const getScaleExercises = (lowestNoteName: string, highestNoteName: strin
     return SCALE_EXERCISES;
 }
 
-// TODO: tempo slider instead slow/fast
 export const getIntervalExercises = (lowestNoteName: string, highestNoteName: string) => {
   const INTERVAL_ERXERCISES = [
     {
@@ -113,10 +114,9 @@ export const getIntervalExercises = (lowestNoteName: string, highestNoteName: st
       intervalNames: ['1P', '1P', intervalName, '1P'],
     })),
   ]
-    .map((e, i) => [
-      {
-        id: `intervals-${e.intervalNames.join('-')}-fast`,
-        title: `${e.title} - Fast`,
+    .map((e, i) => ({
+        id: `intervals-${e.intervalNames.join('-')}`,
+        title: `${e.title}`,
         description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
         configType: CONFIG_TYPE_INTERVAL,
         config: {
@@ -127,27 +127,11 @@ export const getIntervalExercises = (lowestNoteName: string, highestNoteName: st
           highestNoteName,
           lowestNoteName,
           intervalNames: e.intervalNames,
+          tempo: 60,
           instrument: INSTRUMENT_PIANO1,
         },
-      },
-      {
-        id: `intervals-${e.intervalNames.join('-')}-slow`,
-        title: `${e.title} - Slow`,
-        description: `Intervals: ${e.intervalNames.join('-')}. Exercise range ${lowestNoteName} — ${highestNoteName}`,
-        configType: CONFIG_TYPE_INTERVAL,
-        config: {
-          repeatTimes: 1,
-          timePerNote: 1,
-          timeBetweenNotes: 0,
-          timeBetweenRepeats: 10,
-          highestNoteName,
-          lowestNoteName,
-          intervalNames: e.intervalNames,
-          instrument: INSTRUMENT_PIANO1,
-        },
-      },
-    ])
-    .flat();
+      })
+    );
 
   return INTERVAL_ERXERCISES;
 };

@@ -67,6 +67,7 @@ class MelodyAnimation {
   pitchDetector: PitchDetector = new PitchDetector();
   config: MelodyAnimationConfig;
   timeline: Timeline;
+  tempo: number;
   onStopped: () => void;
   onFinished: (score: MelodySingNoteScore[]) => void;
 
@@ -128,6 +129,7 @@ class MelodyAnimation {
     this.onStopped = onStopped;
     this.onFinished = onFinished;
     this.melody = cloneDeep(melody);
+    this.tempo = melody.tempo;
     paper.setup(canvas)
 
     this.setupDevicePixelRatio();
@@ -181,24 +183,32 @@ class MelodyAnimation {
     middleLine.dashArray = [10, 12];
 
     const onFrame = async (ev: AnimationFrameEvent) => {
-      this.backingTrack.onAnimationFrame(ev)
-
       const currentPitch = this.pitchDetector.getPitch();
-
+      
+      this.backingTrack.onAnimationFrame(ev)
       this.pitchCircle.onAnimationFrame(ev, currentPitch)
       this.melodySingAnimationGroup.onAnimationFrame(ev, currentPitch);
       this.melodyListenAnimationGroup.onAnimationFrame(ev, currentPitch);
       this.melodyLyricsAnimation.onAnimationFrame(ev);
 
-      if (this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted()) {
+      if (this.isCompleted()) {
         this.timeline.stop()
         this.onFinished(this.melodySingAnimationGroup.melodySingScore);
       }
     }
-    this.timeline = new Timeline(onFrame)
+    this.timeline = new Timeline(onFrame, this.tempo);
+  }
+
+  isCompleted() {
+    return this.melodySingAnimationGroup.isCompleted() && this.melodyListenAnimationGroup.isCompleted();
   }
 
   start() {
+    if (this.timeline.paused) {
+      this.timeline.start();
+      return;
+    }
+
     window.onfocus = () => this.timeline.start();
     window.onblur = () =>  this.timeline.pause()
 
@@ -215,9 +225,18 @@ class MelodyAnimation {
     startAnimation();
   }
 
+  pause() {
+    this.timeline.pause()
+  }
+
   stop() {
     this.timeline.stop()
     this.onStopped();
+  }
+
+  setTempo(tempo: number) {
+    this.tempo = tempo;
+    this.timeline.setTempo(tempo);
   }
 }
 
