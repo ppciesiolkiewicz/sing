@@ -15,11 +15,6 @@ import Melody from './Melody';
 const START_TIME = 5;
 const BACKING_TRACK_SHIFT = 0.1
 
-const INTERVAL_MELODY_MODE_LISTEN_AND_REPEAT = 'INTERVAL_MELODY_MODE_LISTEN_AND_REPEAT';
-const INTERVAL_MELODY_MODE_NO_LISTEN_AND_REPEAT1 = 'INTERVAL_MELODY_MODE_NO_LISTEN_AND_REPEAT1';
-type IntervalMelodyMode = typeof INTERVAL_MELODY_MODE_LISTEN_AND_REPEAT |
-  typeof INTERVAL_MELODY_MODE_NO_LISTEN_AND_REPEAT1;
-
 
 interface InstrumentMelodyConfig {
   instrument: InstrumentType;
@@ -43,7 +38,6 @@ export interface IntervalsMelodyConfig extends InstrumentMelodyConfig, CommonMel
   intervalNames: string[],
   lowestNoteName: string,
   highestNoteName: string,
-  // mode: IntervalMelodyMode, TODO:
 }
 
 export interface ScaleMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
