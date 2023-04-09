@@ -171,10 +171,7 @@ class MelodyAnimation {
       theme: theme.pitchCircle,
     });
 
-    this.backingTrack = new BackingTrack({
-      track: this.melody.backingTrack,
-      instrumentConfig: this.melody.instrumentConfig,
-    })
+    this.backingTrack = new BackingTrack({ track: this.melody.backingTrack });
 
     const middleLine = new Path.Line(
       new Point(view.center.x, 0),

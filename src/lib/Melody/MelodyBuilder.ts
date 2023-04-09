@@ -10,6 +10,7 @@ import {
 import type { InstrumentType } from '@/constants'
 import { TrackNote } from './TrackNote';
 import TrackLyrics from './TrackLyrics';
+import BackingTrack from './BackingTrack';
 import Melody from './Melody';
 
 const START_TIME = 5;
@@ -50,14 +51,24 @@ export interface ScaleMelodyConfig extends InstrumentMelodyConfig, CommonMelodyC
 
 export interface NotesMelodyConfig {
   singTrack: [string, number, number][];
-  backingTrack: [string, number, number][];
+  backingTrack: {
+    track: [string, number, number][];
+    instrument: InstrumentType;
+  }[];
   listenTrack: [string, number, number][];
   lyricsTrack: [string, number, number][];
   tempo: number;
-  instrument: InstrumentType;
 }
 
 type MelodyConfig = NotesMelodyConfig | ScaleMelodyConfig | IntervalsMelodyConfig | ChordsMelodyConfig;
+
+function buildInstrumentConfig(instrument: string) {
+  if (!INSTRUMENTS[instrument]) {
+    throw new Error('Unrecognized instrument type');
+  }
+
+  return INSTRUMENTS[instrument];
+}
 
 class IntervalsMelodyBuilder {
   config: IntervalsMelodyConfig;
@@ -66,8 +77,14 @@ class IntervalsMelodyBuilder {
     this.config = config;
   }
 
-  buildBackingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(BACKING_TRACK_SHIFT);
+  buildBackingTrack(): BackingTrack[] {
+    const notes = this.buildTrackForNotes(BACKING_TRACK_SHIFT);
+    const backingTrack = new BackingTrack(
+      notes,
+      buildInstrumentConfig(this.config.instrument),
+    );
+
+    return [backingTrack];
   }
 
   buildSingTrack(): TrackNote[] {
@@ -125,7 +142,7 @@ class ChordsMelodyBuilder {
     this.config = config;
   }
 
-  buildBackingTrack(): TrackNote[] {
+  buildBackingTrack(): BackingTrack[] {
     const {
       chordNames,
       includeAllChordComponents,
@@ -156,7 +173,12 @@ class ChordsMelodyBuilder {
         ]
       }, []).flat()
   
-      return notes; 
+      const backingTrack = new BackingTrack(
+        notes,
+        buildInstrumentConfig(this.config.instrument),
+      );
+
+      return [backingTrack];
   }
 
   buildSingTrack(): TrackNote[] {
@@ -211,8 +233,15 @@ class ScaleMelodyBuilder {
     this.config = config;
   }
 
-  buildBackingTrack(): TrackNote[] {
-    return this.buildTrackForNotes(BACKING_TRACK_SHIFT);
+  buildBackingTrack(): BackingTrack[] {
+    const notes = this.buildTrackForNotes(BACKING_TRACK_SHIFT);
+
+    const backingTrack = new BackingTrack(
+      notes,
+      buildInstrumentConfig(this.config.instrument),
+    );
+
+    return [backingTrack];
   }
 
   buildSingTrack(): TrackNote[] {
@@ -284,20 +313,23 @@ export default class MelodyBuilder {
     } else if (this.configType === CONFIG_TYPE_SCALE) {
       return this.fromScale();
     } else if (this.configType === CONFIG_TYPE_NOTES) {
-      const instrumentConfig = this.buildInstrument()
       const config = this.config as NotesMelodyConfig;
       const singTrack = config.singTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
-      const backingTrack = config.backingTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
+      const backingTrack = config.backingTrack.map(bt =>
+        new BackingTrack(
+          bt.track.map(e => new TrackNote(e[0], START_TIME + e[1], e[2])),
+          buildInstrumentConfig(bt.instrument),
+        )
+      )
       const listenTrack = config.listenTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
       const lyricsTrack = config.lyricsTrack.map(e => new TrackLyrics(e[0], START_TIME + e[1], e[2]));
 
       return new Melody({
         singTrack,
-        backingTrack,
+        backingTrack: backingTrack,
         listenTrack,
         lyricsTrack,
         tempo: config.tempo,
-        instrumentConfig,
       });
     }
 
@@ -308,14 +340,13 @@ export default class MelodyBuilder {
     const builder = new ChordsMelodyBuilder(this.config as ChordsMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
-    const instrumentConfig = this.buildInstrument()
+
     return new Melody({
       singTrack,
       listenTrack: [],
       backingTrack,
       lyricsTrack: [],
       tempo: this.config.tempo,
-      instrumentConfig,
     });
   }
 
@@ -323,7 +354,7 @@ export default class MelodyBuilder {
     const builder = new ScaleMelodyBuilder(this.config as ScaleMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
-    const instrumentConfig = this.buildInstrument()
+
     return new Melody({
       singTrack,
       listenTrack: [],
@@ -335,7 +366,6 @@ export default class MelodyBuilder {
         // new TrackLyrics('test3', 11, 20),
       ],
       tempo: this.config.tempo,
-      instrumentConfig,
     });
   }
 
@@ -343,22 +373,13 @@ export default class MelodyBuilder {
     const builder = new IntervalsMelodyBuilder(this.config as IntervalsMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
-    const instrumentConfig = this.buildInstrument()
+
     return new Melody({
       singTrack,
       listenTrack: [],
       backingTrack,
       lyricsTrack: [],
       tempo: this.config.tempo,
-      instrumentConfig,
     });
-  }
-
-  private buildInstrument() {
-    if (!INSTRUMENTS[this.config.instrument]) {
-      throw new Error('Unrecognized instrument type');
-    }
-
-    return INSTRUMENTS[this.config.instrument];
   }
 }

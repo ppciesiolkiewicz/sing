@@ -1,14 +1,13 @@
-import type { InstrumentConfig } from './types';
 import { TrackNote } from './TrackNote';
 import TrackLyrics from './TrackLyrics';
+import BackingTrack from './BackingTrack';
 
 export default class Melody {
   singTrack: TrackNote[];
-  backingTrack: TrackNote[];
+  backingTrack: BackingTrack[];
   listenTrack: TrackNote[];
   lyricsTrack: TrackLyrics[];
   tempo: number;
-  instrumentConfig: InstrumentConfig;
 
   constructor({
     singTrack,
@@ -16,20 +15,17 @@ export default class Melody {
     listenTrack,
     lyricsTrack,
     tempo,
-    instrumentConfig,
   }: {
     singTrack: TrackNote[],
-    backingTrack: TrackNote[],
+    backingTrack: BackingTrack[],
     listenTrack: TrackNote[],
     lyricsTrack: TrackLyrics[];
     tempo: number;
-    instrumentConfig: InstrumentConfig;
   }) {
     this.singTrack = singTrack;
     this.listenTrack = listenTrack;
     this.backingTrack = backingTrack;
     this.lyricsTrack = lyricsTrack;
     this.tempo = tempo;
-    this.instrumentConfig = instrumentConfig;
   }
 }
