@@ -119,9 +119,11 @@ class IntervalsMelodyBuilder {
 
     const partDuration = part.reduce((sum, p) => sum + p.duration, 0)
 
+    // TODO: fix 8d issue for interval exercises, e.g. 2M
+    // console.log(IntervalModule.names('1P', intervalDistanceBetweenLowestAndHighest), intervalDistanceBetweenLowestAndHighest)
     const intervalsToTransposePart = IntervalModule.names('1P', intervalDistanceBetweenLowestAndHighest);
     const notes = intervalsToTransposePart
-      .map((interval, i) => (
+      .map((interval, i) => console.log(trackNote.name, NoteModule.transpose(trackNote.name, interval)) || (
         part.map(trackNote => new TrackNote(
           NoteModule.transpose(trackNote.name, interval),
           trackNote.start + i * (partDuration + timeBetweenRootNoteChange),
@@ -130,7 +132,7 @@ class IntervalsMelodyBuilder {
       )
       .flat();
 
-    return notes;
+      return notes;
   }
 }
 
@@ -290,7 +292,6 @@ class ScaleMelodyBuilder {
 
 
 export default class MelodyBuilder {
-  // TODO: configType part of a config for TS
   config: MelodyConfig;
   configType: ConfigType;
 
@@ -322,7 +323,9 @@ export default class MelodyBuilder {
         )
       )
       const listenTrack = config.listenTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
-      const lyricsTrack = config.lyricsTrack.map(e => new TrackLyrics(e[0], START_TIME + e[1], e[2]));
+      const lyricsTrack = config.lyricsTrack.map(e =>
+        new TrackLyrics(e[0], START_TIME + e[1] - BACKING_TRACK_SHIFT, e[2])
+      );
 
       return new Melody({
         singTrack,

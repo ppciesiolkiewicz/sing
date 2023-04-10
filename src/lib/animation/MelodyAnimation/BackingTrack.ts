@@ -19,8 +19,12 @@ export default class BackingTrack {
     this.track = track;
 
     this.soundGenerator = [];
-    track.forEach(t => {
-      this.soundGenerator.push(new Tone.Sampler(t.instrumentConfig).toDestination());
+    track.forEach((t, i) => {
+      this.soundGenerator.push(new Tone.Sampler({
+        // TODO: hardcoded volume
+        volume: -12*i,
+        ...t.instrumentConfig,
+      }).toDestination());
     });
   }
 
