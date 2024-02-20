@@ -117,6 +117,10 @@ function MelodyExercise({
     setScore(processedScore);
   };
 
+  useEffect(() => {
+    return () => animationRef.current?.stop();
+  }, []);
+
   useLayoutEffect(function startAnimation() {
     if (!canvasRef.current) {
       return;

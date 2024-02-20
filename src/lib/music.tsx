@@ -179,8 +179,13 @@ export const ScaleModule = {
       })
     },
     getScaleChords(scale: ScaleType, octaves = [2]) {
+      const tonic = scale.tonic;
+      const indexOfTonicChord = scale.keyChords.triads
+        .indexOf(c => c === tonic)
+      const chords_ = scale.keyChords.triads
+
       const chords = octaves.map(octave =>
-          [...scale.keyChords.triads]//, ...scale.keyChords.chords]
+          [...chords_]//, ...scale.keyChords.chords]
             .map(chordName => ({ chordName, octave }))
         )
         .flat()

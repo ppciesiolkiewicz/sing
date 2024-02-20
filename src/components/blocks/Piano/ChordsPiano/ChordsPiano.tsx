@@ -117,6 +117,7 @@ export default function ChordsPiano({
   const keyboardKeyToChordMap = useMemo(
     () => {
       const chords = ScaleModule.getScaleChords(scale, octaves)
+      console.log("SCALE CHORDS", scale, chords)
       const map = chords.reduce((acc, chord, i) => ({
           ...acc,
           [KEYBOARD_KEYS[i]]: chord,

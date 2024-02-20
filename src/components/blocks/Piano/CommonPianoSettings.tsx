@@ -35,7 +35,7 @@ function ChordsPianoModeSelectField() {
     />
   );
 }
-ChordsPianoModeSelectField.initialValue = CHORDS_PIANO_MODE_ARPEGGIO as
+ChordsPianoModeSelectField.initialValue = CHORDS_PIANO_MODE_ALL_NOTES as
   typeof CHORDS_PIANO_MODE_ALL_NOTES | typeof CHORDS_PIANO_MODE_ARPEGGIO;
 
 interface CommonPianoSettingsProps {

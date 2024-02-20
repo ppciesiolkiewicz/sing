@@ -32,6 +32,7 @@
     "formik": "^2.2.9",
     "jsonwebtoken": "^9.0.0",
     "loadsh": "^0.0.4",
+    "lodash": "^4.17.21",
     "lodash.curryright": "^4.1.1",
     "lodash.times": "^4.3.2",
     "ml5": "^0.12.2",

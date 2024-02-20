@@ -40,7 +40,8 @@ class PitchDetector {
     this.pitchDetector.getPitch((err: Error, frequency: Hz) => {
       if (err) throw new Error(err.message)
       if (frequency) {
-        const alpha = 0.2
+        // the lower the alpha the bigger the smoothing factor - use with difficulty?
+        const alpha = 0.5;
         const beta = 1 - alpha
         this.pitch = frequency;
 
