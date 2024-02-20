@@ -101,6 +101,24 @@ function ScaleKeyTypeSelectField() {
 }
 ScaleKeyTypeSelectField.initialValue = scaleKeyTypeOptions[0].value;
 
+
+const extendedScaleKeyTypeOptions = ScaleModule.names().map(n => ({
+  label: n,
+  value: n,
+}));
+
+function ExtendedScaleKeyTypeSelectField() {
+  return (
+    <SelectField
+      id={'keyType'}
+      name={'keyType'}
+      label={'Scale Type'}
+      options={extendedScaleKeyTypeOptions}
+    />
+  );
+}
+ScaleKeyTypeSelectField.initialValue = scaleKeyTypeOptions[0].value;
+
 function ScaleKeyTonicSelectField() {
   return (
     <NoteSelectField
@@ -148,4 +166,6 @@ export {
   ScaleKeyTonicSelectField,
   InstrumentTypeSelectField,
   TempoSliderField,
+  ExtendedScaleKeyTypeSelectField,
+  extendedScaleKeyTypeOptions,
 }

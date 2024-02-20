@@ -5,6 +5,7 @@ import { Box, Button } from "@mui/material";
 import Modal from '@/components/atoms/Modal';
 import Piano from '@/components/blocks/Piano/Piano';
 import ChordsPiano from '@/components/blocks/Piano/ChordsPiano';
+import ScalePiano from '@/components/blocks/Piano/ScalePiano';
 import Tabs from '@/components/atoms/Tabs';
 import PitchDetectionAnimation from '@/lib/animation/PitchDetectionAnimation';
 import SWRResponseHandler, { shouldRenderSWRResponseHandler } from '@/components/atoms/SwrResponseHandler'
@@ -140,6 +141,31 @@ export default function VoiceTunerPage() {
                         animationRef.current?.unsetHighlightedNoteLines({
                           notes: noteNames,
                           exact: false,
+                        });
+                      }}
+                    />
+                  </>
+                ),
+              },
+              {
+                title: 'Scale Piano',
+                children: (
+                  <>
+                    <ScalePiano
+                      keyTonic={pianoSettings.keyTonic}
+                      keyType={pianoSettings.keyType}
+                      lowestNoteName={lowestNoteName}
+                      highestNoteName={highestNoteName}
+                      onKeyPressed={(noteName) => {
+                        soundGenerator.triggerAttack(noteName)
+                        animationRef.current?.setHighlightedNoteLines({
+                          notes: [noteName]
+                        });
+                      }}
+                      onKeyReleased={(noteName) => {
+                        soundGenerator.triggerRelease(noteName)
+                        animationRef.current?.unsetHighlightedNoteLines({
+                          notes: [noteName]
                         });
                       }}
                     />

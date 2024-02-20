@@ -7,6 +7,7 @@ import {
   InstrumentTypeSelectField,
   ScaleKeyTonicSelectField,
   ScaleKeyTypeSelectField,
+  ExtendedScaleKeyTypeSelectField,
   TempoSliderField,
 } from '@/components/blocks/MusicFields';
 import { RadioGroupField } from '@/components/atoms/RadioGroup';
@@ -14,6 +15,12 @@ import {
   CHORDS_PIANO_MODE_ALL_NOTES,
   CHORDS_PIANO_MODE_ARPEGGIO,
 } from './ChordsPiano';
+
+/*
+
+  TODO: there's a setting name overlap between Scale and Chords Piano - it's rather broken but okay for personal use
+  @see ExtendedScaleKeyTypeSelectField and ScaleKeyTypeSelectField
+*/
 
 
 function ChordsPianoModeSelectField() {
@@ -71,6 +78,15 @@ export default function CommonPianoSettings({ onSubmit }: CommonPianoSettingsPro
           </Grid>
           <Grid item xs={12}>
             <TempoSliderField />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant={'h6'}>Scale Piano Settings</Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <ScaleKeyTonicSelectField />
+          </Grid>
+          <Grid item xs={6}>
+            <ExtendedScaleKeyTypeSelectField />
           </Grid>
         </Grid>
         <Box display={'flex'} justifyContent={'center'} alignItems={'center'}>
