@@ -101,6 +101,22 @@ function noteIndexToYPosition(index: number, heightOffset: number = 0) {
   return index * DISTANCE_BETWEEN_NOTE_LINES - heightOffset / 2;
 }
 
+const calculateDistance = (note, lyric) => {
+  const startDistance = Math.abs(lyric.start - note.start);
+  const endDistance = Math.abs(lyric.end - note.end);
+  return startDistance + endDistance;
+};
+
+const findClosestLyric = (note, lyrics) => {
+  return lyrics.reduce((closest, lyric) => {
+    const currentDistance = calculateDistance(note, lyric);
+    if (!closest || currentDistance < closest.distance) {
+      return { lyric, distance: currentDistance };
+    }
+    return closest;
+  }, null).lyric;
+};
+
 const NOTES_Y_POSITIONS = NOTES.map((_, i) =>
   noteIndexToYPosition(i, NOTE_BLOCK_HEIGHT)
 );
@@ -209,9 +225,7 @@ class PitchAnimationAnimationPixie {
         melodyContainer.addChild(noteNameText);
 
         // TODO: magic -1 +1
-        const l = this.melody.lyricsTrack.find(
-          (l) => l.start >= n.start - 1 && l.end <= n.end + 1
-        );
+        const l = findClosestLyric(n, this.melody.lyricsTrack);
         if (l) {
           console.log("FOUND L", l, {
             x: width / 2 + n.start * MELODY_PIXELS_PER_SECOND + 7,
