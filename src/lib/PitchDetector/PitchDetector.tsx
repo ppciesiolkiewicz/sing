@@ -1,4 +1,4 @@
-import ml5, { Pitch } from 'ml5';
+import ml5, { Pitch } from "ml5";
 
 const SAMPLE_RATE = 44100 / 8;
 
@@ -9,9 +9,11 @@ interface PitchResult {
   volume: number;
 }
 class PitchDetector {
-  private  modelUrl = 'https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/';
-  // public pitchHistory: Hz[] = [];
-  // public emaPitchHistory: Hz[] = [];
+  private modelUrl =
+    "https://cdn.jsdelivr.net/gh/ml5js/ml5-data-and-models/models/pitch-detection/crepe/";
+  private HISTORY_MAX_LENGTH = 10;
+  public pitchHistory: Hz[] = [];
+  public emaPitchHistory: Hz[] = [];
 
   private pitch: Hz = -1;
   private emaPitch: Hz = -1;
@@ -31,36 +33,43 @@ class PitchDetector {
           autoGainControl: false,
         },
       });
-      this.pitchDetector = await ml5.pitchDetection(this.modelUrl, audioContext, stream);
+      this.pitchDetector = await ml5.pitchDetection(
+        this.modelUrl,
+        audioContext,
+        stream
+      );
       this.startPitchLoop();
     })();
   }
 
   private startPitchLoop() {
     this.pitchDetector.getPitch((err: Error, frequency: Hz) => {
-      if (err) throw new Error(err.message)
+      if (err) throw new Error(err.message);
       if (frequency) {
         // the lower the alpha the bigger the smoothing factor - use with difficulty?
         const alpha = 0.5;
-        const beta = 1 - alpha
+        const beta = 1 - alpha;
         this.pitch = frequency;
 
         if (this.emaPitch === -1) {
           this.emaPitch = frequency;
         } else {
-          this.emaPitch = this.emaPitch*beta + frequency*alpha;
+          this.emaPitch = this.emaPitch * beta + frequency * alpha;
         }
-        
-        // this.pitchHistory.push(frequency)
-        // if (this.pitchHistory.length == 1) {
-        //   this.emaPitchHistory.push(this.pitchHistory[0])
-        // } else {
-        //   const alpha = 0.2
-        //   const beta = 1 - alpha
-        //   const lastEmaPitch = this.emaPitchHistory[this.emaPitchHistory.length - 1]
-        //   this.emaPitchHistory.push(lastEmaPitch*beta + this.pitchHistory[this.pitchHistory.length - 1]*alpha)
-        // }
 
+        // this.pitchHistory.push(frequency);
+        // if (this.pitchHistory.length == 1) {
+        //   this.emaPitchHistory.push(this.pitchHistory[0]);
+        // } else {
+        //   const alpha = 0.2;
+        //   const beta = 1 - alpha;
+        //   const lastEmaPitch =
+        //     this.emaPitchHistory[this.emaPitchHistory.length - 1];
+        //   this.emaPitchHistory.push(
+        //     lastEmaPitch * beta +
+        //       this.pitchHistory[this.pitchHistory.length - 1] * alpha
+        //   );
+        // }
       } else {
         this.pitch = -1;
         this.emaPitch = -1;
@@ -69,7 +78,7 @@ class PitchDetector {
       this.initialized_ = true;
 
       setTimeout(() => {
-        this.startPitchLoop()
+        this.startPitchLoop();
       }, 1);
     });
   }
@@ -87,8 +96,5 @@ class PitchDetector {
     return this.initialized_;
   }
 }
-
-
-
 
 export default PitchDetector;

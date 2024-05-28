@@ -1,19 +1,20 @@
 "use client";
-import { Formik, Form, FormikHelpers } from 'formik';
-import * as Yup from 'yup';
-import { enqueueSnackbar } from '@/components/atoms/Snackbar';
-import { Grid, Box, Button, Typography, Paper } from '@mui/material';
-import { OptionsSliderField } from '@/components/atoms/OptionsSlider';
-import { TextFieldField } from '@/components/atoms/TextField';
-import { SelectField } from '@/components/atoms/Select';
-import { NoteModule } from '@/lib/music';
-import { useFetchUser } from '@/lib/fetch/hooks';
-import { updateUser } from '@/lib/fetch/api';
-import { DIFFICULTY_LEVEL_OPTIONS } from '@/constants';
-import type { DifficultyLevel } from '@/constants';
+import { Formik, Form, FormikHelpers } from "formik";
+import * as Yup from "yup";
+import { enqueueSnackbar } from "@/components/atoms/Snackbar";
+import { Grid, Box, Button, Typography, Paper } from "@mui/material";
+import { OptionsSliderField } from "@/components/atoms/OptionsSlider";
+import { TextFieldField } from "@/components/atoms/TextField";
+import { SelectField } from "@/components/atoms/Select";
+import { NoteModule } from "@/lib/music";
+import { useFetchUser } from "@/lib/fetch/hooks";
+import { updateUser } from "@/lib/fetch/api";
+import { DIFFICULTY_LEVEL_OPTIONS } from "@/constants";
+import type { DifficultyLevel } from "@/constants";
+import { Application, Sprite, Assets } from "pixi.js";
 
 // TODO: MusicFields
-const options = NoteModule.getNoteRange('C1', 'C6').map(n => ({
+const options = NoteModule.getNoteRange("C1", "C6").map((n) => ({
   label: n.name,
   value: n.name,
 }));
@@ -25,27 +26,29 @@ type FormValues = {
 };
 
 const FormValidationSchema = Yup.object().shape({
-  voiceRange: Yup.array().required('Voice range is required field').min(2),
+  voiceRange: Yup.array().required("Voice range is required field").min(2),
   name: Yup.string().required(),
-  difficultyLevel: Yup.string().required('Difficulty level is required field'),
+  difficultyLevel: Yup.string().required("Difficulty level is required field"),
 });
-
 
 export default function Profile() {
   const userQuery = useFetchUser();
 
   const initialValues = {
-    voiceRange: [userQuery.data.lowNote, userQuery.data.highNote] as [string, string],
+    voiceRange: [userQuery.data.lowNote, userQuery.data.highNote] as [
+      string,
+      string
+    ],
     difficultyLevel: userQuery.data.difficultyLevel,
     name: userQuery.data.name,
-  }
+  };
 
   const handleSubmit = async (
     values: FormValues,
-    { setSubmitting }: FormikHelpers<FormValues>,
+    { setSubmitting }: FormikHelpers<FormValues>
   ) => {
     try {
-      setSubmitting(true)
+      setSubmitting(true);
       const resp = await updateUser({
         lowNote: values.voiceRange[0],
         highNote: values.voiceRange[1],
@@ -53,21 +56,21 @@ export default function Profile() {
       });
       enqueueSnackbar({
         message: "Profile updated",
-        variant: 'success',
+        variant: "success",
       });
-      setSubmitting(false)
-    } catch(e: any) {
-      setSubmitting(false)
+      setSubmitting(false);
+    } catch (e: any) {
+      setSubmitting(false);
       enqueueSnackbar({
         message: e.message,
-        variant: 'error',
+        variant: "error",
       });
     }
-  }
+  };
 
   return (
     <Paper sx={{ p: 4 }}>
-      <Typography mb={2} variant={'h5'}>
+      <Typography mb={2} variant={"h5"}>
         Just set your voice range and you're good to go!
       </Typography>
       <Formik
@@ -75,22 +78,22 @@ export default function Profile() {
         validationSchema={FormValidationSchema}
         onSubmit={handleSubmit}
       >
-        {formik => (
-          <Form style={{ width: '100%' }}>
-            <Box display={'flex'} justifyContent={'center'}>
-              <Grid container spacing={6} maxWidth={'sm'}>
+        {(formik) => (
+          <Form style={{ width: "100%" }}>
+            <Box display={"flex"} justifyContent={"center"}>
+              <Grid container spacing={6} maxWidth={"sm"}>
                 <Grid item xs={12}>
                   <OptionsSliderField
-                    id={'voiceRange'}
-                    name={'voiceRange'}
-                    label={'Voice Range'}
+                    id={"voiceRange"}
+                    name={"voiceRange"}
+                    label={"Voice Range"}
                     options={options}
                   />
                 </Grid>
                 <Grid item xs={12}>
                   <SelectField
-                    id={'difficultyLevel'}
-                    name={'difficultyLevel'}
+                    id={"difficultyLevel"}
+                    name={"difficultyLevel"}
                     label={"Difficulty level"}
                     options={DIFFICULTY_LEVEL_OPTIONS}
                   />
@@ -105,10 +108,10 @@ export default function Profile() {
                 </Grid>
                 <Grid item xs={12}>
                   <Button
-                    variant={'contained'}
-                    type={'submit'}
+                    variant={"contained"}
+                    type={"submit"}
                     disabled={formik.isSubmitting}
-                    color={'secondary'}
+                    color={"secondary"}
                   >
                     Save
                   </Button>
@@ -117,7 +120,7 @@ export default function Profile() {
             </Box>
           </Form>
         )}
-    </Formik>
-  </Paper>
+      </Formik>
+    </Paper>
   );
 }

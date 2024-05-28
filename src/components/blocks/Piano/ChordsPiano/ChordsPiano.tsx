@@ -1,12 +1,16 @@
-import type { ChordType } from '@/lib/music';
-import { useState, useMemo, useEffect, useRef } from 'react';
-import { Box, Grid, Paper, Typography } from '@mui/material';
-import { ChordModule, ScaleModule, NoteModule, MeasureModule } from '@/lib/music';
-import { KEYBOARD_KEYS } from './constants';
+import type { ChordType } from "@/lib/music";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { Box, Grid, Paper, Typography } from "@mui/material";
+import {
+  ChordModule,
+  ScaleModule,
+  NoteModule,
+  MeasureModule,
+} from "@/lib/music";
+import { KEYBOARD_KEYS } from "./constants";
 
-
-export const CHORDS_PIANO_MODE_ALL_NOTES = 'ALL_NOTES';
-export const CHORDS_PIANO_MODE_ARPEGGIO = 'ARPEGGIO';
+export const CHORDS_PIANO_MODE_ALL_NOTES = "ALL_NOTES";
+export const CHORDS_PIANO_MODE_ARPEGGIO = "ARPEGGIO";
 
 interface ChordPianoKeyProps {
   chord: ChordType;
@@ -27,29 +31,27 @@ function ChordPianoKey({
     <Grid item xs={1}>
       <Paper
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          flexDirection: 'column',
-          background: isPressed ? 'lightblue' : 'white',
-          userSelect: 'none'
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "column",
+          background: isPressed ? "lightblue" : "white",
+          userSelect: "none",
         }}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        role={'button'}
+        role={"button"}
       >
-        <Typography variant={'overline'} fontWeight={'bold'}>
+        <Typography variant={"overline"} fontWeight={"bold"}>
           {chord.symbol}
         </Typography>
-        <Typography variant={'overline'}>
-          [ {chord.notes.join(' ')} ]
+        <Typography variant={"overline"}>
+          [ {chord.notes.join(" ")} ]
         </Typography>
-        <Typography variant={'overline'}>
-          ({keyboardKey})
-        </Typography>
+        <Typography variant={"overline"}>({keyboardKey})</Typography>
       </Paper>
     </Grid>
-  )
+  );
 }
 
 interface ChordsPianoProps {
@@ -57,12 +59,15 @@ interface ChordsPianoProps {
   keyType: string;
   onKeyPressed: (noteNames: string[]) => void;
   onKeyReleased: (noteNames: string[]) => void;
-  modeConfig: {
-    mode: typeof CHORDS_PIANO_MODE_ARPEGGIO;
-    tempo: number;
-  } | {
-    mode: typeof CHORDS_PIANO_MODE_ALL_NOTES;
-  }
+  onPressedKeysChanged: (noteNames: string[]) => void;
+  modeConfig:
+    | {
+        mode: typeof CHORDS_PIANO_MODE_ARPEGGIO;
+        tempo: number;
+      }
+    | {
+        mode: typeof CHORDS_PIANO_MODE_ALL_NOTES;
+      };
 }
 
 function arpeggioAnimation({
@@ -70,11 +75,12 @@ function arpeggioAnimation({
   tempo,
   onKeyPressed,
   onKeyReleased,
-  pressedChordSymbolKeysRef
+  pressedChordSymbolKeysRef,
 }) {
-  const notes = chord.notes.length == 3
-    ? [...chord.notes, chord.notes[chord.notes.length - 2]]
-    : chord.notes;
+  const notes =
+    chord.notes.length == 3
+      ? [...chord.notes, chord.notes[chord.notes.length - 2]]
+      : chord.notes;
   let start: Second;
   let wasNotePlayedInBarArray = new Array(notes.length).fill(false);
   const arpeggio = (chord: ChordType) => (timestamp: MilliSecond) => {
@@ -87,18 +93,20 @@ function arpeggioAnimation({
     const beatNo = MeasureModule.timeToBeat2(time, tempo);
     const noteIdx = beatNo % notes.length;
 
-
     if (!wasNotePlayedInBarArray[noteIdx]) {
       wasNotePlayedInBarArray[noteIdx] = true;
-      wasNotePlayedInBarArray[(noteIdx + 1) % wasNotePlayedInBarArray.length] = false;
-      onKeyPressed([notes[noteIdx]])
-      onKeyReleased(noteIdx === 0 ? [notes[notes.length - 1]] : [notes[noteIdx - 1]])
+      wasNotePlayedInBarArray[(noteIdx + 1) % wasNotePlayedInBarArray.length] =
+        false;
+      onKeyPressed([notes[noteIdx]]);
+      onKeyReleased(
+        noteIdx === 0 ? [notes[notes.length - 1]] : [notes[noteIdx - 1]]
+      );
     }
 
     if (pressedChordSymbolKeysRef.current.indexOf(chord.symbol) > -1) {
-      window.requestAnimationFrame(arpeggio(chord))
+      window.requestAnimationFrame(arpeggio(chord));
     }
-  }
+  };
   window.requestAnimationFrame(arpeggio(chord));
 }
 
@@ -107,35 +115,40 @@ export default function ChordsPiano({
   keyType,
   onKeyPressed,
   onKeyReleased,
+  onPressedKeysChanged,
   modeConfig,
 }: ChordsPianoProps) {
   // TODO: octaves based on vocal range?
   const octaves = [2, 3, 4];
-  const [pressedChordSymbolKeys, setPressedChordSymbolKeys] = useState<string[]>([]);
+  const [pressedChordSymbolKeys, setPressedChordSymbolKeys] = useState<
+    string[]
+  >([]);
   const pressedChordSymbolKeysRef = useRef(pressedChordSymbolKeys);
-  const scale = useMemo(() => ScaleModule.get(keyTonic, keyType), [keyTonic, keyType]);
-  const keyboardKeyToChordMap = useMemo(
-    () => {
-      const chords = ScaleModule.getScaleChords(scale, octaves)
-      console.log("SCALE CHORDS", scale, chords)
-      const map = chords.reduce((acc, chord, i) => ({
-          ...acc,
-          [KEYBOARD_KEYS[i]]: chord,
-        }), {});
-
-      return map;
-    },
-    [scale], 
+  const scale = useMemo(
+    () => ScaleModule.get(keyTonic, keyType),
+    [keyTonic, keyType]
   );
+  const keyboardKeyToChordMap = useMemo(() => {
+    const chords = ScaleModule.getScaleChords(scale, octaves);
+    console.log("SCALE CHORDS", scale, chords);
+    const map = chords.reduce(
+      (acc, chord, i) => ({
+        ...acc,
+        [KEYBOARD_KEYS[i]]: chord,
+      }),
+      {}
+    );
+
+    return map;
+  }, [scale]);
 
   useEffect(() => {
     pressedChordSymbolKeysRef.current = pressedChordSymbolKeys;
-  }, [pressedChordSymbolKeys])
-  
+  }, [pressedChordSymbolKeys]);
 
   const onPianoKeyPressed_ = (chord: ChordType) => {
     setPressedChordSymbolKeys([...pressedChordSymbolKeys, chord.symbol]);
-    
+
     if (modeConfig.mode === CHORDS_PIANO_MODE_ARPEGGIO) {
       arpeggioAnimation({
         chord,
@@ -144,47 +157,40 @@ export default function ChordsPiano({
         onKeyReleased,
         pressedChordSymbolKeysRef,
       });
-    } else if (modeConfig.mode  === CHORDS_PIANO_MODE_ALL_NOTES) {
+    } else if (modeConfig.mode === CHORDS_PIANO_MODE_ALL_NOTES) {
       onKeyPressed(chord.notes);
     }
   };
 
-
   const onPianoKeyReleased_ = (chord: ChordType) => {
-    setPressedChordSymbolKeys(pressedChordSymbolKeys.filter(s => s !== chord.symbol));
+    setPressedChordSymbolKeys(
+      pressedChordSymbolKeys.filter((s) => s !== chord.symbol)
+    );
     onKeyReleased(chord.notes);
-  }
+  };
 
-  const onPianoKeyPressedRef = useRef(onPianoKeyPressed_);
-  const onPianoKeyReleasedRef = useRef(onPianoKeyReleased_);
-  useEffect(() => {
-    onPianoKeyPressedRef.current = onPianoKeyPressed_;
-    onPianoKeyReleasedRef.current = onPianoKeyReleased_;
-  }, [pressedChordSymbolKeys, modeConfig, scale])
-
-  
   useEffect(() => {
     const handleKeyDown = (ev) => {
       if (ev.repeat) {
         return;
       }
       const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
-      if(!chord) return;
-      onPianoKeyPressedRef.current(chord);
-    }
-  
+      if (!chord) return;
+      onPianoKeyPressed_(chord);
+    };
+
     const handleKeyUp = (ev) => {
       const chord = keyboardKeyToChordMap[ev.key.toLowerCase()];
-      if(!chord) return;
-      onPianoKeyReleasedRef.current(chord);
-    }
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
+      if (!chord) return;
+      onPianoKeyReleased_(chord);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    }
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
   }, [keyboardKeyToChordMap]);
 
   return (
@@ -204,8 +210,8 @@ export default function ChordsPiano({
             onMouseDown={() => onPianoKeyPressed_(chord)}
             onMouseUp={() => onPianoKeyReleased_(chord)}
           />
-        )
+        );
       })}
     </Grid>
-  )
+  );
 }
