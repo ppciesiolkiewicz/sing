@@ -1,17 +1,17 @@
-import Link from 'next/link'
-import * as React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
+import Link from "next/link";
+import * as React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import Typography from "@mui/material/Typography";
+import Menu from "@mui/material/Menu";
+import MenuIcon from "@mui/icons-material/Menu";
+import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Tooltip from "@mui/material/Tooltip";
+import MenuItem from "@mui/material/MenuItem";
 import {
   getBlogPath,
   getAppDashboardPath,
@@ -20,24 +20,24 @@ import {
   getAppLogoutPath,
   getAppProfilePath,
   getAppVoiceTunerPath,
-} from '@/lib/urls';
+} from "@/lib/urls";
 
 const pages = [
   {
     href: getAppDashboardPath(),
-    label: 'Dashboard',
+    label: "Dashboard",
   },
   {
     href: getAppExercisesPath(),
-    label: 'Exercises',
+    label: "Exercises",
   },
-  {
-    href: getAppCustomExercisesPath(),
-    label: 'Custom Exercises',
-  },
+  // {
+  //   href: getAppCustomExercisesPath(),
+  //   label: 'Custom Exercises',
+  // },
   {
     href: getAppVoiceTunerPath(),
-    label: 'Voice tuner',
+    label: "Voice tuner",
   },
   // {
   //   // TODO: open in a new tab
@@ -48,16 +48,21 @@ const pages = [
 const settings = [
   {
     href: getAppProfilePath(),
-    label: 'Profile',
-  }, {
+    label: "Profile",
+  },
+  {
     href: getAppLogoutPath(),
-    label: 'Log Out',
-  }
+    label: "Log Out",
+  },
 ];
 
 function ResponsiveAppBar() {
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(
+    null
+  );
+  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
+    null
+  );
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -85,17 +90,17 @@ function ResponsiveAppBar() {
             href={getAppDashboardPath()}
             sx={{
               mr: 2,
-              display: { xs: 'none', md: 'flex' },
-              fontFamily: 'monospace',
+              display: { xs: "none", md: "flex" },
+              fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              textDecoration: 'none',
+              letterSpacing: ".3rem",
+              textDecoration: "none",
             }}
           >
             Sing5
           </Typography>
 
-          <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
               aria-label="account of current user"
@@ -109,18 +114,18 @@ function ResponsiveAppBar() {
               id="menu-appbar"
               anchorEl={anchorElNav}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
               sx={{
-                display: { xs: 'block', md: 'none' },
+                display: { xs: "block", md: "none" },
               }}
             >
               {pages.map((page) => (
@@ -139,23 +144,27 @@ function ResponsiveAppBar() {
             href=""
             sx={{
               mr: 2,
-              display: { xs: 'flex', md: 'none' },
+              display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: 'monospace',
+              fontFamily: "monospace",
               fontWeight: 700,
-              letterSpacing: '.3rem',
-              textDecoration: 'none',
+              letterSpacing: ".3rem",
+              textDecoration: "none",
             }}
           >
             Sing5
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Link href={page.href} key={page.href}>
                 <Button
                   key={page.href}
                   onClick={handleCloseNavMenu}
-                  sx={theme => ({ my: 2, color: theme.palette.text.primary, display: 'block' })}
+                  sx={(theme) => ({
+                    my: 2,
+                    color: theme.palette.text.primary,
+                    display: "block",
+                  })}
                 >
                   {page.label}
                 </Button>
@@ -170,17 +179,17 @@ function ResponsiveAppBar() {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ mt: "45px" }}
               id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
