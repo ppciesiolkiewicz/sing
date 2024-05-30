@@ -1,13 +1,6 @@
 "use client";
-import {
-  useRef,
-  useEffect,
-  useLayoutEffect,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
-import { Box } from "@mui/material";
+import { useRef, useEffect, useLayoutEffect, useState } from "react";
+import { Button, Box } from "@mui/material";
 import {
   Renderer,
   Application,
@@ -17,14 +10,9 @@ import {
   Container,
 } from "pixi.js";
 import PitchDetector from "@/lib/PitchDetector";
-import { NoteModule } from "../music";
+import Modal from "@/components/atoms/Modal";
 import { Melody } from "../Melody";
 import BackingTrack from "./BackingTrack";
-
-/**
- Tasks:
- - show intervals jumps between notes and which interval within the key is it
-*/
 
 const THEME = {
   backgroundColor: 0xfefefe,
@@ -49,6 +37,7 @@ const DISTANCE_BETWEEN_NOTE_LINES = 30;
 const NOTE_BLOCK_HEIGHT = 30;
 const NOTE_LINE_FONT_SIZE = 24;
 
+// TODO: use either b or #
 // prettier-ignore
 const NOTES = [
   "C2", "Db2", "D2", "Eb2", "E2", "F2", "Gb2", "G2", "Ab2", "A2", "Bb2", "B2",
@@ -72,7 +61,6 @@ const HIGH_NOTE_FREQUENCY = 1046.5;
 
 const MELODY_PIXELS_PER_SECOND = 100;
 const TIME_TO_TEMPO_FACTOR = MELODY_PIXELS_PER_SECOND / 1000;
-const TEMPO = 60;
 
 function getXPositionOffset(
   time: { lastTime: number; elapsedMS: number; deltaTime: number },
@@ -162,19 +150,27 @@ class PitchAnimationAnimationPixie {
   highlightedNotes: string[] = [];
   melody?: Melody;
 
+  initialStarted_ = false;
+  paused_ = false;
+  started_ = false;
+  tempo_ = 60;
+
   constructor(
     canvasContainer: HTMLElement,
     onReady: (ready: boolean) => void,
-    melody?: Melody
+    melody?: Melody,
+    tempo?: number
   ) {
     this.app.init({ antialias: true, resizeTo: canvasContainer }).then(() => {
       this.canvas = this.app.canvas;
       canvasContainer.appendChild(this.app.canvas);
+      this.app.ticker.stop();
       this.ready = true;
       onReady(true);
     });
-    console.log(melody);
+    console.log("Melody: s", melody);
     this.melody = melody;
+    this.tempo_ = melody?.tempo || tempo || 60;
   }
 
   public start() {
@@ -253,7 +249,7 @@ class PitchAnimationAnimationPixie {
       });
 
       let totalTime = 0;
-      app.ticker.add((time) => {
+      const melodyTicker = app.ticker.add((time) => {
         if (!this.melody) {
           return;
         }
@@ -381,11 +377,36 @@ class PitchAnimationAnimationPixie {
         noteLinesGraphics.fill(THEME.noteLines.color);
       }
     }
+
+    app.ticker.start();
   }
 
   public setHighlightedNoteLines(notes: string[]) {
     this.updateHighlightedNotesRequired = true;
     this.highlightedNotes = notes;
+  }
+
+  public pause() {
+    this.paused_ = true;
+  }
+
+  public stop() {
+    this.initialStarted_ = false;
+    this.paused_ = false;
+    this.started_ = false;
+  }
+
+  public setTempo(tempo: number) {
+    this.tempo_ = tempo;
+    // this.tempoChangeBeat = this.beat;
+    // this.tempoChangeAnimationTime = this.animationTime;
+  }
+
+  get started() {
+    return this.started_;
+  }
+  get paused() {
+    return this.paused_;
   }
 }
 
@@ -397,11 +418,11 @@ interface Props {
 export default function PitchDetectionAnimation({
   highlightedNotes,
   melody,
-}: // stateManagerRef
-Props) {
-  const animationRef = useRef<PitchAnimationAnimationPixie>();
+}: Props) {
+  const [started, setStarted] = useState(false);
   const [animation, setAnimation] = useState<PitchAnimationAnimationPixie>();
   const [ready, setReady] = useState(false);
+  const animationRef = useRef<PitchAnimationAnimationPixie>();
 
   useLayoutEffect(() => {
     if (animationRef.current) {
@@ -415,15 +436,7 @@ Props) {
     );
     animationRef.current = anim;
     setAnimation(anim);
-  }, [animation, setAnimation]);
-
-  useEffect(() => {
-    if (!ready || !animation?.ready) {
-      return;
-    }
-
-    animation.start();
-  }, [animation, ready]);
+  }, [animation, setAnimation, melody]);
 
   useLayoutEffect(() => {
     if (!ready || !animation?.ready) {
@@ -440,6 +453,25 @@ Props) {
         width: "100%",
         height: "100%",
       }}
-    />
+    >
+      <Modal title={"Let's start"} open={!started} fullWidth maxWidth={"sm"}>
+        <Box display={"flex"} justifyContent={"center"}>
+          <Button
+            color={"primary"}
+            variant={"contained"}
+            onClick={() => {
+              if (!ready || !animation?.ready) {
+                return;
+              }
+
+              setStarted(true);
+              animation.start();
+            }}
+          >
+            Start
+          </Button>
+        </Box>
+      </Modal>
+    </Box>
   );
 }

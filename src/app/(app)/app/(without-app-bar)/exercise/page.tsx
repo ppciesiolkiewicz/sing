@@ -22,7 +22,6 @@ export default function ExercisePage() {
   const id = params?.get("id") as string;
   const exerciseQuery = useFetchExercise({ id });
   const [melody, setMelody] = useState<null | Melody>(null);
-  const [isStartModalOpened, setIsStartModalOpened] = useState(false);
   const [isSettingsDrawerOpened, setIsSettingsDrawerOpened] = useState(false);
   const [settings, setSettings] = useState({
     tempo: 60,
@@ -129,25 +128,6 @@ export default function ExercisePage() {
       >
         <EditIcon />
       </Fab>
-      <Modal
-        title={"Let's start"}
-        open={!isStartModalOpened}
-        fullWidth
-        maxWidth={"sm"}
-      >
-        <Box display={"flex"} justifyContent={"center"}>
-          <Button
-            color={"primary"}
-            variant={"contained"}
-            onClick={() => {
-              stateManagement.restart();
-              setIsStartModalOpened(true);
-            }}
-          >
-            Start
-          </Button>
-        </Box>
-      </Modal>
     </>
   );
 }

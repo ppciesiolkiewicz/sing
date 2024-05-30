@@ -1,8 +1,7 @@
 "use client";
-import { useRef, useLayoutEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import * as Tone from "tone";
-import { Box, Button } from "@mui/material";
-import Modal from "@/components/atoms/Modal";
+import { Box } from "@mui/material";
 import Piano from "@/components/blocks/Piano/Piano";
 import ChordsPiano from "@/components/blocks/Piano/ChordsPiano";
 import ScalePiano from "@/components/blocks/Piano/ScalePiano";
@@ -14,13 +13,11 @@ import SWRResponseHandler, {
 import { useFetchUser } from "@/lib/fetch/hooks";
 import { INSTRUMENTS } from "@/constants";
 import { CommonPianoSettingsModal } from "@/components/blocks/Piano/CommonPianoSettings";
-import { NoteModule } from "@/lib/music";
 
 export default function VoiceTunerPage() {
   const [pianoSettings, setPianoSettings] = useState(
     CommonPianoSettingsModal.initialValues
   );
-  const [started, setStarted] = useState(false);
   const [highlightedNotes, setHighlightedNotes] = useState<string[]>([]);
   const userQuery = useFetchUser();
   const soundGenerator = useMemo(() => {
@@ -54,9 +51,7 @@ export default function VoiceTunerPage() {
           flexDirection: "column",
         })}
       >
-        {started && (
-          <PitchDetectionAnimation highlightedNotes={highlightedNotes} />
-        )}
+        <PitchDetectionAnimation highlightedNotes={highlightedNotes} />
         <Box height={["70px", "100px", "200px"]} width={"100%"}>
           <Tabs
             options={[
@@ -132,19 +127,6 @@ export default function VoiceTunerPage() {
       <CommonPianoSettingsModal
         onSubmit={(values) => setPianoSettings(values)}
       />
-      <Modal title={"Let's start"} open={!started} fullWidth maxWidth={"sm"}>
-        <Box display={"flex"} justifyContent={"center"}>
-          <Button
-            color={"primary"}
-            variant={"contained"}
-            onClick={() => {
-              setStarted(true);
-            }}
-          >
-            Start
-          </Button>
-        </Box>
-      </Modal>
     </>
   );
 }

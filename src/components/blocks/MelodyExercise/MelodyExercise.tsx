@@ -1,7 +1,6 @@
 import React, { useRef, useLayoutEffect, useState, useEffect } from "react";
 import { Box } from "@mui/material";
 import { Melody } from "@/lib/Melody";
-// import MelodyAnimation from "@/lib/animation/MelodyAnimation";
 import { useFetchUser } from "@/lib/fetch/hooks";
 import MelodyExerciseScore from "./MelodyExerciseScore";
 import PitchDetectionAnimation from "@/lib/animation-v2/PitchDetectionAnimation";
@@ -173,12 +172,10 @@ function MelodyExercise({
         display={"flex"}
         flexDirection={"column"}
       >
-        {stateManagement.isStarted() && (
-          <PitchDetectionAnimation
-            highlightedNotes={[]}
-            melody={melody ?? undefined}
-          />
-        )}
+        <PitchDetectionAnimation
+          highlightedNotes={[]}
+          melody={melody ?? undefined}
+        />
       </Box>
       <MelodyExerciseScore
         score={score}
