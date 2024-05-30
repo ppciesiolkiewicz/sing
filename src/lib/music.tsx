@@ -11,9 +11,6 @@ import {
   Range as TonalRange,
   transpose,
 } from "tonal";
-import * as Tonal from "tonal";
-
-document.Tonal = Tonal;
 
 export interface ChordType extends ReturnType<typeof TonalChord.get> {
   readonly suffix: string;
