@@ -19,7 +19,7 @@
     "@mui/material-next": "^6.0.0-alpha.75",
     "@next/font": "13.1.6",
     "@prisma/client": "^4.11.0",
-    "@tonaljs/tonal": "^4.10.0",
+    "tonal": "^6.0.1",
     "@types/lodash": "^4.14.192",
     "@types/lodash.times": "^4.3.7",
     "@types/node": "18.13.0",

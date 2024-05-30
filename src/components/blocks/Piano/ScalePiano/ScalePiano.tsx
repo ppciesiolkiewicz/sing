@@ -1,11 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import {
-  ChordModule,
-  ScaleModule,
-  NoteModule,
-  MeasureModule,
-} from "@/lib/music";
+import { ScaleModule, NoteType } from "@/lib/music";
 import { KEYBOARD_KEYS } from "./constants";
 
 interface ScalePianoKeyProps {
@@ -24,7 +19,7 @@ function ScalePianoKey({
   onMouseUp,
 }: ScalePianoKeyProps) {
   return (
-    <Grid item xs={1}>
+    <Grid item flexBasis={"80px"}>
       <Paper
         sx={{
           display: "flex",
@@ -38,10 +33,18 @@ function ScalePianoKey({
         onMouseUp={onMouseUp}
         role={"button"}
       >
-        <Typography variant={"overline"} fontWeight={"bold"}>
-          {note.name}
-        </Typography>
-        <Typography variant={"overline"}>[ {note.interval} ]</Typography>
+        <Box>
+          <Typography
+            display={"inline"}
+            variant={"overline"}
+            fontWeight={"bold"}
+          >
+            {note.name}
+          </Typography>{" "}
+          <Typography display={"inline"} variant={"overline"}>
+            [ {note.interval} ]
+          </Typography>
+        </Box>
         <Typography variant={"overline"}>({keyboardKey})</Typography>
       </Paper>
     </Grid>
@@ -64,11 +67,10 @@ export default function ScalePiano({
   onKeyPressed,
   onKeyReleased,
   onPressedKeysChanged,
-  lowestNoteName, // TODO: unused
+  lowestNoteName, // TODO: unused, should we just keep?  [2, 3, 4, 5]?
   highestNoteName,
 }: ChordsPianoProps) {
-  // TODO: octaves based on vocal range?
-  const octaves = [2, 3, 4];
+  const octaves = [2, 3, 4, 5];
   const [pressedKeys, setPressedKeys] = useState<string[]>([]);
   const scale = useMemo(
     () => ScaleModule.get(keyTonic, keyType),
@@ -79,24 +81,28 @@ export default function ScalePiano({
     const highestNoteName_ = `${scale.notes[scale.notes.length - 1]}${
       octaves[octaves.length - 1]
     }`;
-    const notes = ScaleModule.getScaleNotes(
+    const scaleNotes = ScaleModule.getScaleNotes(
       keyTonic,
       keyType,
       lowestNoteName_,
       highestNoteName_
     );
-    const map = notes.reduce(
-      (acc, note, i) => ({
-        ...acc,
-        [KEYBOARD_KEYS[i]]: {
-          ...note,
-          interval: scale.intervals[i % scale.intervals.length],
-        },
-      }),
+
+    const keyboardKeyToNoteMap: Record<string, NoteType> = scaleNotes.reduce(
+      (acc, note, i) => {
+        const octIdx = Math.floor(i / scale.intervals.length);
+        return {
+          ...acc,
+          [KEYBOARD_KEYS[octIdx][i % scale.intervals.length]]: {
+            ...note,
+            interval: scale.intervals[i % scale.intervals.length],
+          },
+        };
+      },
       {}
     );
 
-    return map;
+    return keyboardKeyToNoteMap;
   }, [scale]);
 
   const onPianoKeyPressed_ = (noteName: string) => {
@@ -143,17 +149,16 @@ export default function ScalePiano({
   }, [keyboardKeyToNoteMap]);
 
   return (
-    <>
-      <Grid container spacing={2}>
-        {/* iterating over KEYBOARD_KEYS to preserve the order */}
-        {KEYBOARD_KEYS.map((key, idx) => {
+    <Grid container spacing={1} justifyContent={"center"} width={"100%"}>
+      {KEYBOARD_KEYS.map((keyboardKeys, i) => {
+        const v = keyboardKeys.map((key, j) => {
           if (Object.keys(keyboardKeyToNoteMap).indexOf(key) < 0) {
             return null;
           }
           const note = keyboardKeyToNoteMap[key];
           return (
             <ScalePianoKey
-              key={`${keyTonic}${keyType}${idx}`}
+              key={`${keyTonic}${keyType}${j}`}
               isPressed={pressedKeys.indexOf(note.name) > -1}
               note={note}
               keyboardKey={key}
@@ -161,8 +166,22 @@ export default function ScalePiano({
               onMouseUp={() => onPianoKeyReleased_(note.name)}
             />
           );
-        })}
-      </Grid>
-    </>
+        });
+
+        return (
+          <Grid
+            item
+            xs={12}
+            md={6}
+            container
+            spacing={1}
+            justifyContent={"center"}
+            key={i}
+          >
+            {v}
+          </Grid>
+        );
+      }).flat()}
+    </Grid>
   );
 }
