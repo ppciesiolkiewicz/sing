@@ -20,7 +20,6 @@ import PitchDetector from "@/lib/PitchDetector";
 import { NoteModule } from "../music";
 import { Melody } from "../Melody";
 import BackingTrack from "./BackingTrack";
-import MelodyLyricsAnimation from "./MelodyLyricsAnimation";
 
 /**
  Tasks:
@@ -224,25 +223,26 @@ class PitchAnimationAnimationPixie {
         });
         melodyContainer.addChild(noteNameText);
 
-        // TODO: magic -1 +1
-        const l = findClosestLyric(n, this.melody.lyricsTrack);
-        if (l) {
-          console.log("FOUND L", l, {
-            x: width / 2 + n.start * MELODY_PIXELS_PER_SECOND + 7,
-            y: noteNameToYPosition(n.name, NOTE_BLOCK_HEIGHT),
-            text: l.text,
-          });
-          const lyricsText = getText({
-            x:
-              width / 2 +
-              n.start * MELODY_PIXELS_PER_SECOND +
-              7 +
-              NOTE_LINE_FONT_SIZE * 2,
-            y: noteNameToYPosition(n.name, NOTE_BLOCK_HEIGHT),
-            text: l.text,
-            fontSize: NOTE_LINE_FONT_SIZE,
-          });
-          melodyContainer.addChild(lyricsText);
+        if (this.melody.lyricsTrack.length) {
+          const l = findClosestLyric(n, this.melody.lyricsTrack);
+          if (l) {
+            console.log("FOUND L", l, {
+              x: width / 2 + n.start * MELODY_PIXELS_PER_SECOND + 7,
+              y: noteNameToYPosition(n.name, NOTE_BLOCK_HEIGHT),
+              text: l.text,
+            });
+            const lyricsText = getText({
+              x:
+                width / 2 +
+                n.start * MELODY_PIXELS_PER_SECOND +
+                7 +
+                NOTE_LINE_FONT_SIZE * 2,
+              y: noteNameToYPosition(n.name, NOTE_BLOCK_HEIGHT),
+              text: l.text,
+              fontSize: NOTE_LINE_FONT_SIZE,
+            });
+            melodyContainer.addChild(lyricsText);
+          }
         }
       }
 
