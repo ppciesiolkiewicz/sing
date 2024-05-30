@@ -74,18 +74,13 @@ export default function ExercisePage() {
 
   return (
     <>
-      <Box width={"100%"} height={"100%"}>
-        <MelodyExercise
-          melody={melody}
-          onStopped={() => {
-            setIsSettingsDrawerOpened(true);
-          }}
-          onPaused={() => {
-            setIsSettingsDrawerOpened(true);
-          }}
-          tempoOverwrite={settings.tempo}
-          stateManagement={stateManagement}
-        />
+      <Box
+        height={"100vh"}
+        width={"100%"}
+        display={"flex"}
+        flexDirection={"column"}
+      >
+        <PitchDetectionAnimation melody={melody} tempo={settings.tempo} />
       </Box>
       <SwipeableDrawer
         anchor={"right"}

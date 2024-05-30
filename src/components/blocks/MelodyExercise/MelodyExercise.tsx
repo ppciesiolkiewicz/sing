@@ -5,6 +5,7 @@ import { useFetchUser } from "@/lib/fetch/hooks";
 import MelodyExerciseScore from "./MelodyExerciseScore";
 import PitchDetectionAnimation from "@/lib/animation-v2/PitchDetectionAnimation";
 
+// TODO: unused
 const animationState = {
   STARTED: "STARTED",
   RESTARTED: "RESTARTED",

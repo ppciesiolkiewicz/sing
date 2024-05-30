@@ -139,6 +139,14 @@ const diffLogFreq: LogHz = maxNoteLogFreq! - minNoteLogFreq!;
 const pixelsPerLogHertz = NOTE_LINES_HEIGHT / diffLogFreq;
 const pitchOffset = minNoteLogFreq * pixelsPerLogHertz;
 function pitchToYPosition(pitch: number) {
+  if (pitch < LOW_NOTE_FREQUENCY) {
+    pitch = LOW_NOTE_FREQUENCY - 5;
+  }
+
+  if (pitch > HIGH_NOTE_FREQUENCY) {
+    pitch = HIGH_NOTE_FREQUENCY + 20;
+  }
+
   return NOTE_LINES_HEIGHT - Math.log2(pitch) * pixelsPerLogHertz + pitchOffset;
 }
 
@@ -222,11 +230,6 @@ class PitchAnimationAnimationPixie {
         if (this.melody.lyricsTrack.length) {
           const l = findClosestLyric(n, this.melody.lyricsTrack);
           if (l) {
-            console.log("FOUND L", l, {
-              x: width / 2 + n.start * MELODY_PIXELS_PER_SECOND + 7,
-              y: noteNameToYPosition(n.name, NOTE_BLOCK_HEIGHT),
-              text: l.text,
-            });
             const lyricsText = getText({
               x:
                 width / 2 +
@@ -398,8 +401,6 @@ class PitchAnimationAnimationPixie {
 
   public setTempo(tempo: number) {
     this.tempo_ = tempo;
-    // this.tempoChangeBeat = this.beat;
-    // this.tempoChangeAnimationTime = this.animationTime;
   }
 
   get started() {
@@ -411,13 +412,15 @@ class PitchAnimationAnimationPixie {
 }
 
 interface Props {
-  highlightedNotes: string[];
+  highlightedNotes?: string[];
   melody?: Melody;
+  tempo?: number;
 }
 
 export default function PitchDetectionAnimation({
-  highlightedNotes,
+  highlightedNotes = [],
   melody,
+  tempo,
 }: Props) {
   const [started, setStarted] = useState(false);
   const [animation, setAnimation] = useState<PitchAnimationAnimationPixie>();
@@ -432,11 +435,12 @@ export default function PitchDetectionAnimation({
     const anim = new PitchAnimationAnimationPixie(
       document.getElementById("render")!,
       setReady,
-      melody
+      melody,
+      tempo
     );
     animationRef.current = anim;
     setAnimation(anim);
-  }, [animation, setAnimation, melody]);
+  }, [animation, setAnimation, melody, tempo]);
 
   useLayoutEffect(() => {
     if (!ready || !animation?.ready) {
