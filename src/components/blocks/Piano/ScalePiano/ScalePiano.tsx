@@ -146,7 +146,7 @@ export default function ScalePiano({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [keyboardKeyToNoteMap]);
+  }, [keyboardKeyToNoteMap, onKeyPressed, onKeyReleased]);
 
   return (
     <Grid container spacing={1} justifyContent={"center"} width={"100%"}>

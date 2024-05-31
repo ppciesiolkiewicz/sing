@@ -18,13 +18,15 @@ export default function VoiceTunerPage() {
   const [pianoSettings, setPianoSettings] = useState(
     CommonPianoSettingsModal.initialValues
   );
+
   const [highlightedNotes, setHighlightedNotes] = useState<string[]>([]);
   const userQuery = useFetchUser();
   const soundGenerator = useMemo(() => {
-    document.soundGenerator = new Tone.Sampler(
+    console.log("Building soundGenereqtor");
+    const soundGenerator = new Tone.Sampler(
       INSTRUMENTS[pianoSettings.instrument]
     ).toDestination();
-    return document.soundGenerator;
+    return soundGenerator;
   }, [pianoSettings.instrument]);
 
   if (shouldRenderSWRResponseHandler(userQuery)) {

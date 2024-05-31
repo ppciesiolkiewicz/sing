@@ -191,7 +191,7 @@ export default function ChordsPiano({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, [keyboardKeyToChordMap]);
+  }, [keyboardKeyToChordMap, onKeyPressed, onKeyReleased]);
 
   return (
     <Grid container spacing={2}>

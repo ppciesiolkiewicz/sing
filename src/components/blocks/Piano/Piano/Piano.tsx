@@ -75,7 +75,7 @@ export default function Piano({
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  }, []);
+  }, [onKeyPressed, onKeyReleased]);
 
   return (
     <Box
