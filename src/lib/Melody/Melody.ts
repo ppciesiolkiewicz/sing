@@ -1,6 +1,6 @@
-import { TrackNote } from './TrackNote';
-import TrackLyrics from './TrackLyrics';
-import BackingTrack from './BackingTrack';
+import { TrackNote } from "./TrackNote";
+import TrackLyrics from "./TrackLyrics";
+import BackingTrack from "./BackingTrack";
 
 export default class Melody {
   singTrack: TrackNote[];
@@ -16,9 +16,9 @@ export default class Melody {
     lyricsTrack,
     tempo,
   }: {
-    singTrack: TrackNote[],
-    backingTrack: BackingTrack[],
-    listenTrack: TrackNote[],
+    singTrack: TrackNote[];
+    backingTrack: BackingTrack[];
+    listenTrack: TrackNote[];
     lyricsTrack: TrackLyrics[];
     tempo: number;
   }) {
@@ -27,5 +27,12 @@ export default class Melody {
     this.backingTrack = backingTrack;
     this.lyricsTrack = lyricsTrack;
     this.tempo = tempo;
+  }
+
+  get end() {
+    return Math.max(
+      ...this.backingTrack.map((bt) => bt.end),
+      this.singTrack[this.singTrack.length - 1].end
+    );
   }
 }

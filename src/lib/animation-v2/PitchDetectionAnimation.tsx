@@ -186,6 +186,11 @@ class PitchAnimationAnimationPixie {
       return;
     }
 
+    if (this.initialStarted_) {
+      this.app.start();
+      return;
+    }
+
     // Init
     const app = this.app;
     const pitchDetector: PitchDetector = new PitchDetector();
@@ -264,6 +269,10 @@ class PitchAnimationAnimationPixie {
         backingTrack.onAnimationFrame({
           beat,
         });
+        if (this.melody.end < beat - 3) {
+          this.stop();
+          // onStopped()
+        }
         totalTime += time.elapsedMS;
       });
     }
@@ -396,7 +405,6 @@ class PitchAnimationAnimationPixie {
 
   public stop() {
     if (!this.ready) {
-      // TODO: Why stop is called multiple times
       console.log("Cannot stop animation - not ready");
       return;
     }
@@ -404,8 +412,10 @@ class PitchAnimationAnimationPixie {
     this.initialStarted_ = false;
     this.paused_ = false;
     this.started_ = false;
+    this.ready = false;
 
     this.app.stop();
+    this.app.destroy();
   }
 
   public setTempo(tempo: number) {
@@ -453,6 +463,7 @@ export default function PitchDetectionAnimation({
 
   useEffect(() => {
     return () => {
+      // TODO: Why this effect is called multiple times?
       return animationRef.current?.stop();
     };
   }, []);
