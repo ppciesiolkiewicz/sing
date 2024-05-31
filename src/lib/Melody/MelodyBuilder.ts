@@ -1,53 +1,61 @@
-import type { ConfigType } from '@/constants';
-import { NoteModule, ScaleModule, ChordModule, IntervalModule } from '@/lib/music';
+import type { ConfigType } from "@/constants";
+import {
+  NoteModule,
+  ScaleModule,
+  ChordModule,
+  IntervalModule,
+} from "@/lib/music";
 import {
   CONFIG_TYPE_INTERVAL,
   CONFIG_TYPE_SCALE,
   CONFIG_TYPE_CHORDS,
   CONFIG_TYPE_NOTES,
   INSTRUMENTS,
-} from '@/constants';
-import type { InstrumentType } from '@/constants'
-import { TrackNote } from './TrackNote';
-import TrackLyrics from './TrackLyrics';
-import BackingTrack from './BackingTrack';
-import Melody from './Melody';
+} from "@/constants";
+import type { InstrumentType } from "@/constants";
+import { TrackNote } from "./TrackNote";
+import TrackLyrics from "./TrackLyrics";
+import BackingTrack from "./BackingTrack";
+import Melody from "./Melody";
 
 const START_TIME = 5;
-const BACKING_TRACK_SHIFT = 0.1
-
+const BACKING_TRACK_SHIFT = 0.1;
 
 interface InstrumentMelodyConfig {
   instrument: InstrumentType;
 }
 
 interface CommonMelodyConfig {
-  repeatTimes: number,
-  timePerNote: number,
-  timeBetweenNotes: number,
-  timeBetweenRepeats: number,
+  repeatTimes: number;
+  timePerNote: number;
+  timeBetweenNotes: number;
+  timeBetweenRepeats: number;
   tempo: number;
 }
 
-
-export interface ChordsMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
-  chordNames: string[],
-  includeAllChordComponents: boolean,
+export interface ChordsMelodyConfig
+  extends InstrumentMelodyConfig,
+    CommonMelodyConfig {
+  chordNames: string[];
+  includeAllChordComponents: boolean;
 }
 
-export interface IntervalsMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
-  intervalNames: string[],
-  lowestNoteName: string,
-  highestNoteName: string,
+export interface IntervalsMelodyConfig
+  extends InstrumentMelodyConfig,
+    CommonMelodyConfig {
+  intervalNames: string[];
+  lowestNoteName: string;
+  highestNoteName: string;
 }
 
-export interface ScaleMelodyConfig extends InstrumentMelodyConfig, CommonMelodyConfig {
-  keyTonic: string,
-  keyType: string,
-  lowestNoteName: string,
-  highestNoteName: string,
+export interface ScaleMelodyConfig
+  extends InstrumentMelodyConfig,
+    CommonMelodyConfig {
+  keyTonic: string;
+  keyType: string;
+  lowestNoteName: string;
+  highestNoteName: string;
 }
-
 
 export interface NotesMelodyConfig {
   singTrack: [string, number, number][];
@@ -60,11 +68,15 @@ export interface NotesMelodyConfig {
   tempo: number;
 }
 
-type MelodyConfig = NotesMelodyConfig | ScaleMelodyConfig | IntervalsMelodyConfig | ChordsMelodyConfig;
+type MelodyConfig =
+  | NotesMelodyConfig
+  | ScaleMelodyConfig
+  | IntervalsMelodyConfig
+  | ChordsMelodyConfig;
 
 function buildInstrumentConfig(instrument: string) {
   if (!INSTRUMENTS[instrument]) {
-    throw new Error('Unrecognized instrument type');
+    throw new Error("Unrecognized instrument type");
   }
 
   return INSTRUMENTS[instrument];
@@ -81,7 +93,7 @@ class IntervalsMelodyBuilder {
     const notes = this.buildTrackForNotes(BACKING_TRACK_SHIFT);
     const backingTrack = new BackingTrack(
       notes,
-      buildInstrumentConfig(this.config.instrument),
+      buildInstrumentConfig(this.config.instrument)
     );
 
     return [backingTrack];
@@ -102,40 +114,55 @@ class IntervalsMelodyBuilder {
       timeBetweenRepeats,
     } = this.config;
     const timeBetweenRootNoteChange = 2; // TODO:
-    const intervals = intervalNames.map((name: string) => IntervalModule.get(name));
+    const intervals = intervalNames.map((name: string) =>
+      IntervalModule.get(name)
+    );
     const highestInterval = IntervalModule.getHighestInterval(intervals);
     const intervalDistanceBetweenLowestAndHighest = IntervalModule.distance(
-      lowestNoteName, NoteModule.transpose(highestNoteName, `-${highestInterval.name}`),
+      lowestNoteName,
+      NoteModule.transpose(highestNoteName, `-${highestInterval.name}`)
     );
 
     const part = intervals
-      .map(interval => {
+      .map((interval) => {
         return NoteModule.transpose(lowestNoteName, interval);
       })
       .map((n, i) => {
-        const start = START_TIME + i * timePerNote + timeBetweenNotes * i - shift;
+        const start =
+          START_TIME + i * timePerNote + timeBetweenNotes * i - shift;
         return new TrackNote(n, start, timePerNote);
       });
 
-    const partDuration = part.reduce((sum, p) => sum + p.duration, 0)
+    const partDuration = part.reduce((sum, p) => sum + p.duration, 0);
 
     // TODO: fix 8d issue for interval exercises, e.g. 2M
     // console.log(IntervalModule.names('1P', intervalDistanceBetweenLowestAndHighest), intervalDistanceBetweenLowestAndHighest)
-    const intervalsToTransposePart = IntervalModule.names('1P', intervalDistanceBetweenLowestAndHighest);
+    const intervalsToTransposePart = IntervalModule.names(
+      "1P",
+      intervalDistanceBetweenLowestAndHighest
+    );
     const notes = intervalsToTransposePart
-      .map((interval, i) => console.log(trackNote.name, NoteModule.transpose(trackNote.name, interval)) || (
-        part.map(trackNote => new TrackNote(
-          NoteModule.transpose(trackNote.name, interval),
-          trackNote.start + i * (partDuration + timeBetweenRootNoteChange),
-          timePerNote,
-        )))
+      .map(
+        (interval, i) =>
+          console.log(
+            trackNote.name,
+            NoteModule.transpose(trackNote.name, interval)
+          ) ||
+          part.map(
+            (trackNote) =>
+              new TrackNote(
+                NoteModule.transpose(trackNote.name, interval),
+                trackNote.start +
+                  i * (partDuration + timeBetweenRootNoteChange),
+                timePerNote
+              )
+          )
       )
       .flat();
 
-      return notes;
+    return notes;
   }
 }
-
 
 class ChordsMelodyBuilder {
   config: ChordsMelodyConfig;
@@ -159,28 +186,27 @@ class ChordsMelodyBuilder {
         const endOfPreviousElement = !previousElement
           ? START_TIME
           : previousElement[previousElement.length - 1].end;
-        const start = endOfPreviousElement + timeBetweenNotes - BACKING_TRACK_SHIFT;
+        const start =
+          endOfPreviousElement + timeBetweenNotes - BACKING_TRACK_SHIFT;
         const chord = ChordModule.get(chordName);
         const duration = includeAllChordComponents
           ? timePerNote * chord.notes.length
-          : timePerNote
+          : timePerNote;
 
         const chordNotes = chord.notes.map((n: string, i) => {
-          return new TrackNote(n, start, duration)
+          return new TrackNote(n, start, duration);
         });
-  
-        return [
-          ...acc,
-          chordNotes,
-        ]
-      }, []).flat()
-  
-      const backingTrack = new BackingTrack(
-        notes,
-        buildInstrumentConfig(this.config.instrument),
-      );
 
-      return [backingTrack];
+        return [...acc, chordNotes];
+      }, [])
+      .flat();
+
+    const backingTrack = new BackingTrack(
+      notes,
+      buildInstrumentConfig(this.config.instrument)
+    );
+
+    return [backingTrack];
   }
 
   buildSingTrack(): TrackNote[] {
@@ -204,29 +230,19 @@ class ChordsMelodyBuilder {
 
         if (includeAllChordComponents) {
           chordNotes = chord.notes.map((n: string, i) => {
-            return new TrackNote(
-              n,
-              start + timePerNote * i,
-              timePerNote,
-            )
+            return new TrackNote(n, start + timePerNote * i, timePerNote);
           });
         } else {
-          chordNotes = [
-            new TrackNote(chord.notes[0], start, timePerNote)
-          ];
+          chordNotes = [new TrackNote(chord.notes[0], start, timePerNote)];
         }
-  
-        return [
-          ...acc,
-          chordNotes,
-        ]
-      }, []).flat()
-  
-      return notes; 
+
+        return [...acc, chordNotes];
+      }, [])
+      .flat();
+
+    return notes;
   }
-
 }
-
 
 class ScaleMelodyBuilder {
   config: ScaleMelodyConfig;
@@ -240,7 +256,7 @@ class ScaleMelodyBuilder {
 
     const backingTrack = new BackingTrack(
       notes,
-      buildInstrumentConfig(this.config.instrument),
+      buildInstrumentConfig(this.config.instrument)
     );
 
     return [backingTrack];
@@ -261,35 +277,45 @@ class ScaleMelodyBuilder {
       timeBetweenNotes,
       timeBetweenRepeats,
     } = this.config;
-    const scaleNotesBase = ScaleModule.getScaleNotes(keyTonic, keyType, lowestNoteName, highestNoteName)
-    let scaleNotesNamesBase = scaleNotesBase.map(n => n.name);
-    scaleNotesNamesBase = [...scaleNotesNamesBase, ...[...scaleNotesNamesBase].reverse()];
+    const scaleNotesBase = ScaleModule.getScaleNotes(
+      keyTonic,
+      keyType,
+      lowestNoteName,
+      highestNoteName
+    );
+    let scaleNotesNamesBase = scaleNotesBase.map((n) => n.name);
+    scaleNotesNamesBase = [
+      ...scaleNotesNamesBase,
+      ...[...scaleNotesNamesBase].reverse(),
+    ];
 
     const scaleNotesNamesBaseRepeated = Array(repeatTimes)
       .fill(scaleNotesNamesBase)
-      .flat()
-  
-    const scaleNotesElements = scaleNotesNamesBaseRepeated
-      .map((noteName, i) => {
-        const start = START_TIME +
+      .flat();
+
+    const scaleNotesElements = scaleNotesNamesBaseRepeated.map(
+      (noteName, i) => {
+        const start =
+          START_TIME +
           i * timePerNote +
           timeBetweenNotes * i +
-          timeBetweenRepeats * Math.floor(i/scaleNotesNamesBase.length) -
+          timeBetweenRepeats * Math.floor(i / scaleNotesNamesBase.length) -
           shift;
 
         return {
           name: noteName,
           start,
         };
-      });
+      }
+    );
 
-    const notes = scaleNotesElements
-      .map(e => new TrackNote(e.name, e.start, timePerNote));
+    const notes = scaleNotesElements.map(
+      (e) => new TrackNote(e.name, e.start, timePerNote)
+    );
 
     return notes;
   }
 }
-
 
 export default class MelodyBuilder {
   config: MelodyConfig;
@@ -299,14 +325,15 @@ export default class MelodyBuilder {
     config,
     configType,
   }: {
-    config: MelodyConfig,
-    configType: ConfigType,
+    config: MelodyConfig;
+    configType: ConfigType;
   }) {
     this.config = config;
     this.configType = configType;
   }
 
   build() {
+    console.log("Building MelodyBuilder", this.configType, this.config);
     if (this.configType === CONFIG_TYPE_CHORDS) {
       return this.fromChords();
     } else if (this.configType === CONFIG_TYPE_INTERVAL) {
@@ -315,16 +342,22 @@ export default class MelodyBuilder {
       return this.fromScale();
     } else if (this.configType === CONFIG_TYPE_NOTES) {
       const config = this.config as NotesMelodyConfig;
-      const singTrack = config.singTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
-      const backingTrack = config.backingTrack.map(bt =>
-        new BackingTrack(
-          bt.track.map(e => new TrackNote(e[0], START_TIME + e[1], e[2])),
-          buildInstrumentConfig(bt.instrument),
-        )
-      )
-      const listenTrack = config.listenTrack.map(e => new TrackNote(e[0], START_TIME + e[1], e[2]));
-      const lyricsTrack = config.lyricsTrack.map(e =>
-        new TrackLyrics(e[0], START_TIME + e[1] - BACKING_TRACK_SHIFT, e[2])
+      const singTrack = config.singTrack.map(
+        (e) => new TrackNote(e[0], START_TIME + e[1], e[2])
+      );
+      const backingTrack = config.backingTrack.map(
+        (bt) =>
+          new BackingTrack(
+            bt.track.map((e) => new TrackNote(e[0], START_TIME + e[1], e[2])),
+            buildInstrumentConfig(bt.instrument)
+          )
+      );
+      const listenTrack = config.listenTrack.map(
+        (e) => new TrackNote(e[0], START_TIME + e[1], e[2])
+      );
+      const lyricsTrack = config.lyricsTrack.map(
+        (e) =>
+          new TrackLyrics(e[0], START_TIME + e[1] - BACKING_TRACK_SHIFT, e[2])
       );
 
       return new Melody({
@@ -336,9 +369,9 @@ export default class MelodyBuilder {
       });
     }
 
-    throw new Error('Incorrect configType');
+    throw new Error("Incorrect configType");
   }
-  
+
   private fromChords() {
     const builder = new ChordsMelodyBuilder(this.config as ChordsMelodyConfig);
     const backingTrack = builder.buildBackingTrack();
@@ -373,7 +406,9 @@ export default class MelodyBuilder {
   }
 
   private fromIntervals() {
-    const builder = new IntervalsMelodyBuilder(this.config as IntervalsMelodyConfig);
+    const builder = new IntervalsMelodyBuilder(
+      this.config as IntervalsMelodyConfig
+    );
     const backingTrack = builder.buildBackingTrack();
     const singTrack = builder.buildSingTrack();
 

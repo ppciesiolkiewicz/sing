@@ -172,7 +172,7 @@ class PitchAnimationAnimationPixie {
     this.app.init({ antialias: true, resizeTo: canvasContainer }).then(() => {
       this.canvas = this.app.canvas;
       canvasContainer.appendChild(this.app.canvas);
-      this.app.ticker.stop();
+      this.app.stop();
       this.ready = true;
       onReady(true);
     });
@@ -381,7 +381,7 @@ class PitchAnimationAnimationPixie {
       }
     }
 
-    app.ticker.start();
+    app.start();
   }
 
   public setHighlightedNoteLines(notes: string[]) {
@@ -391,12 +391,21 @@ class PitchAnimationAnimationPixie {
 
   public pause() {
     this.paused_ = true;
+    this.app.ticker.stop();
   }
 
   public stop() {
+    if (!this.ready) {
+      // TODO: Why stop is called multiple times
+      console.log("Cannot stop animation - not ready");
+      return;
+    }
+
     this.initialStarted_ = false;
     this.paused_ = false;
     this.started_ = false;
+
+    this.app.stop();
   }
 
   public setTempo(tempo: number) {
@@ -441,6 +450,12 @@ export default function PitchDetectionAnimation({
     animationRef.current = anim;
     setAnimation(anim);
   }, [animation, setAnimation, melody, tempo]);
+
+  useEffect(() => {
+    return () => {
+      return animationRef.current?.stop();
+    };
+  }, []);
 
   useLayoutEffect(() => {
     if (!ready || !animation?.ready) {

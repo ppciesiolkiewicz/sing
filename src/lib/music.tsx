@@ -209,7 +209,6 @@ export const ScaleModule = {
     const scale = ScaleModule.get(keyTonic, keyType);
     const scaleNotesChroma = scale.notes.map((n) => NoteModule.get(n).chroma);
 
-    console.log(scaleNotesChroma);
     return chromaticNotes.filter((note) => {
       return scaleNotesChroma.includes(note.chroma);
     });

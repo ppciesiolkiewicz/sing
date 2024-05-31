@@ -39,7 +39,7 @@ export const getScaleExercises = (
           keyTonic,
           scaleNotes
         );
-        console.log(scaleNotesParts);
+
         return scaleNotesParts
           .map((part, i) => {
             if (part.length < 3) {
